@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-06-01T09:56:47.013Z</updated>
+  <updated>2015-06-01T10:10:09.567Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -18,66 +18,9 @@
     <title><![CDATA[Hello World]]></title>
     <link href="jiaojinxing.github.io/2015/06/01/hello-world/"/>
     <id>jiaojinxing.github.io/2015/06/01/hello-world/</id>
-    <published>2015-06-01T09:56:47.013Z</published>
-    <updated>2015-06-01T09:56:47.013Z</updated>
-    <content type="html"><![CDATA[<script src="raphael-min.js"></script>
-<div id="diagram">Diagram will be placed here</div>
-<script src="flowchart.js"></script>
-<script> 
-  var diagram = flowchart.parse('st=>start: Start:>http://www.google.com[blank]\n' + 
-                                'e=>end:>http://www.google.com\n' + 
-                                'op1=>operation: My Operation\n' + 
-                                'sub1=>subroutine: My Subroutine\n' + 
-                                'cond=>condition: Yes \n' + 
-                                'or No?\n:>http://www.google.com' + 
-                                'io=>inputoutput|request: catch something...\n' + 
-                                '' +
-                                'st->op1->cond\n' + 
-                                'cond(yes)->io->e\n' + // conditions can also be redirected like cond(yes, bottom) or cond(yes, right)
-                                'cond(no)->sub1(right)->op1');// the other symbols too...
-  diagram.drawSVG('diagram');
-
-  // you can also try to pass options:
-
-  diagram.drawSVG('diagram', {
-                                'x': 0,
-                                'y': 0,
-                                'line-width': 3,
-                                'line-length': 50,
-                                'text-margin': 10,
-                                'font-size': 14,
-                                'font-color': 'black',
-                                'line-color': 'black',
-                                'element-color': 'black',
-                                'fill': 'white',
-                                'yes-text': 'yes',
-                                'no-text': 'no',
-                                'arrow-end': 'block',
-                                'scale': 1,
-                                // style symbol types
-                                'symbols': {
-                                    'start': {
-                                      'font-color': 'red',
-                                      'element-color': 'green',
-                                      'fill': 'yellow'
-                                    },
-                                    'end':{
-                                        'class': 'end-element'
-                                    }
-                                },  
-                                // even flowstate support ;-)
-                                'flowstate' : {
-                                    // 'past' : { 'fill' : '#CCCCCC', 'font-size' : 12},
-                                    // 'current' : {'fill' : 'yellow', 'font-color' : 'red', 'font-weight' : 'bold'},
-                                    // 'future' : { 'fill' : '#FFFF99'},
-                                    'request' : { 'fill' : 'blue'}//,
-                                    // 'invalid': {'fill' : '#444444'},
-                                    // 'approved' : { 'fill' : '#58C4A3', 'font-size' : 12, 'yes-text' : 'APPROVED', 'no-text' : 'n/a' },
-                                    // 'rejected' : { 'fill' : '#C45879', 'font-size' : 12, 'yes-text' : 'n/a', 'no-text' : 'REJECTED' }
-                                  }
-                              });
-</script>
-
+    <published>2015-06-01T10:10:09.567Z</published>
+    <updated>2015-06-01T10:10:09.567Z</updated>
+    <content type="html"><![CDATA[<img src="http://www.plantuml.com/plantuml/svg/VL713e8m3Btx5GrUDG4v6hnwyWk8XnOgBAaCjn5Z3F-kRYXWZ3qqwNjlUwzRgIg3RGrxk2_WMRQZ01JIMSSc7l1NDRfaoAsx2MSd9SBbgj2YJNQjbUFZzYESIaOqQ4LLjQiCtqO2OrZl01FVDxwd8oj8B911r1fTiBMmJAB0zZyJ9tyJJrAIjoLlIzwM_jfkekzTI3gU9d5ed8yVR-S03K3OyMr3irqndHuD4pV3-z5y31VdjiQMiqEfyAoRzsfFqOUnbmxDwsVw1m00">
 <h1 id="欢迎使用_Cmd_Markdown_编辑阅读器">欢迎使用 Cmd Markdown 编辑阅读器</h1><hr>
 <p>我们理解您需要更便捷更高效的工具记录思想，整理笔记、知识，并将其中承载的价值传播给他人，<strong>Cmd Markdown</strong> 是我们给出的答案 —— 我们为记录思想和分享知识提供更专业的工具。 您可以使用 Cmd Markdown：</p>
 <blockquote>
@@ -156,11 +99,7 @@
 <p>[^code]: 代码高亮功能支持包括 Java, Python, JavaScript 在内的，<strong>四十一</strong>种主流编程语言。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<script src="raphael-min.js"></script>
-<div id="diagram">Diagram will be placed here</div>
-<script src="flowchart.js"></script>
-<script> 
-  ]]>
+    <![CDATA[<img src="http://www.plantuml.com/plantuml/svg/VL713e8m3Btx5GrUDG4v6hnwyWk8XnOgBAaCjn5Z3F-kRYXWZ3qqwNjlUwzRgIg3RGrxk2_WMRQZ01JIMSSc7l1NDRfao]]>
     </summary>
     
   </entry>
