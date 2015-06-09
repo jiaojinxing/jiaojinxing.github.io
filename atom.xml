@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-06-04T03:15:49.339Z</updated>
+  <updated>2015-06-09T08:25:32.241Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -13,6 +13,38 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[分享一些 SylixOS 开源项目]]></title>
+    <link href="jiaojinxing.github.io/2015/06/09/%E5%88%86%E4%BA%AB%E4%B8%80%E4%BA%9B-SylixOS-%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE/"/>
+    <id>jiaojinxing.github.io/2015/06/09/分享一些-SylixOS-开源项目/</id>
+    <published>2015-06-09T08:21:15.000Z</published>
+    <updated>2015-06-09T08:25:32.241Z</updated>
+    <content type="html"><![CDATA[<ol>
+<li><p>图片类<br>libpng            : <a href="https://github.com/jiaojinxing/libpng" target="_blank" rel="external">PNG图片编解码库</a><br>libjpeg-turbo     : <a href="https://github.com/jiaojinxing/libjpeg-turbo" target="_blank" rel="external">JPEG图片编解码库</a></p>
+</li>
+<li><p>通信类<br>libSOME           : <a href="https://github.com/jiaojinxing/libSOEM" target="_blank" rel="external">Simple Open EtherCAT Master库</a><br>libosip           : <a href="https://github.com/jiaojinxing/libosip" target="_blank" rel="external">小型的用C实现的SIP协议栈库</a><br>libexosip         : <a href="https://github.com/jiaojinxing/libexosip" target="_blank" rel="external">osip扩展库</a></p>
+</li>
+<li><p>游戏类<br>chocolate-doom    : <a href="https://github.com/jiaojinxing/chocolate-doom" target="_blank" rel="external">doom游戏</a><br>libsdl            : <a href="https://github.com/jiaojinxing/libsdl" target="_blank" rel="external">SDL库</a></p>
+</li>
+<li><p>脚本引擎类<br>tiny-c-interpreter: <a href="https://github.com/jiaojinxing/tiny-c-interpreter" target="_blank" rel="external">一个小型的C语言解析器</a></p>
+</li>
+<li><p>工具类<br>gsnap             : <a href="https://github.com/jiaojinxing/gsnap" target="_blank" rel="external">一个截屏程序</a><br>libgooglepinyin   : <a href="https://github.com/jiaojinxing/libgooglepinyin" target="_blank" rel="external">Google拼音输入法库</a></p>
+</li>
+<li><p>Qt类<br>QtAV              : <a href="https://github.com/jiaojinxing/QtAV" target="_blank" rel="external">基于Qt和FFmpeg的跨平台高性能音视频播放框架</a><br>qwt               : <a href="https://github.com/jiaojinxing/qwt" target="_blank" rel="external">Qt 2D仪表库</a></p>
+</li>
+<li><p>UI类<br>libemwin          : <a href="https://github.com/jiaojinxing/libemwin" target="_blank" rel="external">可以免费用于NXP芯片的emWin库</a></p>
+</li>
+<li><p>测试类<br>netio             : <a href="https://github.com/jiaojinxing/netio" target="_blank" rel="external">网络性能测试程序</a><br>qtperf            : <a href="https://github.com/jiaojinxing/qtperf" target="_blank" rel="external">Qt性能测试程序</a><br>posixtestsuite    : <a href="https://github.com/jiaojinxing/posixtestsuite" target="_blank" rel="external">POSIX标准测试套件</a><br>byte-unixbench    : <a href="https://github.com/jiaojinxing/byte-unixbench" target="_blank" rel="external">UNIX benchmark套件</a></p>
+</li>
+</ol>
+]]></content>
+    <summary type="html">
+    <![CDATA[<ol>
+<li><p>图片类<br>libpng            : <a href="https://github.com/jiaojinxing/libpng" target="_blank" rel="external">PNG图片编解码库</a><br>libjp]]>
+    </summary>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Hello World]]></title>
