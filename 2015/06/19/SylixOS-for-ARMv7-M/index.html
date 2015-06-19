@@ -1,0 +1,499 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>SylixOS for ARMv7-M | JinXing’s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="jiaojinxing">
+    
+
+    
+    <meta name="description" content="最初 SylixOS 在 ARM7 上跑，后来更高级的 ARM 处理器开始变得流行，这些高级的 ARM 处理器一般带有 MMU(内存管理单元)和 Cache(高速缓存)。
+SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得迫切，2008 年 SylixOS 开始支持页式虚拟内存管理和 MMU 及 Cache。
+在很长的一段时间， SylixOS 都跑在这些带有 MMU">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SylixOS for ARMv7-M">
+<meta property="og:url" content="jiaojinxing.github.io/2015/06/19/SylixOS-for-ARMv7-M/index.html">
+<meta property="og:site_name" content="JinXing’s blog">
+<meta property="og:description" content="最初 SylixOS 在 ARM7 上跑，后来更高级的 ARM 处理器开始变得流行，这些高级的 ARM 处理器一般带有 MMU(内存管理单元)和 Cache(高速缓存)。
+SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得迫切，2008 年 SylixOS 开始支持页式虚拟内存管理和 MMU 及 Cache。
+在很长的一段时间， SylixOS 都跑在这些带有 MMU">
+<meta property="og:image" content="jiaojinxing.github.io/img/SylixOS-for-ARMv7-M/SylixOS-shell.png">
+<meta property="og:updated_time" content="2015-06-19T06:39:23.994Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SylixOS for ARMv7-M">
+<meta name="twitter:description" content="最初 SylixOS 在 ARM7 上跑，后来更高级的 ARM 处理器开始变得流行，这些高级的 ARM 处理器一般带有 MMU(内存管理单元)和 Cache(高速缓存)。
+SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得迫切，2008 年 SylixOS 开始支持页式虚拟内存管理和 MMU 及 Cache。
+在很长的一段时间， SylixOS 都跑在这些带有 MMU">
+
+    
+    <link rel="alternative" href="/atom.xml" title="JinXing’s blog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="JinXing’s blog" title="JinXing’s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="JinXing’s blog">JinXing’s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+						<form class="search">
+							<label>Search</label>
+						<input type="text" id="ts-search-input" name="q" size="30" placeholder="搜索"><br>
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/06/19/SylixOS-for-ARMv7-M/" title="SylixOS for ARMv7-M" itemprop="url">SylixOS for ARMv7-M</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="jiaojinxing" target="_blank" itemprop="author">jiaojinxing</a>
+		
+  <p class="article-time">
+    <time datetime="2015-06-19T03:22:13.000Z" itemprop="datePublished"> 发表于 2015-06-19</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			
+		
+		</div>
+		
+		<p>最初 SylixOS 在 ARM7 上跑，后来更高级的 ARM 处理器开始变得流行，这些高级的 ARM 处理器一般带有 MMU(内存管理单元)和 Cache(高速缓存)。</p>
+<p>SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得迫切，2008 年 SylixOS 开始支持页式虚拟内存管理和 MMU 及 Cache。</p>
+<p>在很长的一段时间， SylixOS 都跑在这些带有 MMU 和 Cache 的 ARM 处理器，反而不能在不带有 MMU 的 ARM 处理器上跑。</p>
+<p>随着 ARM 公司的 Cortex-M4 和 Cortex-M7 核心的发布，各大 MCU 芯片公司也推出了很多高性能的基于 Cortex-M4 和 Cortex-M7 核心的 MCU 芯片。</p>
+<p>虽然这些 MCU 芯片不像 Cortex-A 系列处理器那样性能强大和带有 MMU，但它们的性能已经能满足一般的嵌入式应用。并且它们一般带有 MPU(内存保护单元)、VFP(矢量浮点处理单元)、大容量的片内 Flash、外扩内存(如 SDRAM)接口、DSP(数字信号处理器），甚至它们还带有 Cache。</p>
+<p>SylixOS 组织意识到这可能是个趋势，2014 年年末我们重新检查了 SylixOS VMM(虚拟内存管理) 与 MMU 的配置宏，SylixOS 终于又支持不带 MMU 的处理器了。</p>
+<p>由于 Cortex-M 系列核心的架构(ARMV7-M)和普通的 ARM 处理器有所差异，所以现有的 SylixOS ARM ARCH 层的代码并不能直接用于 Cortex-M 系列处理器上。</p>
+<p>经过两天的努力，终于让 SylixOS ARM ARCH 层支持 ARMV7-M 架构，支持 ARMV7-M 架构的 SylixOS Base 工程放在这里：</p>
+<p><a href="https://github.com/jiaojinxing/sylixos-base-armv7m" target="_blank" rel="external">https://github.com/jiaojinxing/sylixos-base-armv7m</a></p>
+<p>有了支持 ARMV7-M 架构的 SylixOS Base 工程，剩下的工作就是针对一款 Cortex-M 系列的 MCU 芯片编写 BSP(板载支持包)了，</p>
+<p>我们选择的是 Qemu 虚拟机支持的 Olimex STM32 p103 Dev Board(简称stm32-p103 开发板)，</p>
+<p>Qemu 的地址：</p>
+<p><a href="https://github.com/beckus/qemu_stm32" target="_blank" rel="external">https://github.com/beckus/qemu_stm32</a></p>
+<p>由于 SylixOS 默认的配置对内存的消耗比较大，所以我们修改了 Qemu 的代码，调整 stm32-p103 开发板的 Flash 空间大小为 8 MByte、SDRAM 空间大小为 64 MByte。</p>
+<p>同时我们也优化了 SylixOS 的配置，极大地降低了 SylixOS 对内存和 Flash 的需求。</p>
+<p>现在 Release 版本的 stm32-p103 开发板 BSP 生成的操作系统镜像其节区大小信息如下：<br><figure class="highlight dns"><table><tr><td class="code"><pre><span class="line">   text	   data	    bss	    dec	    hex	filename</span><br><span class="line"><span class="number">1477064</span>	 <span class="number">151188	104342</span><span class="number">8	2671680</span>	 28c440	./Release/bspstm32.elf</span><br></pre></td></tr></table></figure></p>
+<p>也就是说，我们可以在只有 2MB Flash 和 2MB SDRAM 的 Cortex-M 系列目标系统运行功能完整的 SylixOS 操作系统了。</p>
+<p>如果我们继续裁减掉一些不必要的组件，应该能将 Flash 和 SDRAM 的需求降低到 1MB 以内。</p>
+<p>启动后，256 KB 大小的内核堆使用情况：<br><figure class="highlight brainfuck"><table><tr><td class="code"><pre><span class="line"><span class="title">[</span><span class="comment">unknown@sylixos_station:/</span><span class="title">]</span><span class="comment">#</span> <span class="comment">free</span></span><br><span class="line"><span class="comment">heap</span> <span class="comment">show</span> &gt;&gt;</span><br><span class="line"></span><br><span class="line">     <span class="comment">HEAP</span>         <span class="comment">TOTAL</span>      <span class="comment">USED</span>     <span class="comment">MAX</span> <span class="comment">USED</span>  <span class="comment">SEGMENT</span> <span class="comment">USED</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span></span><br><span class="line"><span class="comment">kersys</span>             <span class="comment">262144</span>     <span class="comment">120856</span>     <span class="comment">160336</span>     <span class="comment">740</span>  <span class="comment">46%</span></span><br></pre></td></tr></table></figure></p>
+<p>堆栈消耗情况：<br><figure class="highlight prolog"><table><tr><td class="code"><pre><span class="line">[<span class="atom">unknown</span>@<span class="atom">sylixos_station</span>:/]# <span class="atom">ss</span></span><br><span class="line"><span class="atom">thread</span> <span class="atom">stack</span> <span class="atom">usage</span> <span class="atom">show</span> &gt;&gt;</span><br><span class="line"></span><br><span class="line">       <span class="name">NAME</span>        <span class="name">TID</span>   <span class="name">PRI</span> <span class="name">STK</span> <span class="name">USE</span>  <span class="name">STK</span> <span class="name">FREE</span> <span class="name">USED</span></span><br><span class="line">---------------- ------- --- -------- -------- ----</span><br><span class="line"><span class="atom">t_idle</span>           <span class="number">4010000</span> <span class="number">255</span>      <span class="number">144</span>      <span class="number">880</span>  <span class="number">14</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_itimer</span>         <span class="number">4010001</span>  <span class="number">20</span>      <span class="number">272</span>     <span class="number">1776</span>  <span class="number">13</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_except</span>         <span class="number">4010002</span>   <span class="number">0</span>      <span class="number">336</span>     <span class="number">1712</span>  <span class="number">16</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_log</span>            <span class="number">4010003</span>  <span class="number">60</span>      <span class="number">424</span>     <span class="number">1624</span>  <span class="number">20</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_power</span>          <span class="number">4010004</span> <span class="number">254</span>      <span class="number">264</span>     <span class="number">1784</span>  <span class="number">12</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_hotplug</span>        <span class="number">4010005</span> <span class="number">250</span>      <span class="number">344</span>     <span class="number">3752</span>   <span class="number">8</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_reclaim</span>        <span class="number">4010007</span> <span class="number">253</span>      <span class="number">304</span>     <span class="number">3792</span>   <span class="number">7</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_netjob</span>         <span class="number">4010008</span> <span class="number">110</span>      <span class="number">328</span>     <span class="number">3768</span>   <span class="number">8</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_netproto</span>       <span class="number">4010009</span> <span class="number">110</span>      <span class="number">448</span>     <span class="number">3648</span>  <span class="number">10</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_tftpd</span>          <span class="number">401000</span><span class="atom">a</span> <span class="number">160</span>     <span class="number">2004</span>     <span class="number">6188</span>  <span class="number">24</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_ftpd</span>           <span class="number">401000</span><span class="atom">b</span> <span class="number">160</span>     <span class="number">1724</span>    <span class="number">10564</span>  <span class="number">14</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_telnetd</span>        <span class="number">401000</span><span class="atom">c</span> <span class="number">160</span>     <span class="number">1708</span>     <span class="number">4436</span>  <span class="number">27</span><span class="comment">%</span></span><br><span class="line"><span class="atom">t_tshell</span>         <span class="number">401000</span><span class="atom">e</span> <span class="number">150</span>     <span class="number">2408</span>     <span class="number">5784</span>  <span class="number">29</span><span class="comment">%</span></span><br><span class="line"></span><br><span class="line"><span class="atom">interrupt</span> <span class="atom">stack</span> <span class="atom">usage</span> <span class="atom">show</span> &gt;&gt;</span><br><span class="line"></span><br><span class="line"><span class="name">CPU</span> <span class="name">STK</span> <span class="name">USE</span>  <span class="name">STK</span> <span class="name">FREE</span> <span class="name">USED</span></span><br><span class="line">--- -------- -------- ----</span><br><span class="line">  <span class="number">0</span>      <span class="number">228</span>     <span class="number">1820</span>  <span class="number">11</span><span class="comment">%</span></span><br></pre></td></tr></table></figure></p>
+<p>内核对象消耗情况：<br><figure class="highlight tcl"><table><tr><td class="code"><pre><span class="line">[<span class="keyword">unknown</span>@sylixos_station:/]# cat /<span class="keyword">proc</span>/kernel/objects<span class="symbol"></span><br><span class="line">object</span> <span class="symbol">     total</span> <span class="symbol">   used</span> <span class="symbol">    max-used</span></span><br><span class="line">event       128      83       84<span class="symbol"></span><br><span class="line">eventset</span>    4        0        0<span class="symbol"></span><br><span class="line">heap</span>        4        1        1<span class="symbol"></span><br><span class="line">msgqueue</span>    10       6        6<span class="symbol"></span><br><span class="line">partition</span>   10       5        5<span class="symbol"></span><br><span class="line">rms</span>         4        1        1<span class="symbol"></span><br><span class="line">thread</span>      64       13       14<span class="symbol"></span><br><span class="line">threadvar</span>   4        0        0<span class="symbol"></span><br><span class="line">timer</span>       4        1        1<span class="symbol"></span><br><span class="line">dpma</span>        1        0        0<span class="symbol"></span><br><span class="line">threadpool</span>  1        0        0</span><br></pre></td></tr></table></figure></p>
+<p>来张 Qemu 和 Shell 的爆照：<br><img src="/img/SylixOS-for-ARMv7-M/SylixOS-shell.png" alt="SylixOS-shell.png"></p>
+<p>下一步业余时间计划是移植到 STMicroelectronics 公司的 STM32F429I-DISCO 开发板，<br>在其上运行 JavaScript 脚本引擎，并尝试跑一些 IoT 协议接入到国内的物联云，这一定比较新奇和有趣，愿意一起折腾的可以联系我:-)</p>
+<p>STM32F429I-DISCO 开发板用户手册：<br><a href="http://www.st.com/st-web-ui/static/active/cn/resource/technical/document/user_manual/DM00092920.pdf" target="_blank" rel="external">http://www.st.com/st-web-ui/static/active/cn/resource/technical/document/user_manual/DM00092920.pdf</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/SylixOS/">SylixOS</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/SylixOS/">SylixOS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2015/06/09/分享一些-SylixOS-开源项目/"  title="分享一些 SylixOS 开源项目">
+ <strong>下一篇：</strong><br/> 
+ <span>分享一些 SylixOS 开源项目
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+<section id="comments" class="comment">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ 
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>3</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>3</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://www.sylixos.com" target="_blank" title=" SylixOS社区">SylixOS</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> SylixOS操作系统开发者 <br/>
+			北京正通天和软件科技有限公司</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/jiaojinxing" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:jiaojinxing1987@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="/about" target="_blank" title="jiaojinxing">jiaojinxing</a>
+		
+		
+		</p>
+		
+		<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+		<span id="busuanzi_container_page_pv">本文总阅读量 <span id="busuanzi_value_page_pv"></span> 次</span>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+
+<script type="text/javascript">
+
+var disqus_shortname = 'jinxingblog';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<script>
+var option = {
+  engineKey: 'fdc3f1775f4719dd9d41'
+};
+(function(w,d,t,u,n,s,e){
+  s = d.createElement(t);
+  s.src = u;
+  s.async = 1;
+  w[n] = function(r){
+    w[n].opts = r;
+  };
+  e = d.getElementsByTagName(t)[0];
+  e.parentNode.insertBefore(s, e);
+})(window,document,'script','//tinysou-cdn.b0.upaiyun.com/ts.js','_ts');
+_ts(option);
+</script>
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
