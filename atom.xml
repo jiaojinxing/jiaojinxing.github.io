@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-06-19T11:37:43.926Z</updated>
+  <updated>2015-06-20T07:19:21.895Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -15,11 +15,48 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title><![CDATA[SylixOS for ARMv7-M 开发硬件说明]]></title>
+    <link href="jiaojinxing.github.io/2015/06/20/SylixOS-for-ARMv7-M-%E5%BC%80%E5%8F%91%E7%A1%AC%E4%BB%B6%E8%AF%B4%E6%98%8E/"/>
+    <id>jiaojinxing.github.io/2015/06/20/SylixOS-for-ARMv7-M-开发硬件说明/</id>
+    <published>2015-06-20T06:43:26.000Z</published>
+    <updated>2015-06-20T07:19:21.895Z</updated>
+    <content type="html"><![CDATA[<h2 id="STM32F429I-DISCO">STM32F429I-DISCO</h2><p>STM32F429I-DISCO 是 ST 公司推出的一款针对高性能 STM32F4 系列设计的 Cortex-M4 开发板。</p>
+<p>开发板基于 STM32F429ZIT6 设计，开发板还集成了 ST-LINK/V2 仿真下载器（但仅对外提供 SWD 接口），免除您另外采购仿真器或下载器的麻烦。更增添了一块 2.4 寸的 QVGA TFT 液晶屏，外扩 64 Mbits SDRAM，L3GD20 陀螺仪，用户指示灯，按键和一个micro-AB 型 USB 接口。</p>
+<p>*STM32F429ZIT6微控制器</p>
+<p>2048KB FLASH，256 KB RAM</p>
+<p>*规则的引出了所有未被占用的IO口，方便做相关实验</p>
+<p><img src="/img/SylixOS-for-ARMv7-M开发硬件说明/stm32f4.jpg" alt="stm32f4.jpg"></p>
+<p>STM32F429I-DISCO 不带有网络接口、SD 卡接口、音频接口，所以我还另外买了这个三接口模块和一个 WIFI 模块。</p>
+<p>￥158：<a href="http://item.taobao.com/item.htm?spm=a1z09.2.9.54.B0CAvW&amp;id=43614635387&amp;_u=kr55lbs1a8a" target="_blank" rel="external">http://item.taobao.com/item.htm?spm=a1z09.2.9.54.B0CAvW&amp;id=43614635387&amp;_u=kr55lbs1a8a</a></p>
+<h2 id="ENC28J60_网络模块">ENC28J60 网络模块</h2><p>ENC28J60 网络模块使用 SPI 接口与 STM32F429I-DISCO 连接。</p>
+<p><img src="/img/SylixOS-for-ARMv7-M开发硬件说明/net.jpg" alt="net.jpg"></p>
+<p>￥12.5：<a href="http://item.taobao.com/item.htm?spm=a1z09.2.9.43.B0CAvW&amp;id=43235319615&amp;_u=kr55lbs700c" target="_blank" rel="external">http://item.taobao.com/item.htm?spm=a1z09.2.9.43.B0CAvW&amp;id=43235319615&amp;_u=kr55lbs700c</a></p>
+<h2 id="SD_卡读写模块">SD 卡读写模块</h2><p>SD 卡读写模块使用 SPI 接口与 STM32F429I-DISCO 连接。</p>
+<p><img src="/img/SylixOS-for-ARMv7-M开发硬件说明/sd.jpg" alt="sd.jpg"></p>
+<p>￥2.1：<a href="http://item.taobao.com/item.htm?spm=a1z09.2.9.33.B0CAvW&amp;id=43670337040&amp;_u=kr55lbs0a05" target="_blank" rel="external">http://item.taobao.com/item.htm?spm=a1z09.2.9.33.B0CAvW&amp;id=43670337040&amp;_u=kr55lbs0a05</a></p>
+<h2 id="音频模块">音频模块</h2><p>网上较多的是 VS1053 模块，但我不喜欢，所以我买的是“野火”家的 PCM1770 DAC + 8002A 功放组合的模块。</p>
+<p>音频模块使用音频接口与 STM32F429I-DISCO 连接。</p>
+<p><img src="/img/SylixOS-for-ARMv7-M开发硬件说明/audio.jpg" alt="audio.jpg"></p>
+<p>￥24.8：<a href="http://detail.tmall.com/item.htm?id=43080517488&amp;spm=a1z09.2.9.11.B0CAvW&amp;_u=kr55lbsd0d4" target="_blank" rel="external">http://detail.tmall.com/item.htm?id=43080517488&amp;spm=a1z09.2.9.11.B0CAvW&amp;_u=kr55lbsd0d4</a></p>
+<h2 id="WIFI_模块">WIFI 模块</h2><p>用的是 ESP8266 串口 WIFI 模块，主要是 ESP8266 内建 LwIP，使用方便，价格便宜。</p>
+<p>ESP8266 串口 WIFI 模块使用串口与 STM32F429I-DISCO 连接。</p>
+<p><img src="/img/SylixOS-for-ARMv7-M开发硬件说明/wifi.jpg" alt="wifi.jpg"></p>
+<p>￥15.3：<a href="http://item.taobao.com/item.htm?spm=a1z09.2.9.25.B0CAvW&amp;id=43467108738&amp;_u=kr55lbsba4f" target="_blank" rel="external">http://item.taobao.com/item.htm?spm=a1z09.2.9.25.B0CAvW&amp;id=43467108738&amp;_u=kr55lbsba4f</a></p>
+<p>整套下来花费约 ￥220，待全部到货，再上一份模块与 STM32F429I-DISCO 的连接教学吧。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="STM32F429I-DISCO">STM32F429I-DISCO</h2><p>STM32F429I-DISCO 是 ST 公司推出的一款针对高性能 STM32F4 系列设计的 Cortex-M4 开发板。</p>
+<p>开发板基于 STM32F429ZIT6]]>
+    </summary>
+    
+  </entry>
+  
+  <entry>
     <title><![CDATA[SylixOS for ARMv7-M]]></title>
     <link href="jiaojinxing.github.io/2015/06/19/SylixOS-for-ARMv7-M/"/>
     <id>jiaojinxing.github.io/2015/06/19/SylixOS-for-ARMv7-M/</id>
     <published>2015-06-19T03:22:13.000Z</published>
-    <updated>2015-06-19T11:37:43.926Z</updated>
+    <updated>2015-06-20T07:18:51.622Z</updated>
     <content type="html"><![CDATA[<p>最初 SylixOS 在 ARM7 上跑，后来更高级的 ARM 处理器开始变得流行，这些高级的 ARM 处理器一般带有 MMU(内存管理单元)和 Cache(高速缓存)。</p>
 <p>SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得迫切，2008 年 SylixOS 开始支持页式虚拟内存管理和 MMU 及 Cache。</p>
 <p>在很长的一段时间， SylixOS 都跑在这些带有 MMU 和 Cache 的 ARM 处理器，反而不能在不带有 MMU 的 ARM 处理器上跑。</p>
@@ -33,6 +70,8 @@
 <p>我们选择的是 Qemu 虚拟机支持的 Olimex STM32 p103 Dev Board(简称stm32-p103 开发板)，</p>
 <p>Qemu 的地址：</p>
 <p><a href="https://github.com/beckus/qemu_stm32" target="_blank" rel="external">https://github.com/beckus/qemu_stm32</a></p>
+<p>BSP 的地址：</p>
+<p><a href="https://github.com/jiaojinxing/bspstm32" target="_blank" rel="external">https://github.com/jiaojinxing/bspstm32</a></p>
 <p>由于 SylixOS 默认的配置对内存的消耗比较大，所以我们修改了 Qemu 的代码，调整 stm32-p103 开发板的 Flash 空间大小为 8 MByte、SDRAM 空间大小为 64 MByte。</p>
 <p>同时我们也优化了 SylixOS 的配置，极大地降低了 SylixOS 对内存和 Flash 的需求。</p>
 <p>现在 Release 版本的 stm32-p103 开发板 BSP 生成的操作系统镜像其节区大小信息如下：<br><figure class="highlight dns"><table><tr><td class="code"><pre><span class="line">   text	   data	    bss	    dec	    hex	filename</span><br><span class="line"><span class="number">1477064</span>	 <span class="number">151188	104342</span><span class="number">8	2671680</span>	 28c440	./Release/bspstm32.elf</span><br></pre></td></tr></table></figure></p>
@@ -44,6 +83,8 @@
 <p>来张 Qemu 和 Shell 的爆照：<br><img src="/img/SylixOS-for-ARMv7-M/SylixOS-shell.png" alt="SylixOS-shell.png"></p>
 <p>下一步业余时间计划是移植到 STMicroelectronics 公司的 STM32F429I-DISCO 开发板，<br>在其上运行 JavaScript 脚本引擎，并尝试跑一些 IoT 协议接入到国内的物联云，这一定比较新奇和有趣，愿意一起折腾的可以联系我:-)</p>
 <p>STM32F429I-DISCO 开发板用户手册：<br><a href="http://www.st.com/st-web-ui/static/active/cn/resource/technical/document/user_manual/DM00092920.pdf" target="_blank" rel="external">http://www.st.com/st-web-ui/static/active/cn/resource/technical/document/user_manual/DM00092920.pdf</a></p>
+<p>2015/6/20 日追加：</p>
+<p>SylixOS 创始人韩辉也表示了极大的关注！SylixOS Lite 已经着手开发，SylixOS Lite 直接在 SylixOS 主线的基础上进行裁减，移除 GDB 调试、动态装载、符号表、SIGNAL 信号等对内存和 Flash 消耗较大的功能特性，但保留 POSIX 层，其它功能特性如（IO系统、文件、TCP/IP网络）依然齐全。SylixOS Lite 的 .text 段会降低到 700K 以内，.data + .bss 段则会降低到 400K 以内，也就是说，在资源丰富的 Cortex-M4 和 M7 芯片上不外扩 SDRAM 也能跑 SylixOS 了！</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>最初 SylixOS 在 ARM7 上跑，后来更高级的 ARM 处理器开始变得流行，这些高级的 ARM 处理器一般带有 MMU(内存管理单元)和 Cache(高速缓存)。</p>
