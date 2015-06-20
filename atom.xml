@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-06-20T07:22:16.231Z</updated>
+  <updated>2015-06-20T07:27:14.704Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="jiaojinxing.github.io/2015/06/20/SylixOS-for-ARMv7-M-%E5%BC%80%E5%8F%91%E7%A1%AC%E4%BB%B6%E8%AF%B4%E6%98%8E/"/>
     <id>jiaojinxing.github.io/2015/06/20/SylixOS-for-ARMv7-M-开发硬件说明/</id>
     <published>2015-06-20T06:43:26.000Z</published>
-    <updated>2015-06-20T07:22:16.231Z</updated>
+    <updated>2015-06-20T07:27:14.704Z</updated>
     <content type="html"><![CDATA[<h2 id="STM32F429I-DISCO">STM32F429I-DISCO</h2><p>STM32F429I-DISCO 是 ST 公司推出的一款针对高性能 STM32F4 系列设计的 Cortex-M4 开发板。</p>
 <p>开发板基于 STM32F429ZIT6 设计，开发板还集成了 ST-LINK/V2 仿真下载器（但仅对外提供 SWD 接口），免除您另外采购仿真器或下载器的麻烦。更增添了一块 2.4 寸的 QVGA TFT 液晶屏，外扩 64 Mbits SDRAM，L3GD20 陀螺仪，用户指示灯，按键和一个micro-AB 型 USB 接口。</p>
 <p>*STM32F429ZIT6微控制器</p>
@@ -49,9 +49,17 @@
 <p>开发板基于 STM32F429ZIT6]]>
     </summary>
     
-      <category term="SylixOS 硬件 ARMv7-M" scheme="jiaojinxing.github.io/tags/SylixOS-%E7%A1%AC%E4%BB%B6-ARMv7-M/"/>
+      <category term="ARMv7-M" scheme="jiaojinxing.github.io/tags/ARMv7-M/"/>
     
-      <category term="SylixOS 硬件 ARMv7-M" scheme="jiaojinxing.github.io/categories/SylixOS-%E7%A1%AC%E4%BB%B6-ARMv7-M/"/>
+      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
+    
+      <category term="硬件" scheme="jiaojinxing.github.io/tags/%E7%A1%AC%E4%BB%B6/"/>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
+    
+      <category term="ARMv7-M" scheme="jiaojinxing.github.io/categories/SylixOS/ARMv7-M/"/>
+    
+      <category term="硬件" scheme="jiaojinxing.github.io/categories/SylixOS/ARMv7-M/%E7%A1%AC%E4%BB%B6/"/>
     
   </entry>
   
@@ -60,7 +68,7 @@
     <link href="jiaojinxing.github.io/2015/06/19/SylixOS-for-ARMv7-M/"/>
     <id>jiaojinxing.github.io/2015/06/19/SylixOS-for-ARMv7-M/</id>
     <published>2015-06-19T03:22:13.000Z</published>
-    <updated>2015-06-20T07:22:25.374Z</updated>
+    <updated>2015-06-20T07:25:48.237Z</updated>
     <content type="html"><![CDATA[<p>最初 SylixOS 在 ARM7 上跑，后来更高级的 ARM 处理器开始变得流行，这些高级的 ARM 处理器一般带有 MMU(内存管理单元)和 Cache(高速缓存)。</p>
 <p>SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得迫切，2008 年 SylixOS 开始支持页式虚拟内存管理和 MMU 及 Cache。</p>
 <p>在很长的一段时间， SylixOS 都跑在这些带有 MMU 和 Cache 的 ARM 处理器，反而不能在不带有 MMU 的 ARM 处理器上跑。</p>
@@ -95,9 +103,13 @@
 <p>SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得迫切，2]]>
     </summary>
     
-      <category term="SylixOS ARMv7-M" scheme="jiaojinxing.github.io/tags/SylixOS-ARMv7-M/"/>
+      <category term="ARMv7-M" scheme="jiaojinxing.github.io/tags/ARMv7-M/"/>
     
-      <category term="SylixOS ARMv7-M" scheme="jiaojinxing.github.io/categories/SylixOS-ARMv7-M/"/>
+      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
+    
+      <category term="ARMv7-M" scheme="jiaojinxing.github.io/categories/SylixOS/ARMv7-M/"/>
     
   </entry>
   
