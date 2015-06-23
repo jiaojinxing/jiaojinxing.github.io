@@ -68,7 +68,7 @@
     <link href="jiaojinxing.github.io/2015/06/19/SylixOS-for-ARMv7-M/"/>
     <id>jiaojinxing.github.io/2015/06/19/SylixOS-for-ARMv7-M/</id>
     <published>2015-06-19T03:22:13.000Z</published>
-    <updated>2015-06-20T07:25:48.237Z</updated>
+    <updated>2015-06-23T01:28:26.939Z</updated>
     <content type="html"><![CDATA[<p>最初 SylixOS 在 ARM7 上跑，后来更高级的 ARM 处理器开始变得流行，这些高级的 ARM 处理器一般带有 MMU(内存管理单元)和 Cache(高速缓存)。</p>
 <p>SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得迫切，2008 年 SylixOS 开始支持页式虚拟内存管理和 MMU 及 Cache。</p>
 <p>在很长的一段时间， SylixOS 都跑在这些带有 MMU 和 Cache 的 ARM 处理器，反而不能在不带有 MMU 的 ARM 处理器上跑。</p>
@@ -96,7 +96,7 @@
 <p>下一步业余时间计划是移植到 STMicroelectronics 公司的 STM32F429I-DISCO 开发板，<br>在其上运行 JavaScript 脚本引擎，并尝试跑一些 IoT 协议接入到国内的物联云，这一定比较新奇和有趣，愿意一起折腾的可以联系我:-)</p>
 <p>STM32F429I-DISCO 开发板用户手册：<br><a href="http://www.st.com/st-web-ui/static/active/cn/resource/technical/document/user_manual/DM00092920.pdf" target="_blank" rel="external">http://www.st.com/st-web-ui/static/active/cn/resource/technical/document/user_manual/DM00092920.pdf</a></p>
 <p>2015/6/20 日追加：</p>
-<p>SylixOS 创始人韩辉也表示了极大的关注！SylixOS Lite 已经着手开发，SylixOS Lite 直接在 SylixOS 主线的基础上进行裁减，移除 GDB 调试、动态装载、符号表、SIGNAL 信号等对内存和 Flash 消耗较大的功能特性，但保留 POSIX 层，其它功能特性如（IO系统、文件、TCP/IP网络）依然齐全。SylixOS Lite 的 .text 段会降低到 700K 以内，.data + .bss 段则会降低到 400K 以内，也就是说，在资源丰富的 Cortex-M4 和 M7 芯片上不外扩 SDRAM 也能跑 SylixOS 了！</p>
+<p>SylixOS 创始人韩辉也表示了极大的关注！SylixOS Lite 已经着手开发，SylixOS Lite 直接在 SylixOS 主线的基础上进行裁减，移除 GDB 调试、动态装载、符号表、SIGNAL 信号等对内存和 Flash 消耗较大的功能特性，但保留 POSIX 层，其它功能特性（如 IO 系统、文件、TCP/IP 网络）依然齐全。SylixOS Lite 的 .text 段会降低到 700K 以内，.data + .bss 段则会降低到 400K 以内，也就是说，在资源丰富的 Cortex-M4 和 M7 芯片上不外扩 SDRAM 也能跑 SylixOS 了！</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>最初 SylixOS 在 ARM7 上跑，后来更高级的 ARM 处理器开始变得流行，这些高级的 ARM 处理器一般带有 MMU(内存管理单元)和 Cache(高速缓存)。</p>
