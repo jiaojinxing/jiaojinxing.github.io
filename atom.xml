@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-06-23T02:27:36.556Z</updated>
+  <updated>2015-06-25T09:30:46.151Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -13,6 +13,255 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[SylixOS线程间通信-SylixOS信号量]]></title>
+    <link href="jiaojinxing.github.io/2015/06/25/SylixOS%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-SylixOS%E4%BF%A1%E5%8F%B7%E9%87%8F/"/>
+    <id>jiaojinxing.github.io/2015/06/25/SylixOS线程间通信-SylixOS信号量/</id>
+    <published>2015-06-25T09:10:03.000Z</published>
+    <updated>2015-06-25T09:30:46.151Z</updated>
+    <content type="html"><![CDATA[<p>SylixOS信号量有两种类型：二进制信号量和计数型信号量。</p>
+<p>二进制信号量的取值范围为FALSE或TRUE；计数型信号量的最小取值为0，而最大取值在创建计数型信号量时决定。</p>
+<p>二进制信号量主要应用在以下场合：</p>
+<ul>
+<li>有允许线程访问的一个资源，使用二进制信号量作为互斥手段；</li>
+<li>线程或中断通知另一个线程某种事件发生。</li>
+</ul>
+<p>计数型信号量主要应用在以下场合：</p>
+<ul>
+<li>有允许线程访问的n个资源，使用计数型信号量作为资源剩余计数；</li>
+<li>线程或中断通知另一个线程某种事件发生，使用计数型信号量作为事件计数。</li>
+</ul>
+<h2 id="SylixOS二进制信号量的操作函数">SylixOS二进制信号量的操作函数</h2><h3 id="SylixOS二进制信号量的创建和删除">SylixOS二进制信号量的创建和删除</h3><figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line"><span class="label">LW_OBJECT_HANDLE</span> Lw_SemaphoreB_Create(CPCHAR             pcName,</span><br><span class="line">                                      <span class="keyword">BOOL </span>              <span class="keyword">bInitValue,</span><br><span class="line"></span>                                      ULONG              ulOption,</span><br><span class="line">                                      LW_OBJECT_ID     *pulId)<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p>函数Lw_SemaphoreB_Create原型分析：</p>
+<ul>
+<li>此函数返回二进制信号量的句柄，失败时为NULL；</li>
+<li>参数pcName是二进制信号量的名字；</li>
+<li>参数bInitValue是二进制信号量的初始值（FALSE或TRUE）；</li>
+<li>参数ulOption是二进制信号量的创建选项；</li>
+<li>输出参数pulId用于接收二进制信号量的ID。</li>
+</ul>
+<figure class="highlight aspectj"><table><tr><td class="code"><pre><span class="line"><span class="function">ULONG               <span class="title">Lw_SemaphoreB_Delete</span><span class="params">(LW_OBJECT_HANDLE  *pulId)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>函数Lw_SemaphoreB_Delete原型分析：</p>
+<ul>
+<li>此函数返回错误号；</li>
+<li>参数pulId是二进制信号量的ID。</li>
+</ul>
+<p>二进制信号量的创建选项可以使用以下宏的组合：</p>
+<table>
+<thead>
+<tr>
+<th>宏名</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LW_OPTION_WAIT_PRIORITY</td>
+<td style="text-align:left">按优先级顺序等待</td>
+</tr>
+<tr>
+<td>LW_OPTION_WAIT_FIFO</td>
+<td style="text-align:left">按先进先出顺序等待</td>
+</tr>
+<tr>
+<td>LW_OPTION_OBJECT_GLOBAL</td>
+<td style="text-align:left">全局对象</td>
+</tr>
+<tr>
+<td>LW_OPTION_OBJECT_LOCAL</td>
+<td style="text-align:left">本地对象</td>
+</tr>
+</tbody>
+</table>
+<p>需要注意的是LW_OPTION_WAIT_PRIORITY和LW_OPTION_WAIT_FIFO只能二取一，同样LW_OPTION_OBJECT_GLOBAL和LW_OPTION_OBJECT_LOCAL也只能二取一。</p>
+<h3 id="SylixOS二进制信号量的等待">SylixOS二进制信号量的等待</h3><figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">ULONG            Lw_SemaphoreB_Wait<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId, </span><br><span class="line">                                    ULONG               ulTimeOut)</span><span class="comment">;</span></span><br><span class="line">ULONG            Lw_SemaphoreB_TryWait<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId)</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p>以上两个函数原型分析：</p>
+<ul>
+<li>两个函数均返回错误号；</li>
+<li>参数ulId是二进制信号量的ID；</li>
+<li>参数ulTimeOut是等待的超时时间，单位为时钟嘀嗒Tick。</li>
+</ul>
+<p>Lw_SemaphoreB_TryWait和Lw_SemaphoreB_Wait的区别在于，如果二进制信号量当前的值为FLASE，Lw_SemaphoreB_TryWait会立即退出，并返回<br>ERROR_THREAD_WAIT_TIMEOUT，而Lw_SemaphoreB_Wait则会阻塞直至被唤醒。</p>
+<p>参数ulTimeOut除了可以使用数字外还可以使用以下的宏：</p>
+<table>
+<thead>
+<tr>
+<th>宏名</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LW_OPTION_NOT_WAIT</td>
+<td style="text-align:left">不等待立即退出</td>
+</tr>
+<tr>
+<td>LW_OPTION_WAIT_INFINITE</td>
+<td style="text-align:left">永远等待</td>
+</tr>
+<tr>
+<td>LW_OPTION_WAIT_A_TICK</td>
+<td style="text-align:left">等待一个时钟嘀嗒</td>
+</tr>
+<tr>
+<td>LW_OPTION_WAIT_A_SECOND</td>
+<td style="text-align:left">等待一秒</td>
+</tr>
+</tbody>
+</table>
+<p>Lw_SemaphoreB_Get和Lw_SemaphoreB_Take函数与Lw_SemaphoreB_Wait函数的原型及功能一致，这里不再详述。<br>Lw_SemaphoreB_TryGet和Lw_SemaphoreB_TryTake函数与Lw_SemaphoreB_TryWait函数的原型及功能一致，这里不再详述。</p>
+<h3 id="SylixOS二进制信号量的释放">SylixOS二进制信号量的释放</h3><figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">ULONG            Lw_SemaphoreB_Post<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId)</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p>函数Lw_SemaphoreB_Post原型分析：</p>
+<ul>
+<li>此函数返回错误号；</li>
+<li>参数ulId是二进制信号量的ID。</li>
+</ul>
+<p>Lw_SemaphoreB_Give和Lw_SemaphoreB_Send函数与Lw_SemaphoreB_Post函数的原型及功能一致，这里不再详述。</p>
+<figure class="highlight vbnet"><table><tr><td class="code"><pre><span class="line"><span class="built_in">ULONG</span>            Lw_SemaphoreB_Release(LW_OBJECT_HANDLE  ulId, </span><br><span class="line">                                       <span class="built_in">ULONG</span>               ulReleaseCounter, </span><br><span class="line">                                       BOOL                *pbPreviousValue);</span><br></pre></td></tr></table></figure>
+<p>函数Lw_SemaphoreB_Release原型分析：</p>
+<ul>
+<li>此函数返回错误号；</li>
+<li>参数ulId是二进制信号量的ID；</li>
+<li>参数ulReleaseCounter是释放信号量的次数；</li>
+<li>输出参数pbPreviousValue用于接收原先的信号量状态，可以为 NULL。</li>
+</ul>
+<h3 id="SylixOS二进制信号量的清除">SylixOS二进制信号量的清除</h3><figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">ULONG            Lw_SemaphoreB_Clear<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId)</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p>函数Lw_SemaphoreB_Clear原型分析：</p>
+<ul>
+<li>此函数返回错误号；</li>
+<li>参数ulId是二进制信号量的ID；</li>
+</ul>
+<h3 id="释放等待SylixOS二进制信号量的所有线程">释放等待SylixOS二进制信号量的所有线程</h3><figure class="highlight vbnet"><table><tr><td class="code"><pre><span class="line"><span class="built_in">ULONG</span>            Lw_SemaphoreB_Flush(LW_OBJECT_HANDLE  ulId, </span><br><span class="line">                                     <span class="built_in">ULONG</span>            *pulThreadUnblockNum);</span><br></pre></td></tr></table></figure>
+<p>函数Lw_SemaphoreB_Flush原型分析：</p>
+<ul>
+<li>此函数返回错误号；</li>
+<li>参数ulId是二进制信号量的ID；</li>
+<li>输出参数pulThreadUnblockNum用于接收被解锁（解除阻塞，下同）的线程数量，可以为NULL。</li>
+</ul>
+<h3 id="获得SylixOS二进制信号量的状态">获得SylixOS二进制信号量的状态</h3><figure class="highlight gherkin"><table><tr><td class="code"><pre><span class="line">ULONG            Lw_SemaphoreB_Status(LW_OBJECT_HANDLE   ulId,</span><br><span class="line">                                      BOOL                 <span class="keyword">*</span>pbValue,</span><br><span class="line">                                      ULONG                <span class="keyword">*</span>pulOption,</span><br><span class="line">                                      ULONG                <span class="keyword">*</span>pulThreadBlockNum);</span><br></pre></td></tr></table></figure>
+<p>函数Lw_SemaphoreB_Status原型分析：</p>
+<ul>
+<li>此函数返回错误号；</li>
+<li>参数ulId是二进制信号量的ID；</li>
+<li>输出参数pbValue用于接收二进制信号量当前的值（FALSE或TRUE）；</li>
+<li>输出参数pulOption用于接收二进制信号量的创建选项；</li>
+<li>输出参数pulThreadBlockNum用于接收当前阻塞在该二进制信号量的线程数。</li>
+</ul>
+<p>Lw_SemaphoreB_Info和Lw_SemaphoreB_Status函数的原型及功能一致，这里不再详述。</p>
+<h3 id="获得SylixOS二进制信号量的名字">获得SylixOS二进制信号量的名字</h3><figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">ULONG  Lw_SemaphoreB_GetName<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId, PCHAR  pcName)</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p>函数Lw_SemaphoreB_GetName原型分析：</p>
+<ul>
+<li>此函数返回错误号；</li>
+<li>参数ulId是二进制信号量的ID；</li>
+<li>输出参数pcName是二进制信号量的名字，pcName应该指向一个大小为LW_CFG_OBJECT_NAME_SIZE的字符数组。</li>
+</ul>
+<h3 id="带消息传递的SylixOS二进制信号量的等待与释放">带消息传递的SylixOS二进制信号量的等待与释放</h3><figure class="highlight vbnet"><table><tr><td class="code"><pre><span class="line"><span class="built_in">ULONG</span>            Lw_SemaphoreB_WaitEx(LW_OBJECT_HANDLE  ulId, </span><br><span class="line">                                      <span class="built_in">ULONG</span>             ulTimeOut, </span><br><span class="line">                                      PVOID            *ppvMsgPtr);</span><br></pre></td></tr></table></figure>
+<p>函数Lw_SemaphoreB_WaitEx原型分析：</p>
+<ul>
+<li>此函数返回错误号；</li>
+<li>参数ulId是二进制信号量的ID；</li>
+<li>参数ulTimeOut是等待的超时时间，单位为时钟嘀嗒Tick；</li>
+<li>输出参数ppvMsgPtr用于接收Lw_SemaphoreB_PostEx函数传递的消息。</li>
+</ul>
+<p>Lw_SemaphoreB_GetEx和Lw_SemaphoreB_TakeEx函数与Lw_SemaphoreB_WaitEx函数的原型及功能一致，这里不再详述。</p>
+<figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">ULONG            Lw_SemaphoreB_PostEx<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId, </span><br><span class="line">                                      PVOID                pvMsgPtr)</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p>函数Lw_SemaphoreB_PostEx原型分析：</p>
+<ul>
+<li>此函数返回错误号；</li>
+<li>参数ulId是二进制信号量的ID；</li>
+<li>参数pvMsgPtr是消息指针（一个空类型的指针，可以指向任意类型的数据），该消息将被传递到Lw_SemaphoreB_WaitEx函数的输出参数ppvMsgPtr。</li>
+</ul>
+<p>Lw_SemaphoreB_GiveEx和Lw_SemaphoreB_SendEx函数与Lw_SemaphoreB_PostEx函数的原型及功能一致，这里不再详述。<br>由于Lw_SemaphoreB_WaitEx和Lw_SemaphoreB_PostEx函数组合已经起到传统RTOS的邮箱的作用，所以SylixOS没有提供邮箱的API。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>SylixOS信号量有两种类型：二进制信号量和计数型信号量。</p>
+<p>二进制信号量的取值范围为FALSE或TRUE；计数型信号量的最小取值为0，而最大取值在创建计数型信号量时决定。</p>
+<p>二进制信号量主要应用在以下场合：</p>
+<ul>
+<li>有允许线程访]]>
+    </summary>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
+    
+      <category term="书稿" scheme="jiaojinxing.github.io/tags/%E4%B9%A6%E7%A8%BF/"/>
+    
+      <category term="线程间通信" scheme="jiaojinxing.github.io/tags/%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/"/>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[SylixOS线程间通信-线程间通信]]></title>
+    <link href="jiaojinxing.github.io/2015/06/25/SylixOS%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/"/>
+    <id>jiaojinxing.github.io/2015/06/25/SylixOS线程间通信-线程间通信/</id>
+    <published>2015-06-25T09:05:21.000Z</published>
+    <updated>2015-06-25T09:30:41.039Z</updated>
+    <content type="html"><![CDATA[<h2 id="什么是线程间通信">什么是线程间通信</h2><p>线程在执行的过程中免不了要与其它线程进行通信，如线程A处理完毕某个事件后通知线程B事件的处理结果，线程B得到事件的处理结果后继续运行。</p>
+<p>线程间通信主要有以下几种的类型：</p>
+<ul>
+<li><p>互斥型通信<br>共享资源（如全局变量）需要互斥访问，可以使用信号量、互斥量进行互斥型通信。</p>
+</li>
+<li><p>通知型通信<br>上述的线程A通知线程B，可以用信号量、事件标志组、条件变量进行通知型通信。</p>
+</li>
+<li><p>消息型通信<br>某线程或中断服务程序采集数据，但并不直接加工数据，而是将数据传递给另一线程进行数据加工。可以使用消息队列进行消息型通信。</p>
+</li>
+</ul>
+<p>SylixOS操作系统提供了多种常见的线程间通信手段，如信号量、消息队列、事件标志组、条件变量等，满足了嵌入式系统软件开发的线程间通信需求。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="什么是线程间通信">什么是线程间通信</h2><p>线程在执行的过程中免不了要与其它线程进行通信，如线程A处理完毕某个事件后通知线程B事件的处理结果，线程B得到事件的处理结果后继续运行。</p>
+<p>线程间通信主要有以下几种的类型：</p>
+<ul>
+<li><]]>
+    </summary>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
+    
+      <category term="书稿" scheme="jiaojinxing.github.io/tags/%E4%B9%A6%E7%A8%BF/"/>
+    
+      <category term="线程间通信" scheme="jiaojinxing.github.io/tags/%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/"/>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[SylixOS线程间通信-共享资源]]></title>
+    <link href="jiaojinxing.github.io/2015/06/25/SylixOS%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-%E5%85%B1%E4%BA%AB%E8%B5%84%E6%BA%90/"/>
+    <id>jiaojinxing.github.io/2015/06/25/SylixOS线程间通信-共享资源/</id>
+    <published>2015-06-25T09:00:25.000Z</published>
+    <updated>2015-06-25T09:30:30.477Z</updated>
+    <content type="html"><![CDATA[<h2 id="什么是共享资源">什么是共享资源</h2><p>一个基于RTOS的应用层软件往往需要多个线程才能实现，多个线程可能需要同时访问同一个变量、同一个设备或同一块内存，这时该变量、该设备或该内存块被称为<strong>共享资源</strong>。</p>
+<p>如果在访问共享资源时不独占该共享资源，可能会造成变量值异常、设备出错或内存块内容不是期望值，从而导致程序运行异常甚至崩溃。<br>比如现在有两个线程需要同时将同一个变量V（初始值为0）进行自增操作。</p>
+<p>在RISC机器上，一般都是Load/store体系结构，即访问内存只允许load和store操作；变量V的自增操作流程如下：</p>
+<ol>
+<li>加载变量V的地址到CPU的工作寄存器0；</li>
+<li>load指令将工作寄存器0指向的地址的内容加载工作寄存器1； </li>
+<li>inc指令将工作寄存器1的值加一；</li>
+<li>store指令将工作寄存器1的值储存到工作寄存器0指向的地址。</li>
+</ol>
+<p>变量V的自增操作不是一步完成的，如果线程A和线程B依次完成以上四步，那么变量V最后的值将会是2。</p>
+<p>如果线程A完成前面三步，这时线程B打断了线程A的工作，线程B将变量V改写为1；最后线程A继续执行第四步，那么变量V最后的值仍然是1，这显然不是我们期望的。</p>
+<p>为了解决这个问题，我们可以加入一把锁，在进行变量V的自增操作前占有该锁；锁具有排它性，其它线程如果也要占有该锁，将被阻塞；这样确保了同一时间只有一个线程能访问该变量，待自增操作完成后释放该锁，这样变量V的自增操作就不会混乱了。</p>
+<p>这时我们称被锁保护的区域为<strong>临界区</strong>。</p>
+<p>在多线程环境下，小小的一个变量操作都需要小心对待，更不用说复杂的设备了。所以说多线程编程是一把双刃剑，它可以使用我们的程序更易实现，但需要我们更小心的处理。好在SylixOS操作系统已经为我们准备好大量解决多线程编程问题的解决方案，比如信号量、互斥锁、消息队列等等。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="什么是共享资源">什么是共享资源</h2><p>一个基于RTOS的应用层软件往往需要多个线程才能实现，多个线程可能需要同时访问同一个变量、同一个设备或同一块内存，这时该变量、该设备或该内存块被称为<strong>共享资源</strong>。</p>
+<p>如果在访]]>
+    </summary>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
+    
+      <category term="书稿" scheme="jiaojinxing.github.io/tags/%E4%B9%A6%E7%A8%BF/"/>
+    
+      <category term="线程间通信" scheme="jiaojinxing.github.io/tags/%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/"/>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[全栈工程师释义(转)]]></title>
@@ -52,7 +301,7 @@
     <link href="jiaojinxing.github.io/2015/06/20/SylixOS-for-ARMv7-M-%E5%BC%80%E5%8F%91%E7%A1%AC%E4%BB%B6%E8%AF%B4%E6%98%8E/"/>
     <id>jiaojinxing.github.io/2015/06/20/SylixOS-for-ARMv7-M-开发硬件说明/</id>
     <published>2015-06-20T06:43:26.000Z</published>
-    <updated>2015-06-20T07:27:14.704Z</updated>
+    <updated>2015-06-25T09:01:13.056Z</updated>
     <content type="html"><![CDATA[<h2 id="STM32F429I-DISCO">STM32F429I-DISCO</h2><p>STM32F429I-DISCO 是 ST 公司推出的一款针对高性能 STM32F4 系列设计的 Cortex-M4 开发板。</p>
 <p>开发板基于 STM32F429ZIT6 设计，开发板还集成了 ST-LINK/V2 仿真下载器（但仅对外提供 SWD 接口），免除您另外采购仿真器或下载器的麻烦。更增添了一块 2.4 寸的 QVGA TFT 液晶屏，外扩 64 Mbits SDRAM，L3GD20 陀螺仪，用户指示灯，按键和一个micro-AB 型 USB 接口。</p>
 <p>*STM32F429ZIT6微控制器</p>
@@ -90,10 +339,6 @@
     
       <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
     
-      <category term="ARMv7-M" scheme="jiaojinxing.github.io/categories/SylixOS/ARMv7-M/"/>
-    
-      <category term="硬件" scheme="jiaojinxing.github.io/categories/SylixOS/ARMv7-M/%E7%A1%AC%E4%BB%B6/"/>
-    
   </entry>
   
   <entry>
@@ -101,7 +346,7 @@
     <link href="jiaojinxing.github.io/2015/06/19/SylixOS-for-ARMv7-M/"/>
     <id>jiaojinxing.github.io/2015/06/19/SylixOS-for-ARMv7-M/</id>
     <published>2015-06-19T03:22:13.000Z</published>
-    <updated>2015-06-23T01:28:26.939Z</updated>
+    <updated>2015-06-25T09:01:20.361Z</updated>
     <content type="html"><![CDATA[<p>最初 SylixOS 在 ARM7 上跑，后来更高级的 ARM 处理器开始变得流行，这些高级的 ARM 处理器一般带有 MMU(内存管理单元)和 Cache(高速缓存)。</p>
 <p>SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得迫切，2008 年 SylixOS 开始支持页式虚拟内存管理和 MMU 及 Cache。</p>
 <p>在很长的一段时间， SylixOS 都跑在这些带有 MMU 和 Cache 的 ARM 处理器，反而不能在不带有 MMU 的 ARM 处理器上跑。</p>
@@ -141,8 +386,6 @@
       <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
     
       <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
-    
-      <category term="ARMv7-M" scheme="jiaojinxing.github.io/categories/SylixOS/ARMv7-M/"/>
     
   </entry>
   

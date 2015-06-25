@@ -1135,18 +1135,23 @@ article .article-content table {
   max-width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
+  border: 1px solid #dbdbdb;
   margin-top: 1em;
 }
 article .article-content table th {
   font-weight: bold;
-  border-bottom: 2px solid #dbdbdb;
+  background-color: #e6e6e6;
+  border: 1px solid #dbdbdb;
   padding: 0.5em;
   line-height: 1.3em;
 }
 article .article-content table td {
-  border-bottom: 1px solid #dbdbdb;
+  border: 1px solid #dbdbdb;
   padding: 0.5em;
   line-height: 1.3em;
+}
+article .article-content .highlight table {
+  border: none;
 }
 article .article-content .pullquote {
   text-align: left;
