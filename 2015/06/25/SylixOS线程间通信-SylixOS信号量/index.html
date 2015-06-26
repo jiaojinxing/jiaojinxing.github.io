@@ -35,7 +35,7 @@
 计数型信号量主要应用在以下场合：
 
 有允许线程访问的n个资源，使用计数型信号量作为资源剩余">
-<meta property="og:updated_time" content="2015-06-25T09:30:46.151Z">
+<meta property="og:updated_time" content="2015-06-26T03:48:08.567Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SylixOS线程间通信-SylixOS信号量">
 <meta name="twitter:description" content="SylixOS信号量有两种类型：二进制信号量和计数型信号量。
@@ -236,7 +236,7 @@
 <p>函数Lw_SemaphoreB_Clear原型分析：</p>
 <ul>
 <li>此函数返回错误号；</li>
-<li>参数ulId是二进制信号量的ID；</li>
+<li>参数ulId是二进制信号量的ID。</li>
 </ul>
 <h3 id="释放等待SylixOS二进制信号量的所有线程">释放等待SylixOS二进制信号量的所有线程</h3><figure class="highlight vbnet"><table><tr><td class="code"><pre><span class="line"><span class="built_in">ULONG</span>            Lw_SemaphoreB_Flush(LW_OBJECT_HANDLE  ulId, </span><br><span class="line">                                     <span class="built_in">ULONG</span>            *pulThreadUnblockNum);</span><br></pre></td></tr></table></figure>
 <p>函数Lw_SemaphoreB_Flush原型分析：</p>
@@ -316,6 +316,14 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/2015/06/26/程序员的自我修养-工具链使用/" title="程序员的自我修养-工具链使用">
+  <strong>上一篇：</strong><br/>
+  <span>
+  程序员的自我修养-工具链使用</span>
+</a>
+</div>
+
 
 <div class="next">
 <a href="/2015/06/25/SylixOS线程间通信-线程间通信/"  title="SylixOS线程间通信-线程间通信">
@@ -355,7 +363,7 @@
 		<ul>
 		
 		  
-			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>7</sup></a></li>
+			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>8</sup></a></li>
 		  
 		
 		  
@@ -372,7 +380,7 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>7</sup></a></li>
+				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>8</sup></a></li>
 			
 		
 			
@@ -393,6 +401,10 @@
 		
 			
 				<li><a href="/tags/全栈/" title="全栈">全栈<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/程序员的自我修养/" title="程序员的自我修养">程序员的自我修养<sup>1</sup></a></li>
 			
 		
 		</ul>
