@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>tcsetattr</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_009_498">&nbsp;</a>NAME</h4><blockquote>
+tcsetattr - set the parameters associated with the terminal
+</blockquote><h4><a name = "tag_000_009_499">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;<a href="termios.h.html">termios.h</a>&gt;
+
+int tcsetattr(int <i>fildes</i>, int <i>optional_actions</i>,
+    const struct termios *<i>termios_p</i>);
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_500">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>tcsetattr()</i>
+function sets the parameters associated with the terminal referred
+to by the open file descriptor
+<i>fildes</i>
+(an open file descriptor associated with a terminal)
+from the
+<b>termios</b>
+structure referenced by
+<i>termios_p</i>
+as follows:
+<ul>
+<p>
+<li>
+If
+<i>optional_actions</i>
+is TCSANOW, the change will occur immediately.
+<p>
+<li>
+If
+<i>optional_actions</i>
+is TCSADRAIN,
+the change will occur after all output written to
+<i>fildes</i>
+is transmitted. This function should be used when changing parameters
+that affect output.
+<p>
+<li>
+If
+<i>optional_actions</i>
+is TCSAFLUSH,
+the change will occur after all output written to
+<i>fildes</i>
+is transmitted, and all input so far received but not read will be
+discarded before the change is made.
+<p>
+</ul>
+<p>
+If the output baud rate
+stored in the
+<b>termios</b>
+structure pointed to by
+<i>termios_p</i>
+is the zero baud rate, B0, the modem control lines will no longer
+be asserted.
+Normally, this will disconnect the line.
+<p>
+If the input baud rate stored in the
+<b>termios</b>
+structure pointed to by
+<i>termios_p</i>
+is 0, the input baud rate given to the
+hardware will be the same as the output baud rate stored in the
+<b>termios</b>
+structure.
+<p>
+The
+<i>tcsetattr()</i>
+function will return successfully if it was able to perform
+any of the requested actions, even if some of the requested actions
+could not be performed. It will set all the attributes that
+implementation supports as requested and leave all the attributes
+not supported by the implementation unchanged. If no part of the request
+can be honoured, it will return -1 and set
+<i>errno</i>
+to [EINVAL]. If the
+input and output baud rates differ and are a combination that is not
+supported, neither baud rate is changed. A subsequent call to
+<i><a href="tcgetattr.html">tcgetattr()</a></i>
+will return the actual state of the terminal device
+(reflecting both the changes made and not made in the previous
+<i>tcsetattr()</i>
+call). The
+<i>tcsetattr()</i>
+function will not change the values in the
+<b>termios</b>
+structure whether or not it actually accepts them.
+<p>
+The effect of
+<i>tcsetattr()</i>
+is undefined if the value of the
+<b>termios</b>
+structure pointed to by
+<i>termios_p</i>
+was not derived from the result of a call to
+<i><a href="tcgetattr.html">tcgetattr()</a></i>
+on
+<i>fildes</i>;
+an application should modify
+only fields and flags defined by this specification between the call to
+<i><a href="tcgetattr.html">tcgetattr()</a></i>
+and
+<i>tcsetattr()</i>,
+leaving all other fields and flags unmodified.
+<p>
+No actions defined by this specification, other than a call to
+<i>tcsetattr()</i>
+or a close of the last file descriptor in the system associated with this
+terminal device, will cause any of the terminal attributes defined
+by this specification to change.
+<p>
+Attempts to use
+<i>tcsetattr()</i>
+from a process which is a member of a background process group on a
+<i>fildes</i>
+associated with its controlling terminal, will cause the process group
+to be sent a SIGTTOU signal.
+If the calling process is blocking or ignoring SIGTTOU signals,
+the process is allowed to perform the operation, and no signal is sent.
+</blockquote><h4><a name = "tag_000_009_501">&nbsp;</a>RETURN VALUE</h4><blockquote>
+Upon successful completion, 0 is returned. Otherwise, -1 is returned and
+<i>errno</i>
+is set to indicate the error.
+</blockquote><h4><a name = "tag_000_009_502">&nbsp;</a>ERRORS</h4><blockquote>
+The
+<i>tcsetattr()</i>
+function will fail if:
+<dl compact>
+
+<dt>[EBADF]<dd>
+The
+<i>fildes</i>
+argument is not a valid file descriptor.
+
+<dt>[EINTR]<dd>
+A signal interrupted
+<i>tcsetattr()</i>.
+
+<dt>[EINVAL]<dd>
+The
+<i>optional_actions</i>
+argument is not a supported value,
+or an attempt was made to change an attribute represented in the
+<b>termios</b>
+structure to an unsupported value.
+
+<dt>[ENOTTY]<dd>
+The file associated with
+<i>fildes</i>
+is not a terminal.
+
+</dl>
+<p>
+The
+<i>tcsetattr()</i>
+function may fail if:
+<dl compact>
+
+<dt>[EIO]<dd>
+The process group of the writing process is orphaned,
+and the writing process is not ignoring or blocking SIGTTOU.
+
+</dl>
+</blockquote><h4><a name = "tag_000_009_503">&nbsp;</a>EXAMPLES</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_504">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+If trying to change baud rates, applications should call
+<i>tcsetattr()</i>
+then call
+<i><a href="tcgetattr.html">tcgetattr()</a></i>
+in order to determine what baud rates were actually selected.
+</blockquote><h4><a name = "tag_000_009_505">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+Using an input baud rate of 0 to set the input rate equal to the output rate
+will not necessarily be supported in future issues of this document.
+<p>
+In the ISO&nbsp;POSIX-1 standard, the possibility of an [EIO] error occurring is described in
+<b>XBD</b> specification, <a href="../xbd/termios.html#tag_008_001_004"><b>Terminal Access Control</b>&nbsp;</a>, but it is not mentioned in the
+<i>tcsetattr()</i>
+interface definition.
+It has become clear that this omission was unintended,
+so it is likely that the [EIO] error will be reclassified as
+a &quot;will fail&quot; 
+in a future issue of the POSIX standard.
+</blockquote><h4><a name = "tag_000_009_506">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="cfgetispeed.html">cfgetispeed()</a></i>,
+<i><a href="tcgetattr.html">tcgetattr()</a></i>,
+<i><a href="termios.h.html">&lt;termios.h&gt;</a></i>,
+<i><a href="unistd.h.html">&lt;unistd.h&gt;</a></i>,
+the <b>XBD</b> specification, <a href="../xbd/termios.html"><b>General Terminal Interface</b>&nbsp;</a>.
+</blockquote><h4>DERIVATION</h4><blockquote>
+Derived from the POSIX.1-1988 standard.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>
+

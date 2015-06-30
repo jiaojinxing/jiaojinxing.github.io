@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>tcflow</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_009_444">&nbsp;</a>NAME</h4><blockquote>
+tcflow - suspend or restart the transmission or reception of data
+</blockquote><h4><a name = "tag_000_009_445">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;<a href="termios.h.html">termios.h</a>&gt;
+
+int tcflow(int <i>fildes</i>, int <i>action</i>);
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_446">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>tcflow()</i>
+function suspends transmission or reception of data on the object
+referred to by
+<i>fildes</i>,
+depending on the value of
+<i>action</i>.
+The
+<i>fildes</i>
+argument is an open file descriptor associated with a terminal.
+<ul>
+<p>
+<li>
+If
+<i>action</i>
+is TCOOFF, output is suspended.
+<p>
+<li>
+If
+<i>action</i>
+is TCOON, suspended output is restarted.
+<p>
+<li>
+If
+<i>action</i>
+is TCIOFF, the system transmits a STOP character, which is
+intended to cause the terminal device to stop transmitting data
+to the system.
+<p>
+<li>
+If
+<i>action</i>
+is TCION, the system transmits a START character, which is
+intended to cause the terminal device to start transmitting data to
+the system.
+<p>
+</ul>
+<p>
+The default on the opening of a terminal file is that neither its input
+nor its output are suspended.
+<p>
+Attempts to use
+<i>tcflow()</i>
+from a process which is a member of a background process group on a
+<i>fildes</i>
+associated with its controlling terminal, will cause the process group
+to be sent a SIGTTOU signal.
+If the calling process is blocking or ignoring SIGTTOU signals,
+the process is allowed to perform the operation, and no signal is
+sent.
+</blockquote><h4><a name = "tag_000_009_447">&nbsp;</a>RETURN VALUE</h4><blockquote>
+Upon successful completion, 0 is returned. Otherwise, -1 is returned and
+<i>errno</i>
+is set to indicate the error.
+</blockquote><h4><a name = "tag_000_009_448">&nbsp;</a>ERRORS</h4><blockquote>
+The
+<i>tcflow()</i>
+function will fail if:
+<dl compact>
+
+<dt>[EBADF]<dd>
+The
+<i>fildes</i>
+argument is not a valid file descriptor.
+
+<dt>[EINVAL]<dd>
+The
+<i>action</i>
+argument is not a supported value.
+
+<dt>[ENOTTY]<dd>
+The file associated with
+<i>fildes</i>
+is not a terminal.
+
+</dl>
+<p>
+The
+<i>tcflow()</i>
+function may fail if:
+<dl compact>
+
+<dt>[EIO]<dd>
+The process group of the writing process is orphaned,
+and the writing process is not ignoring or blocking SIGTTOU.
+
+</dl>
+</blockquote><h4><a name = "tag_000_009_449">&nbsp;</a>EXAMPLES</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_450">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_451">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+In the ISO&nbsp;POSIX-1 standard, the possibility of an [EIO] error occurring is described in
+<b>XBD</b> specification, <a href="../xbd/termios.html#tag_008_001_004"><b>Terminal Access Control</b>&nbsp;</a>, but it is not mentioned in the
+<i>tcflow()</i>
+interface definition.
+It has become clear that this omission was unintended,
+so it is likely that the [EIO] error will be re-classified as
+a &quot;will fail&quot; 
+in a future issue of the POSIX standard.
+</blockquote><h4><a name = "tag_000_009_452">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="tcsendbreak.html">tcsendbreak()</a></i>,
+<i><a href="termios.h.html">&lt;termios.h&gt;</a></i>,
+<i><a href="unistd.h.html">&lt;unistd.h&gt;</a></i>,
+the <b>XBD</b> specification, <a href="../xbd/termios.html"><b>General Terminal Interface</b>&nbsp;</a>.
+<br>
+</blockquote><h4>DERIVATION</h4><blockquote>
+Derived from the POSIX.1-1988 standard.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>
+

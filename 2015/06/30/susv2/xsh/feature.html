@@ -1,0 +1,303 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>Feature Groups</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade><blockquote>
+<center>
+<h3><a name = "tag_000_005">&nbsp;</a>Feature Groups</h3>
+</center>
+<xref type="2" name="feature"></xref>
+<p>
+The system may provide one or more of the following Feature Groups:
+<ul>
+<p>
+<li>
+<a href = "#tag_000_005_001">
+Encryption
+</a>
+<p>
+<li>
+<a href = "#tag_000_005_002">
+Realtime
+</a>
+<p>
+<li>
+<a href = "#tag_000_005_003">
+Realtime Threads
+</a>
+<p>
+<li>
+<a href = "#tag_000_005_004">
+Legacy.
+</a>
+<p>
+</ul>
+<p>
+When an implementation claims that a feature is provided, all of
+its constituent parts shall be provided and shall comply with this
+specification.
+<p>
+For all Feature Groups, interfaces to all elements
+of the Feature Group shall exist.
+On implementations that do not support individual interfaces, each
+unsupported interface shall indicate an error, with 
+<i>errno</i>
+set to
+[ENOSYS]
+unless otherwise specified.
+<p>
+If individual interfaces are supported, but the whole Feature Group is
+not supported, the interfaces will behave as defined in this
+specification.
+<h4><a name = "tag_000_005_001">Encryption</a></h4>
+The Encryption Feature Group includes the following interfaces:
+<pre>
+<dl compact><dt> <dd>
+<i><a href="crypt.html">crypt()</a></i>
+<i><a href="encrypt.html">encrypt()</a></i>
+<i><a href="setkey.html">setkey()</a></i>
+</dl>
+</pre>
+These are marked <b>CRYPT</b>.
+<p>
+Due to U.S. Government export restrictions on the decoding algorithm,
+implementations are restricted in making these functions available.  All
+the functions in the Encryption Feature Group
+may therefore return [ENOSYS] or alternatively,
+<i><a href="encrypt.html">encrypt()</a></i>
+shall return [ENOSYS] for the decryption operation.
+<p>
+An implementation that claims conformance to this Feature Group shall set
+_XOPEN_CRYPT to a value other than -1.
+An implementation that does not claim conformance to this Feature Group
+shall set _XOPEN_CRYPT to -1.
+<h4><a name = "tag_000_005_002">Realtime</a></h4>
+This document includes all the interfaces defined in the POSIX Realtime Extension.
+<p>
+Where entire manual pages have been added, they are marked
+<b>REALTIME</b>.
+Where additional semantics have been added to existing manual pages,
+the new material is identified by use of the RT margin legend.
+<p>
+An implementation that claims conformance to this Feature Group shall
+set the macro _XOPEN_REALTIME to a value other than -1.  An 
+implementation that does not claim conformance shall set
+_XOPEN_REALTIME to -1.
+<p>
+The POSIX Realtime Extension defines the following symbolic constants and their meaning:
+<dl compact>
+
+<dt>_POSIX_ASYNCHRONOUS_IO<dd>
+
+Implementation supports the Asynchronous Input and Output option.
+
+<dt>_POSIX_FSYNC<dd>
+
+Implementation supports the File Synchronisation option.
+XSI-conformant systems always support the functionality associated
+with this symbol.
+
+<dt>_POSIX_MAPPED_FILES<dd>
+
+Implementation supports the Memory Mapped Files option.
+XSI-conformant systems always support the functionality associated
+with this symbol.
+
+<dt>_POSIX_MEMLOCK<dd>
+
+Implementation supports the Process Memory Locking option.
+
+<dt>_POSIX_MEMLOCK_RANGE<dd>
+
+Implementation supports the Range Memory Locking option.
+
+<dt>_POSIX_MEMORY_PROTECTION<dd>
+
+Implementation supports the Memory Protection option.
+XSI-conformant systems always support the functionality associated
+with this symbol.
+
+<dt>_POSIX_MESSAGE_PASSING<dd>
+
+Implementation supports the Message Passing option.
+
+<dt>_POSIX_PRIORITIZED_IO<dd>
+
+Implementation supports the Prioritized Input and Output option.
+
+<dt>_POSIX_PRIORITY_SCHEDULING<dd>
+
+Implementation supports the Process Scheduling option.
+
+<dt>_POSIX_REALTIME_SIGNALS<dd>
+
+Implementation supports the Realtime Signals Extension option.
+
+<dt>_POSIX_SEMAPHORES<dd>
+
+Implementation supports the Semaphores option.
+
+<dt>_POSIX_SHARED_MEMORY_OBJECTS<dd>
+
+Implementation supports the Shared Memory Objects option.
+
+<dt>_POSIX_SYNCHRONIZED_IO<dd>
+
+Implementation supports the Synchronised Input and Output option.
+
+<dt>_POSIX_TIMERS<dd>
+
+Implementation supports the Timers option.
+
+</dl>
+<p>
+If the symbol _XOPEN_REALTIME is defined to have a value other than
+-1, then the following symbolic constants will be defined to an
+unspecified value:
+<pre>
+<dl compact><dt> <dd>
+_POSIX_ASYNCHRONOUS_IO
+_POSIX_MEMLOCK
+_POSIX_MEMLOCK_RANGE
+_POSIX_MESSAGE_PASSING
+_POSIX_PRIORITY_SCHEDULING
+_POSIX_REALTIME_SIGNALS
+_POSIX_SEMAPHORES
+_POSIX_SHARED_MEMORY_OBJECTS
+_POSIX_SYNCHRONIZED_IO
+_POSIX_TIMERS
+</dl>
+</pre>
+<p>
+Interfaces in the _XOPEN_REALTIME Feature Group are marked <b>REALTIME</b>.
+<p>
+The functionality associated with _POSIX_MAPPED_FILES,
+_POSIX_MEMORY_PROTECTION and _POSIX_FSYNC is always present on
+XSI-conformant systems.
+<p>
+Support of _POSIX_PRIORITIZED_IO is optional.  If this functionality is
+supported, then _POSIX_PRIORITIZED_IO will be set to a value other than
+-1.  Otherwise it will be undefined.
+<p>
+If _POSIX_PRIORITIZED_IO is supported, then asynchronous I/O operations
+performed by 
+<i><a href="aio_read.html">aio_read()</a></i>,
+<i><a href="aio_write.html">aio_write()</a></i>
+and
+<i><a href="lio_listio.html">lio_listio()</a></i>
+will be submitted at a priority equal to the scheduling priority of the
+process minus <i>aiocbp-&gt;aio_reqprio</i>.  The implementation will also
+document for which files I/O prioritization is supported.
+<h4><a name = "tag_000_005_003">Realtime Threads</a></h4>
+<xref type="3" name="realtime_threads"></xref>
+<p>
+The Realtime Threads Feature Group includes the interfaces covered by
+the POSIX Threads compile-time symbolic constants
+_POSIX_THREAD_PRIO_INHERIT,
+_POSIX_THREAD_PRIO_PROTECT
+and
+_POSIX_THREAD_PRIORITY_SCHEDULING as defined in
+<i><a href="unistd.h.html">&lt;unistd.h&gt;</a></i>.
+This includes the following interfaces:
+<pre>
+<dl compact><dt> <dd>
+<i><a href="pthread_attr_getinheritsched.html">pthread_attr_getinheritsched()</a></i>
+<i><a href="pthread_attr_getschedpolicy.html">pthread_attr_getschedpolicy()</a></i>
+<i><a href="pthread_attr_getscope.html">pthread_attr_getscope()</a></i>
+<i><a href="pthread_attr_setinheritsched.html">pthread_attr_setinheritsched()</a></i>
+<i><a href="pthread_attr_setschedpolicy.html">pthread_attr_setschedpolicy()</a></i>
+<i><a href="pthread_attr_setscope.html">pthread_attr_setscope()</a></i>
+<i><a href="pthread_getschedparam.html">pthread_getschedparam()</a></i>
+<i><a href="pthread_mutex_getprioceiling.html">pthread_mutex_getprioceiling()</a></i>
+<i><a href="pthread_mutex_setprioceiling.html">pthread_mutex_setprioceiling()</a></i>
+<i><a href="pthread_mutexattr_getprioceiling.html">pthread_mutexattr_getprioceiling()</a></i>
+<i><a href="pthread_mutexattr_getprotocol.html">pthread_mutexattr_getprotocol()</a></i>
+<i><a href="pthread_mutexattr_setprioceiling.html">pthread_mutexattr_setprioceiling()</a></i>
+<i><a href="pthread_mutexattr_setprotocol.html">pthread_mutexattr_setprotocol()</a></i>
+<i><a href="pthread_setschedparam.html">pthread_setschedparam()</a></i>
+</dl>
+</pre>
+<p>
+Where applicable, pages are marked <b>REALTIME THREADS</b>,
+together with the RTT margin legend for the SYNOPSIS section.
+<p>
+An implementation that claims conformance to this Feature Group shall
+set _XOPEN_REALTIME_THREADS to a value other than -1.
+An implementation that does not claim conformance to this Feature
+Group shall set the value of _XOPEN_REALTIME_THREADS to -1.
+<p>
+If the symbol _XOPEN_REALTIME_THREADS is defined to have a value other
+than -1, then the symbols:
+
+<dl compact><dt> <dd>
+_POSIX_THREAD_PRIORITY_SCHEDULING
+_POSIX_THREAD_PRIO_PROTECT
+_POSIX_THREAD_PRIO_INHERIT
+</dl>
+</pre>
+<p>
+will also be defined; otherwise these symbols will be undefined.
+<h4><a name = "tag_000_005_004">Legacy</a></h4>
+<xref type="3" name="legacy"></xref>
+<p>
+The Legacy Feature Group includes the interfaces and headers which
+were mandatory in previous versions of this specification but are
+optional in this version of the specification.
+<p>
+These interfaces and headers are retained in this specification
+because of their widespread use.
+Application writers should not rely on the existence of these
+interfaces or headers in new applications, but should follow the
+migration path detailed in the APPLICATION USAGE sections of the
+relevant pages.
+<p>
+Various factors may have contributed to the decision to mark an
+interface or header <b>LEGACY</b>.
+In all cases, the specific reasons for the withdrawal of an interface
+or header are documented on the relevant pages.
+<p>
+Once an interface or header is marked <b>LEGACY</b>, no modifications will be
+made to the specifications of such interfaces or headers other than to
+the APPLICATION USAGE sections of the relevant pages.
+<p>
+The interfaces and headers which form this Feature Group are as
+follows:
+
+<table  bordercolor=#000000 border=1 align=center><tr valign=top><th colspan=5 align=center><b>Legacy Interfaces, Headers and External Variables</b>
+<tr valign=top><td align=left> <a href="advance.html"><i>advance</i>()</a> <a href="brk.html"><i>brk</i>()</a> <a href="chroot.html"><i>chroot</i>()</a> <a href="compile.html"><i>compile</i>()</a> <a href="cuserid.html"><i>cuserid</i>()</a> 
+<td align=left> <a href="gamma.html"><i>gamma</i>()</a> <a href="getdtablesize.html"><i>getdtablesize</i>()</a> <a href="getpagesize.html"><i>getpagesize</i>()</a> <a href="getpass.html"><i>getpass</i>()</a> <a href="getw.html"><i>getw</i>()</a> 
+<td align=left> <a href="putw.html"><i>putw</i>()</a> <a href="re_comp.html"><i>re_comp</i>()</a> <a href="re_exec.html"><i>re_exec</i>()</a> <a href="regcmp.html"><i>regcmp</i>()</a> <a href="regex.html"><i>regex</i>()</a> 
+<td align=left> <a href="sbrk.html"><i>sbrk</i>()</a> <a href="sigstack.html"><i>sigstack</i>()</a> <a href="step.html"><i>step</i>()</a> <a href="ttyslot.html"><i>ttyslot</i>()</a> <a href="valloc.html"><i>valloc</i>()</a>
+<td align=left> <a href="wait3.html"><i>wait3</i>()</a>
+<tr valign=top><td align=left><a href="regex.h.html"><b>&lt;regexp.h&gt;</b>&nbsp;</a>
+<td align=left><a href="varargs.h.html"><b>&lt;varargs.h&gt;</b>&nbsp;</a>
+<td align=left><a href="re_comp.h.html"><b>&lt;re_comp.h&gt;</b>&nbsp;</a>
+<td align=left>&nbsp;
+<td align=left>&nbsp;
+<tr valign=top><td align=left><a href="loc1.html"><i>loc1</i>&nbsp;</a>
+<td align=left><a href="libgen.h.html"><i>__loc1</i>&nbsp;</a>
+<td align=left><a href="loc1.html"><i>loc2</i>&nbsp;</a>
+<td align=left><a href="locs.html"><i>locs</i>&nbsp;</a>
+<td align=left>&nbsp;
+</table>
+</pre>
+<p>
+An implementation that claims conformance to this Feature Group shall
+set the macro _XOPEN_LEGACY to a value other than -1.  An 
+implementation that does not claim conformance shall set
+_XOPEN_LEGACY to -1.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

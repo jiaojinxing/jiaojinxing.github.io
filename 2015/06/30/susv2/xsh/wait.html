@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>wait</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_010_428">&nbsp;</a>NAME</h4><blockquote>
+wait, waitpid - wait for a child process to stop or terminate
+</blockquote><h4><a name = "tag_000_010_429">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;<a href="systypes.h.html">sys/types.h</a>&gt;
+#include &lt;<a href="syswait.h.html">sys/wait.h</a>&gt;
+
+pid_t wait(int *<i>stat_loc</i>);
+pid_t waitpid(pid_t <i>pid</i>, int *<i>stat_loc</i>, int <i>options</i>);
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_010_430">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>wait()</i>
+and
+<i><a href="waitpid.html">waitpid()</a></i>
+functions allow the calling process to obtain status information
+pertaining to one of its child processes.
+Various options permit status information to be obtained for
+child processes that have terminated or stopped.
+If status information is available for two or more child
+processes, the order in which their status is reported is
+unspecified.
+<p>
+The
+<i>wait()</i>
+function will suspend execution of the calling thread until
+status information for one of its terminated child processes is
+available, or until delivery of a signal whose action is either
+to execute a signal-catching function or to terminate the
+process.
+If more than one thread is suspended in
+<i>wait()</i>
+or
+<i><a href="waitpid.html">waitpid()</a></i>
+awaiting termination of the same process, exactly one thread will
+return the process status at the time of the target process
+termination.
+If status information is available prior to the call to
+<i>wait()</i>,
+return will be immediate.
+<p>
+The
+<i><a href="waitpid.html">waitpid()</a></i>
+function will behave identically to
+<i>wait()</i>,
+if the
+<i>pid</i>
+argument is (<b>pid_t</b>)-1 and the
+<i>options</i>
+argument is 0.  Otherwise, its behaviour will be modified by the values of the
+<i>pid</i>
+and
+<i>options</i>
+arguments.
+<p>
+The
+<i>pid</i>
+argument specifies a set of child processes for which status is
+requested.
+The
+<i><a href="waitpid.html">waitpid()</a></i>
+function will only return the status of a child process from this set:
+<p>
+<ul>
+<p>
+<li>
+If
+<i>pid</i>
+is equal to (<b>pid_t</b>)-1, status is requested for any
+child process.
+In this respect,
+<i><a href="waitpid.html">waitpid()</a></i>
+is then equivalent to
+<i>wait()</i>.
+<p>
+<li>
+If
+<i>pid</i>
+is greater than 0, it specifies the process ID of a single
+child process for which status is requested.
+<p>
+<li>
+If
+<i>pid</i>
+is 0, status is requested for any child process whose
+process group ID is equal to that of the calling process.
+<p>
+<li>
+If
+<i>pid</i>
+is less than (<b>pid_t</b>)-1, status is requested for any child process whose
+process group ID is equal to the absolute value of
+<i>pid</i>.
+<p>
+</ul>
+<p>
+The
+<i>options</i>
+argument is constructed from the bitwise-inclusive OR of zero or
+more of the following flags, defined in the header
+<i><a href="syswait.h.html">&lt;sys/wait.h&gt;</a></i>.
+<dl compact>
+
+<dt>WCONTINUED<dd>
+The
+<i><a href="waitpid.html">waitpid()</a></i>
+function will report the status of any continued child process specified by
+<i>pid</i> whose status has not been reported since it continued from a job
+control stop.
+
+<dt>WNOHANG<dd>
+The
+<i><a href="waitpid.html">waitpid()</a></i>
+function will not suspend execution of the calling thread 
+if status is not immediately available for one of the child
+processes specified by
+<i>pid</i>.
+
+<dt>WUNTRACED<dd>
+The status of any
+child processes specified by
+<i>pid</i>
+that are stopped, and whose status has not yet been reported
+since they stopped, will also be reported to the requesting
+process.
+
+</dl>
+<p>
+If the calling process has SA_NOCLDWAIT set or has SIGCHLD set to SIG_IGN,
+and the process has no unwaited for children that were transformed
+into zombie processes, 
+the calling thread will block until all of the children of the process
+containing the calling thread terminate, and
+<i>wait()</i>
+and
+<i><a href="waitpid.html">waitpid()</a></i>
+will fail and set
+<i>errno</i>
+to [ECHILD].
+<p>
+If
+<i>wait()</i>
+or
+<i><a href="waitpid.html">waitpid()</a></i>
+return because the status of a child process is available, these
+functions will return a value equal to the process ID of the
+child process.
+In this case, if the value of the argument
+<i>stat_loc</i>
+is not a null pointer, information will be stored in the location pointed
+to by
+<i>stat_loc</i>.
+If and only if the status returned is from a terminated child
+process that returned 0 from
+<i>main()</i>
+or passed 0 as the
+<i>status</i>
+argument to
+<i><a href="_exit.html">_exit()</a></i>
+or
+<i><a href="exit.html">exit()</a></i>,
+the value stored at the location pointed to by
+<i>stat_loc</i>
+will be 0.
+Regardless of its value, this information may be interpreted
+using the following macros, which are defined in
+<i><a href="syswait.h.html">&lt;sys/wait.h&gt;</a></i>
+and evaluate to integral expressions; the
+<i>stat_val</i>
+argument is the integer value pointed to by
+<i>stat_loc.</i>
+<dl compact>
+
+<dt>WIFEXITED(<i>stat_val</i>)<dd>
+Evaluates to a non-zero value if status was returned for a child
+process that terminated normally.
+
+<dt>WEXITSTATUS(<i>stat_val</i>)<dd>
+If the value of WIFEXITED(<i>stat_val</i>) is non-zero, this macro
+evaluates to the low-order 8 bits of the
+<i>status</i>
+argument that the child process passed to
+<i><a href="_exit.html">_exit()</a></i>
+or
+<i><a href="exit.html">exit()</a></i>,
+or the value the child process returned from
+<i>main()</i>.
+
+<dt>WIFSIGNALED(<i>stat_val</i>)<dd>
+Evaluates to non-zero value if status was returned for a child
+process that terminated due to the receipt of a signal that was
+not caught (see
+<i><a href="signal.h.html">&lt;signal.h&gt;</a></i>).
+
+<dt>WTERMSIG(<i>stat_val</i>)<dd>
+If the value of WIFSIGNALED(<i>stat_val</i>) is non-zero, this macro
+evaluates to the number of the signal that caused the termination
+of the child process.
+
+<dt>WIFSTOPPED(<i>stat_val</i>)<dd>
+Evaluates to a non-zero value if status was returned for a child
+process that is currently stopped.
+
+<dt>WSTOPSIG(<i>stat_val</i>)<dd>
+If the value of WIFSTOPPED(<i>stat_val</i>) is non-zero, this macro
+evaluates to the number of the signal that caused the child
+process to stop.
+
+<dt>WIFCONTINUED(<i>stat_val</i>)<dd>
+
+Evaluates to a non-zero value if status was returned for a
+child process that has continued from a job control stop.
+
+</dl>
+<p>
+If the information pointed to by <i>stat_loc</i> was stored by a call to
+<i><a href="waitpid.html">waitpid()</a></i>
+that specified the WUNTRACED flag
+&nbsp;and did not specify the WCONTINUED flag,
+exactly one of the macros WIFEXITED(*<i>stat_loc</i>),
+WIFSIGNALED(*<i>stat_loc</i>), and WIFSTOPPED(*<i>stat_loc</i>), will evaluate
+to a non-zero value.
+<p>
+If the information pointed to by <i>stat_loc</i> was stored by a call to
+<i><a href="waitpid.html">waitpid()</a></i>
+that specified the WUNTRACED
+&nbsp;and WCONTINUED
+flags, exactly one of the macros
+WIFEXITED(*<i>stat_loc</i>), WIFSIGNALED(*<i>stat_loc</i>),
+WIFSTOPPED(*<i>stat_loc</i>),
+&nbsp;and WIFCONTINUED(*<i>stat_loc</i>),
+will evaluate to a non-zero value.
+<p>
+If the information pointed to by <i>stat_loc</i> was stored by a call to
+<i><a href="waitpid.html">waitpid()</a></i>
+that did not specify the WUNTRACED
+&nbsp;or WCONTINUED
+flags, or by a call to the
+<i>wait()</i>
+function, exactly one of the macros WIFEXITED(*<i>stat_loc</i>)
+and WIFSIGNALED(*<i>stat_loc</i>) will evaluate to a non-zero value.
+<p>
+If the information pointed to by <i>stat_loc</i> was stored by a call to
+<i><a href="waitpid.html">waitpid()</a></i>
+that did not specify the WUNTRACED flag
+&nbsp;and specified the WCONTINUED flag,
+or by a call to the
+<i>wait()</i>
+function, exactly one of the macros
+WIFEXITED(*<i>stat_loc</i>), WIFSIGNALED(*<i>stat_loc</i>),
+&nbsp;and WIFCONTINUED(*<i>stat_loc</i>),
+will evaluate to a non-zero value.
+<p>
+There may be additional implementation-dependent circumstances under which
+<i>wait()</i>
+or
+<i><a href="waitpid.html">waitpid()</a></i>
+report status.
+This will not occur unless the calling process or one of its
+child processes explicitly makes use of a non-standard extension.
+In these cases the interpretation of the reported status is
+implementation-dependent.
+<p>
+If a parent process terminates without waiting for all of its
+child processes to terminate, the remaining child processes will
+be assigned a new parent process ID corresponding to an
+implementation-dependent system process.
+<br>
+</blockquote><h4><a name = "tag_000_010_431">&nbsp;</a>RETURN VALUE</h4><blockquote>
+If
+<i>wait()</i>
+or
+<i><a href="waitpid.html">waitpid()</a></i>
+returns because the status of a child process is
+available, these functions will return a value equal to the
+process ID of the child process for which status is reported.
+If
+<i>wait()</i>
+or
+<i><a href="waitpid.html">waitpid()</a></i>
+returns due to the delivery of a signal to the calling
+process, -1 will be returned and
+<i>errno</i>
+will be set to [EINTR].  If
+<i><a href="waitpid.html">waitpid()</a></i>
+was invoked with WNOHANG set in
+<i>options</i>,
+it has at least one child process specified by
+<i>pid</i>
+for which status is not available, and status is not available
+for any process specified by
+<i>pid</i>,
+0 will be returned.  Otherwise, (<b>pid_t</b>)-1 will be returned, and
+<i>errno</i>
+will be set to indicate the error.
+<br>
+</blockquote><h4><a name = "tag_000_010_432">&nbsp;</a>ERRORS</h4><blockquote>
+The
+<i>wait()</i>
+function will fail if:
+<dl compact>
+
+<dt>[ECHILD]<dd>
+The calling process has no existing unwaited-for child
+processes.
+
+<dt>[EINTR]<dd>
+The function was interrupted by a signal.
+The value of the location pointed to by
+<i>stat_loc</i>
+is undefined.
+
+</dl>
+<p>
+The
+<i><a href="waitpid.html">waitpid()</a></i>
+function will fail if:
+<dl compact>
+
+<dt>[ECHILD]<dd>
+The process or process group specified by
+<i>pid</i>
+does not exist or is not a child of the calling process.
+
+<dt>[EINTR]<dd>
+The function was interrupted by a signal.
+The value of the location pointed to by
+<i>stat_loc</i>
+is undefined.
+
+<dt>[EINVAL]<dd>
+The
+<i>options</i>
+argument is not valid.
+
+</dl>
+</blockquote><h4><a name = "tag_000_010_433">&nbsp;</a>EXAMPLES</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_010_434">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_010_435">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_010_436">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="exec.html">exec</a></i>,
+<i><a href="exit.html">exit()</a></i>,
+<i><a href="fork.html">fork()</a></i>,
+<i><a href="wait3.html">wait3()</a></i>,
+<i><a href="waitid.html">waitid()</a></i>,
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>,
+<i><a href="syswait.h.html">&lt;sys/wait.h&gt;</a></i>.
+</blockquote><h4>DERIVATION</h4><blockquote>
+Derived from Issue 1 of the SVID.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>
+

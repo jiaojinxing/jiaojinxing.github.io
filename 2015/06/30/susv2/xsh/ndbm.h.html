@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>&lt;ndbm.h&gt;</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_007_868">&nbsp;</a>NAME</h4><blockquote>
+ndbm.h - definitions for ndbm database operations
+</blockquote><h4><a name = "tag_000_007_869">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;ndbm.h&gt;
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_007_870">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>&lt;ndbm.h&gt;</i>
+header defines the
+<b>datum</b>
+type as a structure that includes at least the following members:
+<dl compact>
+
+<dt><b>void  *dptr</b><dd>A pointer to the application's data
+
+<dt><b>size_t dsize</b><dd>The size of the object pointed to by <b>dptr</b>
+
+</dl>
+<p>
+The 
+<b>size_t</b>
+type is defined through 
+<b>typedef</b>
+as described in 
+<i><a href="stddef.h.html">&lt;stddef.h&gt;</a></i>.
+<p>
+The
+<i>&lt;ndbm.h&gt;</i>
+header defines the
+<b>DBM</b>
+type through
+<b>typedef</b>.
+<p>
+The following constants are defined as possible values for the
+<i>store_mode</i> argument to
+<i><a href="dbm_store.html">dbm_store()</a></i>:
+<dl compact>
+
+<dt>DBM_INSERT<dd>
+Insertion of new entries only
+
+<dt>DBM_REPLACE<dd>
+Allow replacing existing entries
+
+</dl>
+<p>
+The following are declared as functions and may also be defined as macros.
+Function prototypes must be provided for use with an ISO C
+compiler.
+<pre>
+<code>
+int     <a href="dbm_clearerr.html">dbm_clearerr</a>(DBM *);
+void    <a href="dbm_close.html">dbm_close</a>(DBM *);
+int     <a href="dbm_delete.html">dbm_delete</a>(DBM *, datum);
+int     <a href="dbm_error.html">dbm_error</a>(DBM *);
+datum   <a href="dbm_fetch.html">dbm_fetch</a>(DBM *, datum);
+datum   <a href="dbm_firstkey.html">dbm_firstkey</a>(DBM *);
+datum   <a href="dbm_nextkey.html">dbm_nextkey</a>(DBM *);
+DBM    *<a href="dbm_open.html">dbm_open</a>(const char *, int, mode_t);
+int     <a href="dbm_store.html">dbm_store</a>(DBM *, datum, datum, int);
+</code>
+</pre>
+<p>
+The 
+<b>mode_t</b>
+type is defined through
+<b>typedef</b>
+as described in
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+</blockquote><h4><a name = "tag_000_007_871">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_007_872">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_007_873">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="dbm_clearerr.html">dbm_clearerr()</a></i>.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

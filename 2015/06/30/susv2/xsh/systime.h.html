@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>&lt;sys/time.h&gt;</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_009_369">&nbsp;</a>NAME</h4><blockquote>
+sys/time.h - time types
+</blockquote><h4><a name = "tag_000_009_370">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;sys/time.h&gt;
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_371">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>&lt;sys/time.h&gt;</i>
+header defines the
+<b>timeval</b>
+structure that includes at least the following members:
+<pre>
+<code>
+time_t         tv_sec      seconds
+suseconds_t    tv_usec     microseconds
+</code>
+</pre>
+<p>
+The
+<i>&lt;sys/time.h&gt;</i>
+header defines the
+<b>itimerval</b>
+structure that includes at least the following members:
+<pre>
+<code>
+struct timeval it_interval timer interval
+struct timeval it_value    current value
+</code>
+</pre>
+<p>
+The
+<b>time_t</b>
+and
+<b>suseconds_t</b>
+types are defined as described in
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+<p>
+The
+<i>&lt;sys/time.h&gt;</i>
+header defines the
+<b>fd_set</b>
+type as a structure that includes at least the following member:
+<pre>
+<code>
+long  fds_bits[]  bit mask for open file descriptions
+</code>
+</pre>
+<p>
+The
+<i>&lt;sys/time.h&gt;</i>
+header defines the following values for the <i>which</i> argument of
+<i><a href="getitimer.html">getitimer()</a></i>
+and
+<i><a href="setitimer.html">setitimer()</a></i>:
+<dl compact>
+
+<dt>ITIMER_REAL<dd>
+Decrements in real time.
+
+<dt>ITIMER_VIRTUAL<dd>
+Decrements in process virtual time.
+
+<dt>ITIMER_PROF<dd>
+Decrements both in process virtual time and when the system is running on
+behalf of the process.
+
+</dl>
+<p>
+Each of the following may be declared as a function, or defined as a
+macro, or both:
+<dl compact>
+
+<dt>void FD_CLR(int <i>fd</i>, fd_set *<i>fdset</i>)<dd>
+
+Clears the bit for the file descriptor <i>fd</i> in the file descriptor set
+<i>fdset</i>.
+
+<dt>int  FD_ISSET(int <i>fd</i>, fd_set *<i>fdset</i>)<dd>
+
+Returns a non-zero value if the bit for the file descriptor <i>fd</i> is
+set in the file descriptor set by <i>fdset</i>, and 0 otherwise.
+
+<dt>void FD_SET(int <i>fd</i>, fd_set *<i>fdset</i>)<dd>
+
+Sets the bit for the file descriptor <i>fd</i> in the file descriptor set
+<i>fdset</i>.
+
+<dt>void FD_ZERO(fd_set *<i>fdset</i>)<dd>
+
+Initialises the file descriptor set <i>fdset</i> to have zero bits for all file
+descriptors.
+
+<dt>FD_SETSIZE<dd>
+
+Maximum number of file descriptors in an <b>fd_set</b> structure.
+
+</dl>
+<p>
+If implemented as macros, these may evaluate their arguments more than
+once, so that arguments must never be expressions with side effects.
+<p>
+The following are declared as functions and may also be defined as macros.
+Function prototypes must be provided for use with an ISO C
+compiler.
+<pre>
+<code>
+int   <a href="getitimer.html">getitimer</a>(int, struct itimerval *);
+int   <a href="setitimer.html">setitimer</a>(int, const struct itimerval *, struct itimerval *);
+int   <a href="gettimeofday.html">gettimeofday</a>(struct timeval *, void *);
+int   <a href="select.html">select</a>(int, fd_set *, fd_set *, fd_set *, struct timeval *);
+int   <a href="utimes.html">utimes</a>(const char *, const struct timeval [2]);
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_372">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_373">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_374">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="getitimer.html">getitimer()</a></i>,
+<i><a href="gettimeofday.html">gettimeofday()</a></i>,
+<i><a href="select.html">select()</a></i>,
+<i><a href="setitimer.html">setitimer()</a></i>,
+<i><a href="utimes.html">utimes()</a></i>.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

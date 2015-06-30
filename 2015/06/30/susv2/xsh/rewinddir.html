@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>rewinddir</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_008_114">&nbsp;</a>NAME</h4><blockquote>
+rewinddir - reset position of directory
+stream to the beginning of a directory
+</blockquote><h4><a name = "tag_000_008_115">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;<a href="systypes.h.html">sys/types.h</a>&gt;
+#include &lt;<a href="dirent.h.html">dirent.h</a>&gt;
+
+void rewinddir(DIR *<i>dirp</i>);
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_008_116">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>rewinddir()</i>
+function resets the position of the directory stream to which
+<i>dirp</i>
+refers to the beginning of the directory.
+It also causes the directory stream to refer to the current
+state of the corresponding directory, as a call to
+<i><a href="opendir.html">opendir()</a></i>
+would have done.  If
+<i>dirp</i>
+does not refer to a directory stream, the effect is undefined.
+<p>
+After a call to the
+<i><a href="fork.html">fork()</a></i>
+function, either the parent or child (but not both) may continue processing
+the directory stream using
+<i><a href="readdir.html">readdir()</a></i>,
+<i>rewinddir()</i>
+or
+<i><a href="seekdir.html">seekdir()</a></i>.
+&nbsp;If both the parent and child processes use these functions, the result is
+undefined.
+</blockquote><h4><a name = "tag_000_008_117">&nbsp;</a>RETURN VALUE</h4><blockquote>
+The
+<i>rewinddir()</i>
+function does not return a value.
+</blockquote><h4><a name = "tag_000_008_118">&nbsp;</a>ERRORS</h4><blockquote>
+No errors are defined.
+</blockquote><h4><a name = "tag_000_008_119">&nbsp;</a>EXAMPLES</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_008_120">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+The
+<i>rewinddir()</i>
+function should be used in conjunction with
+<i><a href="opendir.html">opendir()</a></i>,
+<i><a href="readdir.html">readdir()</a></i>
+and
+<i><a href="closedir.html">closedir()</a></i>
+to examine the contents of the directory.
+This method is recommended for portability.
+</blockquote><h4><a name = "tag_000_008_121">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_008_122">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="closedir.html">closedir()</a></i>,
+<i><a href="opendir.html">opendir()</a></i>,
+<i><a href="readdir.html">readdir()</a></i>,
+<i><a href="dirent.h.html">&lt;dirent.h&gt;</a></i>,
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

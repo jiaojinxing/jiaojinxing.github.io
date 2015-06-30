@@ -1,0 +1,279 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>strfmon</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_009_093">&nbsp;</a>NAME</h4><blockquote>
+strfmon - convert monetary value to a string
+</blockquote><h4><a name = "tag_000_009_094">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;<a href="monetary.h.html">monetary.h</a>&gt;
+
+ssize_t strfmon(char *<i>s</i>, size_t <i>maxsize</i>, const char *<i>format</i>, ...);
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_095">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>strfmon()</i>
+function places characters into the array pointed to by
+<i>s</i>
+as controlled by the string pointed to by
+<i>format</i>.
+No more than
+<i>maxsize</i>
+bytes are placed into the array.
+<p>
+The format is a character string that contains two types of objects:
+plain characters,
+which are simply copied to the output stream,
+and conversion specifications,
+each of which results in the fetching of zero or more arguments
+which are converted and formatted.
+The results are undefined if there are insufficient arguments for the format.
+If the format
+is exhausted while arguments remain, the excess arguments are simply ignored.
+<p>
+A conversion specification consists of the following sequence:
+<ul>
+<p>
+<li>
+a % character
+<p>
+<li>
+optional flags
+<p>
+<li>
+optional field width
+<p>
+<li>
+optional left precision
+<p>
+<li>
+optional right precision
+<p>
+<li>
+a required conversion character that determines the conversion to
+be performed.
+<p>
+</ul>
+<h5><a name = "tag_000_009_095_001">&nbsp;</a>Flags</h5>
+One or more of the following optional flags can be specified
+to control the conversion:
+<dl compact>
+
+<dt>=<i>f</i><dd>An = followed by a single character
+<i>f</i>
+which is used as the numeric fill character.
+The fill character must be representable in a single byte in order to work
+with precision and width counts.
+The default numeric fill character is the space character.
+This flag does not affect field width filling
+which always uses the space character.
+This flag is ignored unless a left precision (see below) is
+specified.
+
+
+<dt>^<dd>Do not format the currency amount with grouping characters.
+The default is to insert the grouping characters if
+defined for the current locale.
+
+
+<dt>+&nbsp;or&nbsp;(<dd>Specify the style of representing positive
+and negative currency amounts.
+Only one of + or ( may be specified.
+If +
+is specified, the locale's equivalent of + and - are used
+(for example, in the U.S.A.: the empty string if positive and - if
+negative).
+If ( is specified,
+negative amounts are enclosed within parentheses.
+If neither flag is specified, the + style is used.
+
+
+<dt>!<dd>Suppress the currency symbol from the output conversion.
+
+<dt>-<dd>Specify the alignment.  If this flag is present all fields are
+left-justified (padded to the right) rather than right-justified.
+
+</dl>
+<h5><a name = "tag_000_009_095_002">&nbsp;</a>Field Width</h5>
+<dl compact>
+
+<dt><i>w</i><dd>A decimal digit string
+<i>w</i>
+specifying a minimum field width in bytes in which the result of the
+conversion is right-justified (or left-justified if the flag - is
+specified).  The default is 0.
+
+</dl>
+<h5><a name = "tag_000_009_095_003">&nbsp;</a>Left Precision</h5>
+<dl compact>
+
+<dt>#<i>n</i><dd>A # followed by a decimal digit string
+<i>n</i>
+specifying a maximum number of digits expected to be
+formatted to the left of the radix character.
+This option can be used to keep the formatted
+output from multiple calls to the
+<i>strfmon()</i>
+aligned in the same columns.
+It can also be used to fill unused positions with a special
+character as in $***123.45.
+This option causes an amount to be formatted as if it has
+the number of digits specified by
+<i>n</i>.
+If more than
+<i>n</i>
+digit positions are required,
+this conversion specification is ignored.
+Digit positions in excess of those actually
+required are filled with the numeric fill
+character (see the =<i>f</i> flag above).
+
+If grouping has not been suppressed with the ^ flag,
+and it is defined for the current locale,
+grouping separators are inserted before the fill characters (if any) are
+added.  Grouping separators are not applied to fill characters even if the
+fill character is a digit.
+
+To ensure alignment,
+any characters appearing before or after the number in the formatted
+output such as currency or sign symbols are
+padded as necessary with space characters to make
+their positive and negative formats an equal
+length.
+
+</dl>
+<h5><a name = "tag_000_009_095_004">&nbsp;</a>Right Precision</h5>
+<dl compact>
+
+<dt>.<i>p</i><dd>A period followed by a decimal digit string
+<i>p</i>
+specifying the number of digits after the radix character.
+If the value of the right precision
+<i>p</i>
+is 0, no radix character appears.  If a right precision is not included, a
+default specified by the current locale is used.  The amount being formatted
+is rounded to the specified number of digits prior to formatting.
+
+</dl>
+<h5><a name = "tag_000_009_095_005">&nbsp;</a>Conversion Characters</h5>
+The conversion characters and their meanings are:
+<dl compact>
+
+<dt>i<dd>The
+<b>double</b>
+argument is formatted according to
+the locale's international currency format
+(for example, in the U.S.A.: USD 1,234.56).
+
+<dt>n<dd>The
+<b>double</b>
+argument is formatted according to
+the locale's national currency format
+(for example, in the U.S.A.: $1,234.56).
+
+<dt>%<dd>Convert to a %; no argument is converted.
+The entire conversion specification must be %%.
+
+</dl>
+<h5><a name = "tag_000_009_095_006">&nbsp;</a>Locale Information</h5>
+The LC_MONETARY
+category of the program's locale affects the
+behaviour of this function including the monetary radix
+character (which may be different from the numeric radix
+character affected by the LC_NUMERIC
+category), the grouping separator,
+the currency symbols and formats.
+The international currency symbol should be conformant with the .
+<p>
+If the value of 
+<i>maxsize</i>
+is greater than {SSIZE_MAX}, the result is implementation-dependent.
+<br>
+</blockquote><h4><a name = "tag_000_009_096">&nbsp;</a>RETURN VALUE</h4><blockquote>
+If the total number of resulting bytes including the terminating
+null byte is not more than
+<i>maxsize</i>,
+<i>strfmon()</i>
+returns the number of bytes placed into the array pointed to by
+<i>s</i>,
+not including the terminating null byte.
+Otherwise, -1 is returned, the contents of the array are indeterminate,
+and
+<i>errno</i>
+is set to indicate the error.
+</blockquote><h4><a name = "tag_000_009_097">&nbsp;</a>ERRORS</h4><blockquote>
+The
+<i>strfmon()</i>
+function will fail if:
+<dl compact>
+
+<dt>[E2BIG]<dd>
+Conversion stopped due to lack of space in the buffer.
+
+</dl>
+</blockquote><h4><a name = "tag_000_009_098">&nbsp;</a>EXAMPLES</h4><blockquote>
+Given a locale for the U.S.A. and the values 123.45, -123.45 and 3456.781:
+<pre>
+<table  bordercolor=#000000 border=1 align=center><tr valign=top>
+<tr valign=top><th align=center><b>Conversion Specification</b>
+<th align=center><b>Output</b>
+<th align=center><b>Comments</b>
+<tr valign=top><td align=left>%n
+<td align=left><pre>    $123.45<br>   -$123.45<br>  $3,346.78</pre>
+<td align=left>default formatting
+<tr valign=top><td align=left>%11n
+<td align=left><pre>    $123.45<br>   -$123.45<br>  $3,346.78</pre>
+<td align=left>right align within an 11 character field
+<tr valign=top><td align=left>
+<tr valign=top><td align=left>%#5n
+<td align=left><pre> $   123.45<br>-$   123.45<br> $ 3,456.78</pre>
+<td align=left>aligned columns for values up to 99,999
+<tr valign=top><td align=left>%=*#5n
+<td align=left><pre> $***123.45<br>-$***123.45<br> $*3,456.78</pre>
+<td align=left>specify a fill character
+<tr valign=top><td align=left>%=0#5n
+<td align=left><pre> $000123.45<br>-$000123.45<br> $03,456.78</pre>
+<td align=left>fill characters do not use grouping even if the fill character is a digit
+<tr valign=top><td align=left>%^#5n
+<td align=left><pre>  $  123.45<br> -$  123.45<br>  $ 3456.78</pre>
+<td align=left>disable the grouping separator
+<tr valign=top><td align=left>%^#5.0n
+<td align=left><pre>  $  123<br> -$  123<br>  $ 3457</pre>
+<td align=left>round off to whole units
+<tr valign=top><td align=left>%^#5.4n
+<td align=left><pre>  $  123.4500<br> -$  123.4500<br>  $ 3456.7810</pre>
+<td align=left>increase the precision
+<tr valign=top><td align=left>%(#5n
+<td align=left><pre>     123.45<br>($   123.45)<br> $ 3,456.78</pre>
+<td align=left>use an alternative pos/neg style
+<tr valign=top><td align=left>%!(#5m
+<td align=left><pre>     123.45<br>(    123.45)<br>   3,456.78</pre>
+<td align=left>cancel the currency sign
+</table>
+</pre>
+</blockquote><h4><a name = "tag_000_009_099">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_100">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+Lower-case conversion characters are reserved for future standards use 
+and upper-case for implementation-dependent use.
+</blockquote><h4><a name = "tag_000_009_101">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="localeconv.html">localeconv()</a></i>,
+<i><a href="monetary.h.html">&lt;monetary.h&gt;</a></i>.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

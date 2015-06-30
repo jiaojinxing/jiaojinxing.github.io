@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>ttyslot</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_010_184">&nbsp;</a>NAME</h4><blockquote>
+ttyslot - find the slot of the current user in the user accounting
+database
+(<b>LEGACY</b>)
+</blockquote><h4><a name = "tag_000_010_185">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;<a href="stdlib.h.html">stdlib.h</a>&gt;
+
+int ttyslot(void);
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_010_186">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>ttyslot()</i>
+function returns the index of the current user's entry in the user accounting
+database.  The current user's entry is an entry for which the <b>utline</b>
+member matches the name of a terminal device associated with any of the
+process' file descriptors 0, 1 or 2.
+The index is an ordinal number representing the record number in the database
+of the current user's entry.  The first entry in the database is represented
+by the return value 0.
+<p>
+This interface need not be reentrant.
+</blockquote><h4><a name = "tag_000_010_187">&nbsp;</a>RETURN VALUE</h4><blockquote>
+Upon successful completion,
+<i>ttyslot()</i>
+returns the index of the current user's entry in the user accounting
+database.  The
+<i>ttyslot()</i>
+function returns -1 if an error was encountered while searching the
+database or if none of file descriptors 0, 1 or 2 is associated with a
+terminal device.
+</blockquote><h4><a name = "tag_000_010_188">&nbsp;</a>ERRORS</h4><blockquote>
+No errors are defined.
+</blockquote><h4><a name = "tag_000_010_189">&nbsp;</a>EXAMPLES</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_010_190">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_010_191">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_010_192">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="endutxent.html">endutxent()</a></i>,
+<i><a href="ttyname.html">ttyname()</a></i>,
+<i><a href="stdlib.h.html">&lt;stdlib.h&gt;</a></i>.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

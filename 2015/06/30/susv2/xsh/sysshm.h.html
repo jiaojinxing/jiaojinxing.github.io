@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>&lt;sys/shm.h&gt;</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_009_342">&nbsp;</a>NAME</h4><blockquote>
+sys/shm.h - shared memory facility
+</blockquote><h4><a name = "tag_000_009_343">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;sys/shm.h&gt;
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_344">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The &lt;<b>sys/shm.h</b>&gt; header defines the following symbolic constants and
+structure:
+<p>
+Symbolic constants:
+<dl compact>
+
+<dt>SHM_RDONLY<dd>
+Attach read-only (else read-write).
+
+<dt>SHMLBA<dd>
+Segment low boundary address multiple.
+
+<dt>SHM_RND<dd>
+Round attach address to SHMLBA.
+
+</dl>
+<p>
+The following data types are defined through
+<b>typedef</b>:
+<dl compact>
+
+<dt><b>shmatt_t</b><dd><index term="data type, shmatt_t"></index>
+Unsigned integer used for the number of current attaches that must be able
+to store values at least as large as a type
+<b>unsigned short</b>.
+
+</dl>
+<p>
+The structure
+<b>shmid_ds</b>
+contains the following members:
+<pre>
+<code>
+struct ipc_perm shm_perm   operation permission structure
+size_t          shm_segsz  size of segment in bytes
+pid_t           shm_lpid   process ID of last shared memory operation
+pid_t           shm_cpid   process ID of creator
+shmatt_t        shm_nattch number of current attaches
+time_t          shm_atime  time of last <i>shmat</i>()
+time_t          shm_dtime  time of last <i>shmdt</i>()
+time_t          shm_ctime  time of last change by <i>shmctl</i>()
+</code>
+</pre>
+<p>
+The
+<b>pid_t</b>,
+<b>time_t</b>,
+<b>key_t</b>
+and
+<b>size_t</b>
+types are defined as described in
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+The following are declared as functions and may also be defined
+as macros.
+Function prototypes must be provided for use with an ISO C
+compiler.
+<pre>
+<code>
+void *<a href="shmat.html">shmat</a>(int, const void *, int);
+int   <a href="shmctl.html">shmctl</a>(int, int, struct shmid_ds *);
+int   <a href="shmdt.html">shmdt</a>(const void *);
+int   <a href="shmget.html">shmget</a>(key_t, size_t, int);
+</code>
+</pre>
+<p>
+In addition, all of the symbols from
+<i><a href="sysipc.h.html">&lt;sys/ipc.h&gt;</a></i>
+will be defined when this header is included.
+</blockquote><h4><a name = "tag_000_009_345">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_346">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_347">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="shmat.html">shmat()</a></i>,
+<i><a href="shmctl.html">shmctl()</a></i>,
+<i><a href="shmdt.html">shmdt()</a></i>,
+<i><a href="shmget.html">shmget()</a></i>,
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

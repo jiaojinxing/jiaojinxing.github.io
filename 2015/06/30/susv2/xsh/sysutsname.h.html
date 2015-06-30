@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>&lt;sys/utsname.h&gt;</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_009_399">&nbsp;</a>NAME</h4><blockquote>
+sys/utsname.h - system name structure
+</blockquote><h4><a name = "tag_000_009_400">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;sys/utsname.h&gt;
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_401">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>&lt;sys/utsname.h&gt;</i>
+header defines structure
+<b>utsname</b>,
+which includes at least the following members:
+<pre>
+<code>
+char  sysname[]  name of this implementation of the operating system
+char  nodename[] name of this node within an implementation-dependent
+                 communications network
+char  release[]  current release level of this implementation
+char  version[]  current version level of this release
+char  machine[]  name of the hardware type on which the system is running
+</code>
+</pre>
+<p>
+The character arrays are of unspecified size, but the data stored
+in them is terminated by a null byte.
+<p>
+The following is declared as a function and may also be defined
+as a macro.
+<pre>
+<code>
+int <a href="uname.html">uname</a>(struct utsname *);
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_402">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_403">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_404">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="uname.html">uname</i>()</a>.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

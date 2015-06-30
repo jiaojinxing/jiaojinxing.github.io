@@ -1,0 +1,969 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>Threads</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade><blockquote>
+<center>
+<h3><a name = "tag_000_010">&nbsp;</a>Threads</h3>
+</center>
+<xref type="2" name="threads"></xref>
+This defines interfaces and functionality to support multiple flows
+of control, called
+<i>threads</i>,
+within a process.
+<p>
+Threads define system interfaces
+to support the source portability of applications.
+The key elements defining the scope are:
+<ol type = a>
+<p>
+<li>
+defining a sufficient set of functionality
+to support multiple threads of control within a process
+<p>
+<li>
+defining a sufficient set of functionality to support the
+realtime application domain
+<p>
+<li>
+defining sufficient performance constraints and performance
+related functions to allow a realtime application
+to achieve deterministic response from the system.
+<p>
+</ol>
+<p>
+The definition of realtime used in defining the scope of this
+specification is:
+<pre>
+<dl compact><dt> <dd>
+The ability of the system to provide a required level of service
+in a bounded response time.
+</dl>
+</pre>
+<p>
+<p>
+Wherever possible, the requirements of other application environments
+are included in the interface definition.
+The Threads interfaces are specifically targeted
+at supporting tightly coupled multitasking environments
+including multiprocessors and advanced language constructs.
+<p>
+The specific functional areas covered by Threads
+and their scope includes:
+<ul>
+<p>
+<li>
+Thread management: the creation, control, and termination
+of multiple flows of control in the same process
+under the assumption of a common shared address space.
+<p>
+<li>
+Synchronisation primitives optimised
+for tightly coupled operation of multiple control flows
+in a common, shared address space.
+<p>
+<li>
+Harmonization of the threads interfaces with the existing BASE
+interfaces.
+<p>
+</ul>
+<h4><a name = "tag_000_010_001">&nbsp;</a>Supported Interfaces</h4>
+<p>
+On XSI-conformant systems,
+_POSIX_THREADS,
+_POSIX_THREAD_ATTR_STACKADDR,
+_POSIX_THREAD_ATTR_STACKSIZE
+and
+_POSIX_THREAD_PROCESS_SHARED
+are always defined.
+Therefore, the following threads interfaces are always supported:
+<h5><a name = "tag_000_010_001_001">&nbsp;</a>POSIX Interfaces</h5>
+<p>
+<pre>
+<i><a href="pthread_atfork.html">pthread_atfork()</a></i>
+<i><a href="pthread_attr_destroy.html">pthread_attr_destroy()</a></i>
+<i><a href="pthread_attr_getdetachstate.html">pthread_attr_getdetachstate()</a></i>
+<i><a href="pthread_attr_getschedparam.html">pthread_attr_getschedparam()</a></i>
+<i><a href="pthread_attr_getstackaddr.html">pthread_attr_getstackaddr()</a></i>
+<i><a href="pthread_attr_getstacksize.html">pthread_attr_getstacksize()</a></i>
+<i><a href="pthread_attr_init.html">pthread_attr_init()</a></i>
+<i><a href="pthread_attr_setdetachstate.html">pthread_attr_setdetachstate()</a></i>
+<i><a href="pthread_attr_setschedparam.html">pthread_attr_setschedparam()</a></i>
+<i><a href="pthread_attr_setstackaddr.html">pthread_attr_setstackaddr()</a></i>
+<i><a href="pthread_attr_setstacksize.html">pthread_attr_setstacksize()</a></i>
+<i><a href="pthread_cancel.html">pthread_cancel()</a></i>
+<i><a href="pthread_cleanup_pop.html">pthread_cleanup_pop()</a></i>
+<i><a href="pthread_cleanup_push.html">pthread_cleanup_push()</a></i>
+<i><a href="pthread_cond_broadcast.html">pthread_cond_broadcast()</a></i>
+<i><a href="pthread_cond_destroy.html">pthread_cond_destroy()</a></i>
+<i><a href="pthread_cond_init.html">pthread_cond_init()</a></i>
+<i><a href="pthread_cond_signal.html">pthread_cond_signal()</a></i>
+<i><a href="pthread_cond_timedwait.html">pthread_cond_timedwait()</a></i>
+<i><a href="pthread_cond_wait.html">pthread_cond_wait()</a></i>
+<i><a href="pthread_condattr_destroy.html">pthread_condattr_destroy()</a></i>
+<i><a href="pthread_condattr_getpshared.html">pthread_condattr_getpshared()</a></i>
+<i><a href="pthread_condattr_init.html">pthread_condattr_init()</a></i>
+<i><a href="pthread_condattr_setpshared.html">pthread_condattr_setpshared()</a></i>
+<i><a href="pthread_create.html">pthread_create()</a></i>
+<i><a href="pthread_detach.html">pthread_detach()</a></i>
+<i><a href="pthread_equal.html">pthread_equal()</a></i>
+<i><a href="pthread_exit.html">pthread_exit()</a></i>
+<i><a href="pthread_getspecific.html">pthread_getspecific()</a></i>
+<i><a href="pthread_join.html">pthread_join()</a></i>
+<i><a href="pthread_key_create.html">pthread_key_create()</a></i>
+<i><a href="pthread_key_delete.html">pthread_key_delete()</a></i>
+<i><a href="pthread_kill.html">pthread_kill()</a></i>
+<i><a href="pthread_mutex_destroy.html">pthread_mutex_destroy()</a></i>
+<i><a href="pthread_mutex_init.html">pthread_mutex_init()</a></i>
+<i><a href="pthread_mutex_lock.html">pthread_mutex_lock()</a></i>
+<i><a href="pthread_mutex_trylock.html">pthread_mutex_trylock()</a></i>
+<i><a href="pthread_mutex_unlock.html">pthread_mutex_unlock()</a></i>
+<i><a href="pthread_mutexattr_destroy.html">pthread_mutexattr_destroy()</a></i>
+<i><a href="pthread_mutexattr_getpshared.html">pthread_mutexattr_getpshared()</a></i>
+<i><a href="pthread_mutexattr_init.html">pthread_mutexattr_init()</a></i>
+<i><a href="pthread_mutexattr_setpshared.html">pthread_mutexattr_setpshared()</a></i>
+<i><a href="pthread_once.html">pthread_once()</a></i>
+<i><a href="pthread_self.html">pthread_self()</a></i>
+<i><a href="pthread_setcancelstate.html">pthread_setcancelstate()</a></i>
+<i><a href="pthread_setcanceltype.html">pthread_setcanceltype()</a></i>
+<i><a href="pthread_setspecific.html">pthread_setspecific()</a></i>
+<i><a href="pthread_sigmask.html">pthread_sigmask()</a></i>
+<i><a href="pthread_testcancel.html">pthread_testcancel()</a></i>
+<i><a href="sigwait.html">sigwait()</a></i>
+</pre>
+<h5><a name = "tag_000_010_001_002">&nbsp;</a>X/Open Interfaces</h5>
+<pre>
+<i><a href="pthread_attr_getguardsize.html">pthread_attr_getguardsize()</a></i>
+<i><a href="pthread_attr_setguardsize.html">pthread_attr_setguardsize()</a></i>
+<i><a href="pthread_getconcurrency.html">pthread_getconcurrency()</a></i>
+<i><a href="pthread_mutexattr_gettype.html">pthread_mutexattr_gettype()</a></i>
+<i><a href="pthread_mutexattr_settype.html">pthread_mutexattr_settype()</a></i>
+<i><a href="pthread_rwlock_destroy.html">pthread_rwlock_destroy()</a></i>
+<i><a href="pthread_rwlock_init.html">pthread_rwlock_init()</a></i>
+<i><a href="pthread_rwlock_rdlock.html">pthread_rwlock_rdlock()</a></i>
+<i><a href="pthread_rwlock_tryrdlock.html">pthread_rwlock_tryrdlock()</a></i>
+<i><a href="pthread_rwlock_trywrlock.html">pthread_rwlock_trywrlock()</a></i>
+<i><a href="pthread_rwlock_unlock.html">pthread_rwlock_unlock()</a></i>
+<i><a href="pthread_rwlock_wrlock.html">pthread_rwlock_wrlock()</a></i>
+<i><a href="pthread_rwlockattr_destroy.html">pthread_rwlockattr_destroy()</a></i>
+<i><a href="pthread_rwlockattr_getpshared.html">pthread_rwlockattr_getpshared()</a></i>
+<i><a href="pthread_rwlockattr_init.html">pthread_rwlockattr_init()</a></i>
+<i><a href="pthread_rwlockattr_setpshared.html">pthread_rwlockattr_setpshared()</a></i>
+<i><a href="pthread_setconcurrency.html">pthread_setconcurrency()</a></i>
+</pre>
+<p>
+On XSI-conformant systems, _POSIX_THREAD_SAFE_FUNCTIONS is always
+defined.
+Therefore, the following interfaces are always supported:
+<p>
+<pre>
+<i><a href="asctime.html">asctime_r()</a></i>
+<i><a href="ctime.html">ctime_r()</a></i>
+<i><a href="flockfile.html">flockfile()</a></i>
+<i><a href="ftrylockfile.html">ftrylockfile()</a></i>
+<i><a href="funlockfile.html">funlockfile()</a></i>
+<i><a href="getc_unlocked.html">getc_unlocked()</a></i>
+<i><a href="getchar_unlocked.html">getchar_unlocked()</a></i>
+<i><a href="getgrgid.html">getgrgid_r()</a></i>
+<i><a href="getgrnam.html">getgrnam_r()</a></i>
+<i><a href="getpwnam.html">getpwnam_r()</a></i>
+<i><a href="getpwuid.html">getpwuid_r()</a></i>
+<i><a href="gmtime.html">gmtime_r()</a></i>
+<i><a href="localtime.html">localtime_r()</a></i>
+<i><a href="putc_unlocked.html">putc_unlocked()</a></i>
+<i><a href="putchar_unlocked.html">putchar_unlocked()</a></i>
+<i><a href="rand.html">rand_r()</a></i>
+<i><a href="readdir.html">readdir_r()</a></i>
+<i><a href="strtok.html">strtok_r()</a></i>
+</pre>
+<p>
+The following threads interfaces are only supported on XSI-conformant
+systems if the Realtime Threads Feature Group is supported (see
+<xref href=realtime_threads><a href="feature.html#tag_000_005_003">
+Realtime Threads
+</a></xref>):
+<p>
+<pre>
+<i><a href="pthread_attr_getinheritsched.html">pthread_attr_getinheritsched()</a></i>
+<i><a href="pthread_attr_getschedpolicy.html">pthread_attr_getschedpolicy()</a></i>
+<i><a href="pthread_attr_getscope.html">pthread_attr_getscope()</a></i>
+<i><a href="pthread_attr_setinheritsched.html">pthread_attr_setinheritsched()</a></i>
+<i><a href="pthread_attr_setschedpolicy.html">pthread_attr_setschedpolicy()</a></i>
+<i><a href="pthread_attr_setscope.html">pthread_attr_setscope()</a></i>
+<i><a href="pthread_getschedparam.html">pthread_getschedparam()</a></i>
+<i><a href="pthread_mutex_getprioceiling.html">pthread_mutex_getprioceiling()</a></i>
+<i><a href="pthread_mutex_setprioceiling.html">pthread_mutex_setprioceiling()</a></i>
+<i><a href="pthread_mutexattr_getprioceiling.html">pthread_mutexattr_getprioceiling()</a></i>
+<i><a href="pthread_mutexattr_getprotocol.html">pthread_mutexattr_getprotocol()</a></i>
+<i><a href="pthread_mutexattr_setprioceiling.html">pthread_mutexattr_setprioceiling()</a></i>
+<i><a href="pthread_mutexattr_setprotocol.html">pthread_mutexattr_setprotocol()</a></i>
+<i><a href="pthread_setschedparam.html">pthread_setschedparam()</a></i>
+</pre>
+<p>
+<h4><a name = "tag_000_010_002">&nbsp;</a>Thread-safety</h4>
+<p>
+All interfaces defined by this specification will be thread-safe,
+except that the following interfaces need not be thread-safe:
+<h5><a name = "tag_000_010_002_001">&nbsp;</a>POSIX Interfaces</h5>
+<p>
+<pre>
+<i><a href="asctime.html">asctime()</a></i>
+<i><a href="ctime.html">ctime()</a></i>
+<i><a href="getc_unlocked.html">getc_unlocked()</a></i>
+<i><a href="getchar_unlocked.html">getchar_unlocked()</a></i>
+<i><a href="getgrgid.html">getgrgid()</a></i>
+<i><a href="getgrnam.html">getgrnam()</a></i>
+<i><a href="getlogin.html">getlogin()</a></i>
+<i><a href="getopt.html">getopt()</a></i>
+<i><a href="getpwnam.html">getpwnam()</a></i>
+<i><a href="getpwuid.html">getpwuid()</a></i>
+<i><a href="gmtime.html">gmtime()</a></i>
+<i><a href="localtime.html">localtime()</a></i>
+<i><a href="putc_unlocked.html">putc_unlocked()</a></i>
+<i><a href="putchar_unlocked.html">putchar_unlocked()</a></i>
+<i><a href="rand.html">rand()</a></i>
+<i><a href="readdir.html">readdir()</a></i>
+<i><a href="strtok.html">strtok()</a></i>
+<i><a href="ttyname.html">ttyname()</a></i>
+</pre>
+<p>
+<h5><a name = "tag_000_010_002_002">&nbsp;</a>X/Open Interfaces</h5>
+
+<p>
+<pre>
+<i><a href="basename.html">basename()</a></i>
+<i><a href="catgets.html">catgets()</a></i>
+<i><a href="dbm_clearerr.html">dbm_clearerr()</a></i>
+<i><a href="dbm_close.html">dbm_close()</a></i>
+<i><a href="dbm_delete.html">dbm_delete()</a></i>
+<i><a href="dbm_error.html">dbm_error()</a></i>
+<i><a href="dbm_fetch.html">dbm_fetch()</a></i>
+<i><a href="dbm_firstkey.html">dbm_firstkey()</a></i>
+<i><a href="dbm_nextkey.html">dbm_nextkey()</a></i>
+<i><a href="dbm_open.html">dbm_open()</a></i>
+<i><a href="dbm_store.html">dbm_store()</a></i>
+<i><a href="dirname.html">dirname()</a></i>
+<i><a href="drand48.html">drand48()</a></i>
+<i><a href="ecvt.html">ecvt()</a></i>
+<i><a href="encrypt.html">encrypt()</a></i>
+<i><a href="endgrent.html">endgrent()</a></i>
+<i><a href="endpwent.html">endpwent()</a></i>
+<i><a href="endutxent.html">endutxent()</a></i>
+<i><a href="fcvt.html">fcvt()</a></i>
+<i><a href="gamma.html">gamma()</a></i>
+<i><a href="gcvt.html">gcvt()</a></i>
+<i><a href="getdate.html">getdate()</a></i>
+<i><a href="getenv.html">getenv()</a></i>
+<i><a href="getgrent.html">getgrent()</a></i>
+<i><a href="getpwent.html">getpwent()</a></i>
+<i><a href="getutxent.html">getutxent()</a></i>
+<i><a href="getutxid.html">getutxid()</a></i>
+<i><a href="getutxline.html">getutxline()</a></i>
+<i><a href="getw.html">getw()</a></i>
+<i><a href="l64a.html">l64a()</a></i>
+<i><a href="lgamma.html">lgamma()</a></i>
+<i><a href="lrand48.html">lrand48()</a></i>
+<i><a href="mrand48.html">mrand48()</a></i>
+<i><a href="nl_langinfo.html">nl_langinfo()</a></i>
+<i><a href="ptsname.html">ptsname()</a></i>
+<i><a href="putenv.html">putenv()</a></i>
+<i><a href="pututxline.html">pututxline()</a></i>
+<i><a href="setgrent.html">setgrent()</a></i>
+<i><a href="setkey.html">setkey()</a></i>
+<i><a href="setpwent.html">setpwent()</a></i>
+<i><a href="setutxent.html">setutxent()</a></i>
+<i><a href="strerror.html">strerror()</a></i>
+</pre>
+<p>
+The interfaces
+<i><a href="ctermid.html">ctermid()</a></i>
+and
+<i><a href="tmpnam.html">tmpnam()</a></i>
+need not be thread-safe if passed a NULL argument.
+<p>
+The interfaces in the Legacy Feature Group need not be thread-safe.
+<p>
+Implementations will provide internal synchronisation as necessary
+in order to satisfy this requirement.
+<h4><a name = "tag_000_010_003">&nbsp;</a>Thread Implementation Models</h4>
+<p>
+There are various thread implementation models.
+At one end of the spectrum is the &quot;library-thread model&quot;.
+In such a model, the threads of a process are not visible to the
+operating system kernel, and the threads are not kernel scheduled
+entities.
+The process is the only kernel scheduled entity.
+The process is scheduled onto the processor by the kernel according to
+the scheduling attributes of the process.
+The threads are scheduled onto the single kernel scheduled entity (the
+process) by the run-time library according to the scheduling
+attributes of the threads.
+A problem with this model is that it constrains concurrency.
+Since there is only one kernel scheduled entity (namely, the process),
+only one thread per process can execute at a time.
+If the thread that is executing blocks on I/O, then the whole process
+blocks.
+<p>
+At the other end of the spectrum is the &quot;kernel-thread model&quot;.
+In this model, all threads are visible to the operating system kernel.
+Thus, all threads are kernel scheduled entities, and all threads can
+concurrently execute.
+The threads are scheduled onto processors by the kernel according to
+the scheduling attributes of the threads.
+The drawback to this model is that the creation and management of the
+threads entails operating system calls, as opposed to subroutine
+calls, which makes kernel threads heavier weight than library threads.
+<p>
+Hybrids of these two models are common.
+A hybrid model offers the speed of library threads and the concurrency
+of kernel threads.
+In hybrid models, a process has some (relatively small) number of
+kernel scheduled entities associated with it.
+It also has a potentially much larger number of library threads
+associated with it.
+Some library threads may be bound to kernel scheduled entities, while
+the other library threads are multiplexed onto the remaining kernel
+scheduled entities.
+There are two levels of thread scheduling:
+<ul>
+<p>
+<li>
+The run-time library manages the scheduling of (unbound) library threads
+onto kernel scheduled entities.
+<p>
+<li>
+The kernel manages the scheduling of kernel scheduled entities
+onto processors.
+<p>
+</ul>
+<p>
+For this reason, a hybrid model is referred to as a &quot;two-level
+threads scheduling model&quot;.
+In this model, the process can have multiple concurrently executing
+threads; specifically, it can have as many concurrently executing
+threads as it has kernel scheduled entities.
+<h4><a name = "tag_000_010_004">&nbsp;</a>Thread Mutexes</h4>
+<p>
+A thread that has blocked will not prevent any unblocked thread
+that is eligible to use the same processing resources from
+eventually making forward progress in its execution.
+Eligibility for processing resources is
+determined by the scheduling policy.
+<p>
+A thread becomes the owner of a mutex,
+<i>m</i>,
+when either:
+<ol>
+<p>
+<li>
+it returns successfully from
+<i><a href="pthread_mutex_lock.html">pthread_mutex_lock()</a></i>
+with
+<i>m</i>
+as the
+<i>mutex</i>
+argument, or
+<p>
+<li>
+it returns successfully from
+<i><a href="pthread_mutex_trylock.html">pthread_mutex_trylock()</a></i>
+with
+<i>m</i>
+as the
+<i>mutex</i>
+argument, or
+<p>
+<li>
+it returns (successfully or not) from
+<i><a href="pthread_cond_wait.html">pthread_cond_wait()</a></i>
+with
+<i>m</i>
+as the
+<i>mutex</i>
+argument (except as explicitly indicated otherwise for certain
+errors), or
+<p>
+<li>
+it returns (successfully or not) from
+<i><a href="pthread_cond_timedwait.html">pthread_cond_timedwait()</a></i>
+with
+<i>m</i>
+as the
+<i>mutex</i>
+argument (except as explicitly indicated otherwise for certain
+errors).
+<p>
+</ol>
+<p>
+The thread remains the owner of
+<i>m</i>
+until it either:
+<ol>
+<p>
+<li>
+executes
+<i><a href="pthread_mutex_unlock.html">pthread_mutex_unlock()</a></i>
+with
+<i>m</i>
+as the
+<i>mutex</i>
+argument, or
+<p>
+<li>
+blocks in a call to
+<i><a href="pthread_cond_wait.html">pthread_cond_wait()</a></i>
+with
+<i>m</i>
+as the
+<i>mutex</i>
+argument, or
+<p>
+<li>
+blocks in a call to
+<i><a href="pthread_cond_timedwait.html">pthread_cond_timedwait()</a></i>
+with
+<i>m</i>
+as the
+<i>mutex</i>
+argument.
+<p>
+</ol>
+<p>
+The implementation behaves as if
+at all times there is at most one
+owner of any mutex.
+<p>
+A thread that becomes the
+owner of a mutex is said to have
+<i>acquired</i>
+the mutex and the mutex is said to have become
+<i>locked</i>;
+when a thread gives up ownership
+of a mutex it is said to have
+<i>released</i>
+the mutex and the mutex is said to have become
+<i>unlocked</i>.
+<h4><a name = "tag_000_010_005">&nbsp;</a>Thread Scheduling Attributes</h4>
+<p>
+In support of the scheduling interface, threads have attributes
+which are accessed through the
+<i>pthread_attr_t</i>
+thread creation attributes object.
+<p>
+The
+<i>contentionscope</i>
+attribute defines the
+scheduling contention scope
+of the thread to be either
+PTHREAD_SCOPE_PROCESS or PTHREAD_SCOPE_SYSTEM .
+<p>
+The
+<i>inheritsched</i>
+attribute specifies whether a newly created thread is
+to inherit the scheduling attributes of the creating thread
+or to have its scheduling values set
+according to the other scheduling attributes in the
+<i>pthread_attr_t</i>
+object.
+<p>
+The
+<i>schedpolicy</i>
+attribute defines the scheduling policy for the thread.
+The
+<i>schedparam</i>
+attribute defines the scheduling parameters for the thread.
+The interaction of threads having different policies within a process
+is described as part of the definition of those policies.
+<p>
+If the
+_POSIX_THREAD_PRIORITY_SCHEDULING
+option is defined, and the
+<i>schedpolicy</i>
+attribute specifies one of the priority-based policies defined
+under this option, the
+<i>schedparam</i>
+attribute contains the scheduling priority of the thread.
+A conforming implementation ensures that the priority value in
+<i>schedparam</i>
+is in the range associated with the scheduling policy
+when the thread attributes object is used to create a thread, or
+when the scheduling attributes of a thread are dynamically modified.
+The meaning of the priority value in
+<i>schedparam</i>
+is the same as that of
+<i>priority</i>.
+<p>
+When a process is created,
+its single thread has a scheduling policy and associated attributes
+equal to the process's policy and attributes.
+The default
+scheduling contention scope
+value is
+implementation-dependent.
+The default values of other scheduling attributes are
+implementation-dependent.
+<h4><a name = "tag_000_010_006">&nbsp;</a>Thread Scheduling Contention Scope</h4>
+<p>
+The scheduling contention scope
+of a thread defines the set of threads with which
+the thread must compete for use of the processing resources.
+The scheduling operation will select at most one thread to execute
+on each processor at any point in time
+and the thread's scheduling attributes (for example, priority),
+whether under process scheduling contention scope
+or system scheduling contention scope,
+are the parameters used to determine the scheduling decision.
+<p>
+The scheduling contention scope,
+in the context of scheduling a mixed scope environment,
+effects threads as follows:
+<ul>
+<p>
+<li>
+A thread created with
+PTHREAD_SCOPE_SYSTEM
+scheduling contention scope
+contends for resources with all other threads in the same
+scheduling allocation domain
+relative to their system scheduling attributes.
+The system scheduling attributes of a thread created with
+PTHREAD_SCOPE_SYSTEM scheduling contention scope
+are the scheduling attributes with which the thread was created.
+The system scheduling attributes of a thread created with
+PTHREAD_SCOPE_PROCESS scheduling contention scope
+are the implementation-dependent mapping into system attribute space
+of the scheduling attributes with which the thread was created.
+<p>
+<li>
+Threads created with
+PTHREAD_SCOPE_PROCESS
+scheduling contention scope
+contend directly with other threads within their process
+that were created with
+PTHREAD_SCOPE_PROCESS
+scheduling contention scope.
+The contention is resolved based on
+the threads' scheduling attributes and policies.
+It is unspecified how such threads are scheduled relative to
+threads in other processes or threads with
+PTHREAD_SCOPE_SYSTEM
+scheduling contention scope.
+<p>
+<li>
+Conforming implementations support
+the PTHREAD_SCOPE_PROCESS scheduling contention scope,
+the PTHREAD_SCOPE_SYSTEM scheduling contention scope, or both.
+<p>
+</ul>
+<h4><a name = "tag_000_010_007">&nbsp;</a>Scheduling Allocation Domain</h4>
+<p>
+Implementations support
+scheduling allocation domains
+containing one or more processors.
+It should be noted that the presence of multiple processors does not
+automatically indicate a
+scheduling allocation domain
+size greater than one.
+Conforming implementations on multi-processors may map
+all or any subset of the CPUs to one or multiple
+scheduling allocation domains,
+and could define these
+scheduling allocation domains
+on a per-thread,
+per-process, or per-system basis, depending on the types of applications
+intended to be supported by the implementation.
+The scheduling allocation domain is independent of
+scheduling contention scope, as the scheduling contention scope
+merely defines the set of threads with which a thread must contend
+for processor resources, while
+scheduling allocation domain
+defines the set of processors for which it contends.
+The semantics of how this contention is resolved among threads for processors
+is determined by the scheduling policies of the threads.
+<p>
+The choice of scheduling allocation domain
+size and the level of application control over
+scheduling allocation domains is implementation-dependent.
+Conforming implementations may change the size of
+scheduling allocation domains and the binding of threads to
+scheduling allocation domains at any time.
+<p>
+For application threads with scheduling allocation domains
+of size equal to one, the scheduling rules defined for
+SCHED_FIFO and SCHED_RR will be used.
+All threads with system scheduling contention scope,
+regardless of the processes in which they reside,
+compete for the processor according to their priorities.
+Threads with process scheduling contention scope
+compete only with other threads with process
+scheduling contention scope within their process.
+<p>
+For application threads with scheduling allocation domains
+of size greater than one, the rules defined for SCHED_FIFO
+and SCHED_RR are used in an implementation-dependent manner.
+Each thread with system scheduling contention scope
+competes for the processors in its scheduling allocation domain
+in an implementation-dependent manner according to its priority.
+Threads with process scheduling contention scope
+are scheduled relative to other threads within the same
+scheduling contention scope in the process.
+<h4><a name = "tag_000_010_008">&nbsp;</a>Thread Cancellation</h4>
+<p>
+The thread cancellation mechanism allows a thread to terminate
+the execution of any other thread in the process in a controlled manner.
+The target thread (that is, the one that is being canceled) is allowed
+to hold cancellation requests pending in a number of ways and
+to perform application-specific cleanup processing
+when the notice of cancellation is acted upon.
+<p>
+Cancellation is controlled by the cancellation control interfaces.
+Each thread maintains its own cancelability state.
+Cancellation may only occur at cancellation points
+or when the thread is asynchronously cancelable.
+<p>
+The thread cancellation mechanism described in this section
+depends upon programs having set
+<i>deferred cancelability</i>
+state, which is specified as the default.
+Applications must also carefully follow static lexical scoping rules
+in their execution behaviour.
+For instance, use of
+<i><a href="setjmp.html">setjmp()</a></i>,
+return, goto, and so on, to leave user-defined cancellation
+scopes without doing the necessary scope pop operation
+will result in undefined behaviour.
+<p>
+Use of asynchronous cancelability while holding resources
+which potentially need to be released may result in resource loss.
+Similarly, cancellation scopes may only be safely manipulated
+(pushed and popped)
+when the thread is in the
+<i>deferred</i>
+or
+<i>disabled</i>
+cancelability states.
+<h5><a name = "tag_000_010_008_001">&nbsp;</a>Cancelability States</h5>
+<p>
+The cancelability state of a thread determines the action taken
+upon receipt of a cancellation request.
+The thread may control cancellation in a number of ways.
+<p>
+Each thread maintains its own cancelability state,
+which may be encoded in two bits:
+<dl compact>
+
+<dt><i>Cancelability Enable</i><dd>
+When cancelability is PTHREAD_CANCEL_DISABLE,
+cancellation requests against the target thread are held pending.
+By default, cancelability is set to PTHREAD_CANCEL_ENABLE.
+
+<dt><i>Cancelability Type</i><dd>
+When cancelability is enabled and the cancelability type is
+PTHREAD_CANCEL_ASYNCHRONOUS,
+new or pending cancellation requests may be acted upon at any time.
+When cancelability is enabled and the cancelability type is
+PTHREAD_CANCEL_DEFERRED,
+cancellation requests are held pending until a cancellation point
+(see below) is reached.
+If cancelability is disabled,
+the setting of the cancelability
+type has no immediate effect as all cancellation requests are held pending,
+however, once cancelability is enabled again the new type will be in effect.
+The cancelability type is PTHREAD_CANCEL_DEFERRED
+in all newly created threads including the thread in which
+<i>main()</i>
+was first invoked.
+
+</dl>
+<h5><a name = "tag_000_010_008_002">&nbsp;</a>Cancellation Points</h5>
+<p>
+Cancellation points occur
+when a thread is executing the following functions:
+<pre>
+<i><a href="aio_suspend.html">aio_suspend()</a></i>
+<i><a href="close.html">close()</a></i>
+<i><a href="creat.html">creat()</a></i>
+<i><a href="fcntl.html">fcntl()</a></i>
+<i><a href="fsync.html">fsync()</a></i>
+<i><a href="getmsg.html">getmsg()</a></i>
+<i><a href="getpmsg.html">getpmsg()</a></i>
+<i><a href="lockf.html">lockf()</a></i>
+<i><a href="mq_receive.html">mq_receive()</a></i>
+<i><a href="mq_send.html">mq_send()</a></i>
+<i><a href="msgrcv.html">msgrcv()</a></i>
+<i><a href="msgsnd.html">msgsnd()</a></i>
+<i><a href="msync.html">msync()</a></i>
+<i><a href="nanosleep.html">nanosleep()</a></i>
+<i><a href="open.html">open()</a></i>
+<i><a href="pause.html">pause()</a></i>
+<i><a href="poll.html">poll()</a></i>
+<i><a href="pread.html">pread()</a></i>
+<i><a href="pthread_cond_timedwait.html">pthread_cond_timedwait()</a></i>
+<i><a href="pthread_cond_wait.html">pthread_cond_wait()</a></i>
+<i><a href="pthread_join.html">pthread_join()</a></i>
+<i><a href="pthread_testcancel.html">pthread_testcancel()</a></i>
+<i><a href="putmsg.html">putmsg()</a></i>
+<i><a href="putpmsg.html">putpmsg()</a></i>
+<i><a href="pwrite.html">pwrite()</a></i>
+<i><a href="read.html">read()</a></i>
+<i><a href="readv.html">readv()</a></i>
+<i><a href="select.html">select()</a></i>
+<i><a href="sem_wait.html">sem_wait()</a></i>
+<i><a href="sigpause.html">sigpause()</a></i>
+<i><a href="sigsuspend.html">sigsuspend()</a></i>
+<i><a href="sigtimedwait.html">sigtimedwait()</a></i>
+<i><a href="sigwait.html">sigwait()</a></i>
+<i><a href="sigwaitinfo.html">sigwaitinfo()</a></i>
+<i><a href="sleep.html">sleep()</a></i>
+<i><a href="system.html">system()</a></i>
+<i><a href="tcdrain.html">tcdrain()</a></i>
+<i><a href="usleep.html">usleep()</a></i>
+<i><a href="wait.html">wait()</a></i>
+<i><a href="wait3.html">wait3()</a></i>
+<i><a href="waitid.html">waitid()</a></i>
+<i><a href="waitpid.html">waitpid()</a></i>
+<i><a href="write.html">write()</a></i>
+<i><a href="writev.html">writev()</a></i>
+</pre>
+<p>
+<p>
+A cancellation point may also occur
+when a thread is executing the following functions:
+<p>
+<pre>
+<i><a href="catclose.html">catclose()</a></i>
+<i><a href="catgets.html">catgets()</a></i>
+<i><a href="catopen.html">catopen()</a></i>
+<i><a href="closedir.html">closedir()</a></i>
+<i><a href="closelog.html">closelog()</a></i>
+<i><a href="ctermid.html">ctermid()</a></i>
+<i><a href="dbm_close.html">dbm_close()</a></i>
+<i><a href="dbm_delete.html">dbm_delete()</a></i>
+<i><a href="dbm_fetch.html">dbm_fetch()</a></i>
+<i><a href="dbm_nextkey.html">dbm_nextkey()</a></i>
+<i><a href="dbm_open.html">dbm_open()</a></i>
+<i><a href="dbm_store.html">dbm_store()</a></i>
+<i><a href="dlclose.html">dlclose()</a></i>
+<i><a href="dlopen.html">dlopen()</a></i>
+<i><a href="endgrent.html">endgrent()</a></i>
+<i><a href="endpwent.html">endpwent()</a></i>
+<i><a href="endutxent.html">endutxent()</a></i>
+<i><a href="fclose.html">fclose()</a></i>
+<i><a href="fcntl.html">fcntl()</a></i>
+<i><a href="fflush.html">fflush()</a></i>
+<i><a href="fgetc.html">fgetc()</a></i>
+<i><a href="fgetpos.html">fgetpos()</a></i>
+<i><a href="fgets.html">fgets()</a></i>
+<i><a href="fgetwc.html">fgetwc()</a></i>
+<i><a href="fgetws.html">fgetws()</a></i>
+<i><a href="fopen.html">fopen()</a></i>
+<i><a href="fprintf.html">fprintf()</a></i>
+<i><a href="fputc.html">fputc()</a></i>
+<i><a href="fputs.html">fputs()</a></i>
+<i><a href="fputwc.html">fputwc()</a></i>
+<i><a href="fputws.html">fputws()</a></i>
+<i><a href="fread.html">fread()</a></i>
+<i><a href="freopen.html">freopen()</a></i>
+<i><a href="fscanf.html">fscanf()</a></i>
+<i><a href="fseek.html">fseek()</a></i>
+<i><a href="fseeko.html">fseeko()</a></i>
+<i><a href="fsetpos.html">fsetpos()</a></i>
+<i><a href="ftell.html">ftell()</a></i>
+<i><a href="ftello.html">ftello()</a></i>
+<i><a href="ftw.html">ftw()</a></i>
+<i><a href="fwprintf.html">fwprintf()</a></i>
+<i><a href="fwrite.html">fwrite()</a></i>
+<i><a href="fwscanf.html">fwscanf()</a></i>
+<i><a href="getc.html">getc()</a></i>
+<i><a href="getc_unlocked.html">getc_unlocked()</a></i>
+<i><a href="getchar.html">getchar()</a></i>
+<i><a href="getchar_unlocked.html">getchar_unlocked()</a></i>
+<i><a href="getcwd.html">getcwd()</a></i>
+<i><a href="getdate.html">getdate()</a></i>
+<i><a href="getgrent.html">getgrent()</a></i>
+<i><a href="getgrgid.html">getgrgid()</a></i>
+<i><a href="getgrgid.html">getgrgid_r()</a></i>
+<i><a href="getgrnam.html">getgrnam()</a></i>
+<i><a href="getgrnam.html">getgrnam_r()</a></i>
+<i><a href="getlogin.html">getlogin()</a></i>
+<i><a href="getlogin.html">getlogin_r()</a></i>
+<i><a href="getpwent.html">getpwent()</a></i>
+<i><a href="getpwnam.html">getpwnam()</a></i>
+<i><a href="getpwnam.html">getpwnam_r()</a></i>
+<i><a href="getpwuid.html">getpwuid()</a></i>
+<i><a href="getpwuid.html">getpwuid_r()</a></i>
+<i><a href="gets.html">gets()</a></i>
+<i><a href="getutxent.html">getutxent()</a></i>
+<i><a href="getutxid.html">getutxid()</a></i>
+<i><a href="getutxline.html">getutxline()</a></i>
+<i><a href="getw.html">getw()</a></i>
+<i><a href="getwc.html">getwc()</a></i>
+<i><a href="getwchar.html">getwchar()</a></i>
+<i><a href="getwd.html">getwd()</a></i>
+<i><a href="glob.html">glob()</a></i>
+<i><a href="iconv_close.html">iconv_close()</a></i>
+<i><a href="iconv_open.html">iconv_open()</a></i>
+<i><a href="ioctl.html">ioctl()</a></i>
+<i><a href="lseek.html">lseek()</a></i>
+<i><a href="mkstemp.html">mkstemp()</a></i>
+<i><a href="nftw.html">nftw()</a></i>
+<i><a href="opendir.html">opendir()</a></i>
+<i><a href="openlog.html">openlog()</a></i>
+<i><a href="pclose.html">pclose()</a></i>
+<i><a href="perror.html">perror()</a></i>
+<i><a href="popen.html">popen()</a></i>
+<i><a href="printf.html">printf()</a></i>
+<i><a href="putc.html">putc()</a></i>
+<i><a href="putc_unlocked.html">putc_unlocked()</a></i>
+<i><a href="putchar.html">putchar()</a></i>
+<i><a href="putchar_unlocked.html">putchar_unlocked()</a></i>
+<i><a href="puts.html">puts()</a></i>
+<i><a href="pututxline.html">pututxline()</a></i>
+<i><a href="putw.html">putw()</a></i>
+<i><a href="putwc.html">putwc()</a></i>
+<i><a href="putwchar.html">putwchar()</a></i>
+<i><a href="readdir.html">readdir()</a></i>
+<i><a href="readdir.html">readdir_r()</a></i>
+<i><a href="remove.html">remove()</a></i>
+<i><a href="rename.html">rename()</a></i>
+<i><a href="rewind.html">rewind()</a></i>
+<i><a href="rewinddir.html">rewinddir()</a></i>
+<i><a href="scanf.html">scanf()</a></i>
+<i><a href="seekdir.html">seekdir()</a></i>
+<i><a href="semop.html">semop()</a></i>
+<i><a href="setgrent.html">setgrent()</a></i>
+<i><a href="setpwent.html">setpwent()</a></i>
+<i><a href="setutxent.html">setutxent()</a></i>
+<i><a href="strerror.html">strerror()</a></i>
+<i><a href="syslog.html">syslog()</a></i>
+<i><a href="tmpfile.html">tmpfile()</a></i>
+<i><a href="tmpnam.html">tmpnam()</a></i>
+<i><a href="ttyname.html">ttyname()</a></i>
+<i><a href="ttyname.html">ttyname_r()</a></i>
+<i><a href="ungetc.html">ungetc()</a></i>
+<i><a href="ungetwc.html">ungetwc()</a></i>
+<i><a href="unlink.html">unlink()</a></i>
+<i><a href="vfprintf.html">vfprintf()</a></i>
+<i><a href="vfwprintf.html">vfwprintf()</a></i>
+<i><a href="vprintf.html">vprintf()</a></i>
+<i><a href="vwprintf.html">vwprintf()</a></i>
+<i><a href="wprintf.html">wprintf()</a></i>
+<i><a href="wscanf.html">wscanf()</a></i>
+</pre>
+<p>
+Note, that for
+<i><a href="fcntl.html">fcntl()</a></i>,
+for any value of the
+<i>cmd</i>
+argument.
+<p>
+An implementation will not introduce cancellation points
+into any other functions specified in this specification.
+<p>
+The side effects of acting upon a cancellation request
+while suspended during a call of a function
+is the same as the side effects
+that may be seen in a single-threaded program
+when a call to a function is interrupted by a signal
+and the given function returns [EINTR].
+Any such side effects occur before any
+cancellation cleanup handlers are called.
+<p>
+Whenever a thread has cancelability enabled
+and a cancellation request has been made with that thread as the target
+and the thread calls
+<i><a href="pthread_testcancel.html">pthread_testcancel()</a></i>,
+then the cancellation request is acted upon before
+<i><a href="pthread_testcancel.html">pthread_testcancel()</a></i>
+returns.
+If a thread has cancelability enabled
+and the thread has an asynchronous cancellation request pending and
+the thread is suspended at a cancellation point waiting for an event to occur,
+then the cancellation request will be acted upon.
+However, if the thread is suspended at a cancellation point
+and the event that it is waiting for occurs
+before the cancellation request is acted upon, it is
+unspecified whether the cancellation request is acted upon
+or whether the request remains pending and the thread resumes normal execution.
+<h5><a name = "tag_000_010_008_003">&nbsp;</a>Thread Cancellation Cleanup Handlers</h5>
+<p>
+Each thread maintains a list of cancellation cleanup handlers.
+The programmer uses the functions
+<i><a href="pthread_cleanup_push.html">pthread_cleanup_push()</a></i>
+and
+<i><a href="pthread_cleanup_pop.html">pthread_cleanup_pop()</a></i>
+to place routines on and remove routines from this list.
+<p>
+When a cancellation request is acted upon,
+the routines in the list are invoked one by one in LIFO
+sequence; that is, the last routine pushed onto the list (Last In)
+is the first to be invoked (First Out).
+The thread invokes the cancellation cleanup handler
+with cancellation disabled until the last
+cancellation cleanup handler returns.
+When the cancellation cleanup handler
+for a scope is invoked,
+the storage for that scope remains valid.
+If the last cancellation cleanup handler
+returns, thread execution is terminated
+and a status of PTHREAD_CANCELED
+is made available to any threads joining with the target.
+The symbolic constant PTHREAD_CANCELED
+expands to a constant expression of type (<b> void *</b>)
+whose value matches no pointer to an object in memory nor the value NULL.
+<p>
+The cancellation cleanup handlers
+are also invoked when the thread calls
+<i><a href="pthread_exit.html">pthread_exit()</a></i>.
+<p>
+A side effect of acting upon a cancellation request
+while in a condition variable wait is that
+the mutex is reacquired before calling the first
+cancellation cleanup handler.
+In addition,
+the thread is no longer considered to be waiting for the condition
+and the thread will not have consumed any pending
+condition signals
+on the condition.
+<p>
+A cancellation cleanup handler cannot exit via
+<i><a href="longjmp.html">longjmp()</a></i>
+or
+<i><a href="siglongjmp.html">siglongjmp()</a></i>.
+<h5><a name = "tag_000_010_008_004">&nbsp;</a>Async-Cancel Safety</h5>
+The
+<i><a href="pthread_cancel.html">pthread_cancel()</a></i>,
+<i><a href="pthread_setcancelstate.html">pthread_setcancelstate()</a></i>
+and
+<i><a href="pthread_setcanceltype.html">pthread_setcanceltype()</a></i>
+functions are defined to be async-cancel safe.
+<p>
+No other functions in this specification
+are required to be async-cancel safe.
+<h4><a name = "tag_000_010_009">&nbsp;</a>Thread Read-Write Locks</h4>
+<p>
+Multiple readers, single writer (read-write) locks allow many
+threads  to have simultaneous read-only access to data
+while allowing only one thread to have write access at any given
+time.  They are typically used to protect data that is read-only
+more frequently than it is changed.
+<p>
+Read-write locks can be used to synchronise threads in the current
+process and other processes if they are allocated in memory that
+is writable and shared among the cooperating processes and have been
+initialised for this behaviour.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

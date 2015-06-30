@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>&lt;sys/times.h&gt;</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_009_381">&nbsp;</a>NAME</h4><blockquote>
+sys/times.h - file access and modification times structure
+</blockquote><h4><a name = "tag_000_009_382">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;sys/times.h&gt;
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_383">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>&lt;sys/times.h&gt;</i>
+header defines the structure <b>tms</b>, which
+is returned by <i>times</i>()
+and includes at least the following members:
+<pre>
+<code>
+clock_t  tms_utime  user CPU time
+clock_t  tms_stime  system CPU time
+clock_t  tms_cutime user CPU time of terminated child processes
+clock_t  tms_cstime system CPU time of terminated child processes
+</code>
+</pre>
+<p>
+The
+<b>clock_t</b>
+type is defined as described in
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+<p>
+The following is declared as a function and may also be defined
+as a macro.
+Function prototypes must be provided for use with an ISO C
+compiler.
+<pre>
+<code>
+clock_t <a href="times.html">times</a>(struct tms *);
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_384">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_385">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_386">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i>times</i>(),
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

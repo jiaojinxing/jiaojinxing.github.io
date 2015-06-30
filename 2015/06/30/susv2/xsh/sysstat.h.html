@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>&lt;sys/stat.h&gt;</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_009_348">&nbsp;</a>NAME</h4><blockquote>
+sys/stat.h - data returned by the
+<i><a href="stat.html">stat()</a></i>
+function
+</blockquote><h4><a name = "tag_000_009_349">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;sys/stat.h&gt;
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_350">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>&lt;sys/stat.h&gt;</i>
+header defines the structure of the data returned by the functions
+<i><a href="fstat.html">fstat()</a></i>,
+<i><a href="lstat.html">lstat()</a></i>,
+and
+<i><a href="stat.html">stat()</a></i>.
+<p>
+The structure
+<b>stat</b>
+contains at least the following members:
+<pre>
+<code>
+dev_t     st_dev     ID of device containing file
+ino_t     st_ino     file serial number
+mode_t    st_mode    mode of file (see below)
+nlink_t   st_nlink   number of links to the file
+uid_t     st_uid     user ID of file
+gid_t     st_gid     group ID of file
+dev_t     st_rdev    device ID (if file is character or block special)
+off_t     st_size    file size in bytes (if file is a regular file)
+time_t    st_atime   time of last access
+time_t    st_mtime   time of last data modification
+time_t    st_ctime   time of last status change
+blksize_t st_blksize a filesystem-specific preferred I/O block size for
+                     this object.  In some filesystem types, this may
+                     vary from file to file
+blkcnt_t  st_blocks  number of blocks allocated for this object
+</code>
+</pre>
+<p>
+File serial number and device ID taken together uniquely
+identify the file within the system.
+The
+<b>blkcnt_t</b>,
+<b>blksize_t</b>,
+<b>dev_t</b>,
+<b>ino_t</b>,
+<b>mode_t</b>,
+<b>nlink_t</b>,
+<b>uid_t</b>,
+<b>gid_t</b>,
+<b>off_t</b>
+and
+<b>time_t</b>
+types are defined as described in
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+Times are given in seconds since the Epoch.
+<p>
+The following symbolic names for the values of st_mode
+are also defined:
+<p>
+File type:
+<dl compact>
+
+<dt>S_IFMT<dd>
+type of file
+
+<dt>  S_IFBLK<dd>
+block special
+
+<dt>  S_IFCHR<dd>
+character special
+
+<dt>  S_IFIFO<dd>
+FIFO special
+
+<dt>  S_IFREG<dd>
+regular
+
+<dt>  S_IFDIR<dd>
+directory
+
+<dt>  S_IFLNK<dd>
+symbolic link
+
+</dl>
+<p>
+File mode bits:
+<dl compact>
+
+<dt>S_IRWXU<dd>
+read, write, execute/search by owner
+
+<dt>  S_IRUSR<dd>
+read permission, owner
+
+<dt>  S_IWUSR<dd>
+write permission, owner
+
+<dt>  S_IXUSR<dd>
+execute/search permission, owner
+
+<dt>S_IRWXG<dd>
+read, write, execute/search by group
+
+<dt>  S_IRGRP<dd>
+read permission, group
+
+<dt>  S_IWGRP<dd>
+write permission, group
+
+<dt>  S_IXGRP<dd>
+execute/search permission, group
+
+<dt>S_IRWXO<dd>
+read, write, execute/search by others
+
+<dt>  S_IROTH<dd>
+read permission, others
+
+<dt>  S_IWOTH<dd>
+write permission, others
+
+<dt>  S_IXOTH<dd>
+execute/search permission, others
+
+<dt>S_ISUID<dd>
+set-user-ID on execution
+
+<dt>S_ISGID<dd>
+set-group-ID on execution
+
+<dt>S_ISVTX<dd>
+on directories, restricted deletion flag
+
+</dl>
+<p>
+The bits defined by
+S_IRUSR,
+S_IWUSR,
+S_IXUSR,
+S_IRGRP,
+S_IWGRP,
+S_IXGRP,
+S_IROTH,
+S_IWOTH,
+S_IXOTH,
+S_ISUID,
+S_ISGID
+&nbsp;and S_ISVTX
+are unique.
+<p>
+S_IRWXU is the bitwise OR of
+S_IRUSR,
+S_IWUSR and
+S_IXUSR.
+<p>
+S_IRWXG is the bitwise OR of
+S_IRGRP,
+S_IWGRP and
+S_IXGRP.
+<p>
+S_IRWXO is the bitwise OR of
+S_IROTH,
+S_IWOTH and
+S_IXOTH.
+<p>
+Implementations may OR other implementation-dependent bits into
+S_IRWXU,
+S_IRWXG and
+S_IRWXO, but they will not overlap any of the other bits defined
+in this document.
+The
+<i>file permission bits</i>
+are defined to be those corresponding to the bitwise inclusive
+OR of
+S_IRWXU,
+S_IRWXG and
+S_IRWXO.
+<p>
+The following macros will test whether a file is of the
+specified type.
+The value
+<i>m</i>
+supplied to the macros is the value of
+<b>st_mode</b>
+from a
+<b>stat</b>
+structure.
+The macro evaluates to a non-zero value if the test is true,
+0 if the test is false.
+<dl compact>
+
+<dt>S_ISBLK(<i>m</i>)<dd>
+Test for a block special file.
+
+<dt>S_ISCHR(<i>m</i>)<dd>
+Test for a character special file.
+
+<dt>S_ISDIR(<i>m</i>)<dd>
+Test for a directory.
+
+<dt>S_ISFIFO(<i>m</i>)<dd>
+Test for a pipe or FIFO special file.
+
+<dt>S_ISREG(<i>m</i>)<dd>
+Test for a regular file.
+
+<dt>S_ISLNK(<i>m</i>)<dd>
+Test for a symbolic link.
+
+</dl>
+<p>
+The implementation may implement
+message queues, semaphores, or shared memory objects
+as distinct file types.
+The following macros test whether a file is of the specified
+type.
+The value of the
+<i>buf</i>
+argument supplied to the macros is a pointer to a
+<b>stat</b>
+structure.
+The macro evaluates to a non-zero value
+if the specified object is implemented as a distinct file type
+and the specified file type is contained in the
+<b>stat</b>
+structure referenced by
+<i>buf</i>.
+Otherwise, the macro evaluates to zero.
+<dl compact>
+
+<dt>S_TYPEISMQ(<i>buf</i>)<dd>
+Test for a message queue
+
+<dt>S_TYPEISSEM(<i>buf</i>)<dd>
+Test for a semaphore
+
+<dt>S_TYPEISSHM(<i>buf</i>)<dd>
+Test for a shared memory object
+
+</dl>
+<p>
+The following are declared as functions and may also be defined
+as macros.
+Function prototypes must be provided for use with an ISO C
+compiler.
+<pre>
+<code>
+int    <a href="chmod.html">chmod</a>(const char *, mode_t);
+int    <a href="fchmod.html">fchmod</a>(int, mode_t);
+int    <a href="fstat.html">fstat</a>(int, struct stat *);
+int    <a href="lstat.html">lstat</a>(const char *, struct stat *);
+int    <a href="mkdir.html">mkdir</a>(const char *, mode_t);
+int    <a href="mkfifo.html">mkfifo</a>(const char *, mode_t);
+int    <a href="mknod.html">mknod</a>(const char *, mode_t, dev_t);
+int    <a href="stat.html">stat</a>(const char *, struct stat *);
+mode_t <a href="umask.html">umask</a>(mode_t);
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_351">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+Use of the macros is recommended for determining the
+type of a file.
+</blockquote><h4><a name = "tag_000_009_352">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_353">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="chmod.html">chmod()</a></i>,
+<i><a href="fchmod.html">fchmod()</a></i>,
+<i><a href="fstat.html">fstat()</a></i>,
+<i><a href="lstat.html">lstat()</a></i>,
+<i><a href="mkdir.html">mkdir()</a></i>,
+<i><a href="mkfifo.html">mkfifo()</a></i>,
+<i><a href="mknod.html">mknod()</a></i>,
+<i><a href="stat.html">stat()</a></i>,
+<i><a href="umask.html">umask()</a></i>,
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>tzset</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_010_199">&nbsp;</a>NAME</h4><blockquote>
+tzset - set time zone conversion information
+</blockquote><h4><a name = "tag_000_010_200">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;<a href="time.h.html">time.h</a>&gt;
+
+void tzset (void);
+extern char *tzname[];
+extern long int timezone;
+extern int daylight;
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_010_201">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>tzset()</i>
+function uses the value of the environment variable
+<i>TZ</i>
+to set time conversion information used by
+<i><a href="localtime.html">localtime()</a></i>,
+<i><a href="ctime.html">ctime()</a></i>,
+<i><a href="strftime.html">strftime()</a></i>
+and
+<i><a href="mktime.html">mktime()</a></i>.
+If
+<i>TZ</i>
+is absent from the environment, implementation-dependent
+default time zone information is used.
+<p>
+The
+<i>tzset()</i>
+function sets the external variable
+<i>tzname</i>
+as follows:
+<pre>
+<code>
+tzname[0] = "std";
+tzname[1] = "dst";
+</code>
+</pre>
+where <i>std</i> and <i>dst</i> are as described in the <b>XBD</b> specification, <a href="../xbd/envvar.html"><b>Environment Variables</b>&nbsp;</a>.
+<p>
+The
+<i>tzset()</i>
+function also sets the external variable
+<i>daylight</i>
+to 0 if Daylight Savings Time conversions should never be applied for the time
+zone in use; otherwise non-zero.  The external variable
+<i>timezone</i>
+is set to the difference, in seconds, between Coordinated
+Universal Time (UTC) and local standard time, for example:
+<p><table  bordercolor=#000000 border=1 align=center><tr valign=top><th align=center><b>TZ</b>
+<th align=center>timezone
+<tr valign=top><td align=left>EST
+<td align=left>5*60*60
+<tr valign=top><td align=left>GMT
+<td align=left>0*60*60
+<tr valign=top><td align=left>JST
+<td align=left>-9*60*60
+<tr valign=top><td align=left>MET
+<td align=left>-1*60*60
+<tr valign=top><td align=left>MST
+<td align=left>7*60*60
+<tr valign=top><td align=left>PST
+<td align=left>8*60*60
+</table>
+</blockquote><h4><a name = "tag_000_010_202">&nbsp;</a>RETURN VALUE</h4><blockquote>
+The
+<i>tzset()</i>
+function returns no value.
+</blockquote><h4><a name = "tag_000_010_203">&nbsp;</a>ERRORS</h4><blockquote>
+No errors are defined.
+</blockquote><h4><a name = "tag_000_010_204">&nbsp;</a>EXAMPLES</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_010_205">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_010_206">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_010_207">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="ctime.html">ctime()</a></i>,
+<i><a href="localtime.html">localtime()</a></i>,
+<i><a href="mktime.html">mktime()</a></i>,
+<i><a href="strftime.html">strftime()</a></i>,
+<i><a href="time.h.html">&lt;time.h&gt;</a></i>.
+<br>
+</blockquote><h4>DERIVATION</h4><blockquote>
+Derived from Issue 1 of the SVID.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>
+

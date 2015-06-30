@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>&lt;search.h&gt;</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_008_243">&nbsp;</a>NAME</h4><blockquote>
+search.h - search tables
+</blockquote><h4><a name = "tag_000_008_244">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;search.h&gt;
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_008_245">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>&lt;search.h&gt;</i>
+header provides a type definition, <b>ENTRY</b>, for
+structure <b>entry</b> which includes the following members:
+<pre>
+<code>
+char    *key
+void    *data
+</code>
+</pre>
+<p>
+and defines <b>ACTION</b> and <b>VISIT</b> as enumeration data types through
+type definitions as follows:
+<pre>
+<code>
+enum { FIND, ENTER } ACTION;
+enum { preorder, postorder, endorder, leaf } VISIT;
+</code>
+</pre>
+<p>
+The
+<b>size_t</b>
+type is defined as described in
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+<p>
+Each of the following is
+declared as a function, or defined as a macro, or both.
+Function prototypes must be provided for use with an ISO C
+compiler.
+<pre>
+<code>
+int    <a href="hcreate.html">hcreate</a>(size_t);
+void   <a href="hdestroy.html">hdestroy</a>(void);
+ENTRY *<a href="hsearch.html">hsearch</a>(ENTRY, ACTION);
+void   <a href="insque.html">insque</a>(void *, void *);
+void  *<a href="lfind.html">lfind</a>(const void *, const void *, size_t *,
+          size_t, int (*)(const void *, const void *));
+void  *<a href="lsearch.html">lsearch</a>(const void *, void *, size_t *,
+          size_t, int (*)(const void *, const void *));
+void   <a href="remque.html">remque</a>(void *);
+void  *<a href="tdelete.html">tdelete</a>(const void *, void **,
+          int(*)(const void *, const void *));
+void  *<a href="tfind.html">tfind</a>(const void *, void *const *,
+          int(*)(const void *, const void *));
+void  *<a href="tsearch.html">tsearch</a>(const void *, void **,
+          int(*)(const void *, const void *));
+void   <a href="twalk.html">twalk</a>(const void *,
+          void (*)(const void *, VISIT, int ));
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_008_246">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_008_247">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_008_248">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="hsearch.html">hsearch()</a></i>,
+<i><a href="insque.html">insque()</a></i>,
+<i><a href="lsearch.html">lsearch()</a></i>,
+<i><a href="remque.html">remque()</a></i>,
+<i><a href="tsearch.html">tsearch()</a></i>,
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>Relationship to the XSH Specification</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade><blockquote>
+<center>
+<h3><a name = "tagcjh_02_04">&nbsp;</a>Relationship to the XSH Specification</h3>
+</center>
+<h4><a name = "tagcjh_02_04_01">&nbsp;</a>Error Numbers</h4>
+Some functions provide an error number in
+<i>errno</i>,
+which is either a variable or macro defined in
+<i><a href="../xsh/errno.h.html">&lt;errno.h&gt;</a></i>;
+the macro expands to a modifiable
+<b>lvalue</b>
+of type
+<b>int</b>.
+<p>
+A list of valid values for
+<i>errno</i>
+and advice to application writers on the use of
+<i>errno</i>
+appears in the <b>XSH</b> specification.
+<h3><a name = "tagcjh_02_05">&nbsp;</a>Thread Safety</h3>
+
+All interfaces defined by this document will be
+thread-safe, except for the following interfaces
+which need not be thread-safe: 
+<p>
+<dl compact><dt> <dd>
+<i><a href="gethostbyaddr.html">gethostbyaddr()</a></i>
+<br>
+<i><a href="gethostbyname.html">gethostbyname()</a></i>
+<br>
+<i><a href="gethostent.html">gethostent()</a></i>
+<br>
+<i><a href="getnetbyaddr.html">getnetbyaddr()</a></i>
+<br>
+<i><a href="getnetbyname.html">getnetbyname()</a></i>
+<br>
+<i><a href="getnetent.html">getnetent()</a></i>
+<br>
+<i><a href="getprotobynumber.html">getprotobynumber()</a></i>
+<br>
+<i><a href="getprotobyname.html">getprotobyname()</a></i>
+<br>
+<i><a href="getprotoent.html">getprotoent()</a></i>
+<br>
+<i><a href="getservbyname.html">getservbyname()</a></i>
+<br>
+<i><a href="getservbyport.html">getservbyport()</a></i>
+<br>
+<i><a href="getservent.html">getservent()</a></i>
+<br>
+<i><a href="inet_ntoa.html">inet_ntoa()</a></i>
+</dl>
+<h3><a name = "tagcjh_02_06">&nbsp;</a>Thread Cancellation Points</h3>
+Cancellation points will occur when a thread is executing any of the 
+following functions:
+<p>
+<dl compact><dt> <dd>
+<i><a href="accept.html">accept()</a></i>
+<br>
+<i><a href="connect.html">connect()</a></i>
+<br>
+<i><a href="recv.html">recv()</a></i>
+<br>
+<i><a href="recvfrom.html">recvfrom()</a></i>
+<br>
+<i><a href="recvmsg.html">recvmsg()</a></i>
+<br>
+<i><a href="send.html">send()</a></i>
+<br>
+<i><a href="sendmsg.html">sendmsg()</a></i>
+<br>
+<i><a href="sendto.html">sendto()</a></i>
+<br>
+<i><a href="t_close.html">t_close()</a></i>
+<br>
+<i><a href="t_connect.html">t_connect()</a></i>
+<br>
+<i><a href="t_listen.html">t_listen()</a></i>
+<br>
+<i><a href="t_rcv.html">t_rcv()</a></i>
+<br>
+<i><a href="t_rcvconnect.html">t_rcvconnect()</a></i>
+<br>
+<i><a href="t_rcvrel.html">t_rcvrel()</a></i>
+<br>
+<i><a href="t_rcvreldata.html">t_rcvreldata()</a></i>
+<br>
+<i><a href="t_rcvudata.html">t_rcvudata()</a></i>
+<br>
+<i><a href="t_rcvv.html">t_rcvv()</a></i>
+<br>
+<i><a href="t_rcvvudata.html">t_rcvvudata()</a></i>
+<br>
+<i><a href="t_snd.html">t_snd()</a></i>
+<br>
+<i><a href="t_sndrel.html">t_sndrel()</a></i>
+<br>
+<i><a href="t_sndreldata.html">t_sndreldata()</a></i>
+<br>
+<i><a href="t_sndudata.html">t_sndudata()</a></i>
+<br>
+<i><a href="t_sndv.html">t_sndv()</a></i>
+<br>
+<i><a href="t_sndvudata.html">t_sndvudata()</a></i>
+</dl>
+<p>
+A cancellation point may also occur when a thread is executing any of
+the following functions:
+<p>
+<dl compact><dt> <dd>
+<i><a href="endhostent.html">endhostent()</a></i>
+<br>
+<i><a href="endnetent.html">endnetent()</a></i>
+<br>
+<i><a href="endprotoent.html">endprotoent()</a></i>
+<br>
+<i><a href="endservent.html">endservent()</a></i>
+<br>
+<i><a href="gethostbyaddr.html">gethostbyaddr()</a></i>
+<br>
+<i><a href="gethostbyname.html">gethostbyname()</a></i>
+<br>
+<i><a href="gethostent.html">gethostent()</a></i>
+<br>
+<i><a href="gethostname.html">gethostname()</a></i>
+<br>
+<i><a href="getnetbyaddr.html">getnetbyaddr()</a></i>
+<br>
+<i><a href="getnetbyname.html">getnetbyname()</a></i>
+<br>
+<i><a href="getnetent.html">getnetent()</a></i>
+<br>
+<i><a href="getprotobynumber.html">getprotobynumber()</a></i>
+<br>
+<i><a href="getprotobyname.html">getprotobyname()</a></i>
+<br>
+<i><a href="getprotoent.html">getprotoent()</a></i>
+<br>
+<i><a href="getservbyport.html">getservbyport()</a></i>
+<br>
+<i><a href="getservbyname.html">getservbyname()</a></i>
+<br>
+<i><a href="getservent.html">getservent()</a></i>
+<br>
+<i><a href="sethostent.html">sethostent()</a></i>
+<br>
+<i><a href="setnetent.html">setnetent()</a></i>
+<br>
+<i><a href="setprotoent.html">setprotoent()</a></i>
+<br>
+<i><a href="setservent.html">setservent()</a></i>
+</dl>
+<p>
+An implementation will not introduce cancellation points into any
+other function specified in this document. 
+<p>
+See the
+<b>XSH</b>,
+<a href="../xsh/threads.html">Section 2.8</a> for further information.
+<h3><a name = "tagcjh_02_07">&nbsp;</a>Relationship to Emerging Formal Standards</h3>
+The IEEE 1003.1g standards committee is also developing 
+interfaces to XTI and Sockets.  
+X/Open is actively involved in the work of this committee.
+<p>
+<p>
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>
+
+

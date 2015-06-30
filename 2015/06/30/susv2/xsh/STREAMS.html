@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>STREAMS</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade><blockquote>
+<center>
+<h3><a name = "tag_000_001">&nbsp;</a>STREAMS</h3>
+</center>
+<xref type="2" name="OVSTREAMS"></xref>
+STREAMS provides a uniform mechanism for implementing networking services and
+other character-based I/O.  The STREAMS interface provides direct access to
+protocol modules.  A STREAM is typically a full-duplex connection between a
+process and an open device or pseudo-device.  However, since pipes may be
+STREAMS-based, a STREAM can be a full-duplex connection between two
+processes.  The STREAM itself exists entirely within the implementation and
+provides a general character I/O interface for processes.  It optionally
+includes one or more intermediate processing modules that are interposed
+between the process end of the STREAM (STREAM head) and a device driver at the
+end of the STREAM (STREAM end).
+<p>
+STREAMS I/O is based on messages.  Messages flow in both directions in a
+STREAM.  A given module need not understand and process every message in the
+STREAM, but every module in the STREAM handles every message.  Each module
+accepts messages from one of its neighbour modules in the STREAM, and passes
+them to the other neighbour.  For example, a line discipline module may
+transform the data.  Data flow through the intermediate modules is
+bidirectional, with all modules handling, and optionally processing, all
+messages.  There are three types of messages:
+<ul>
+<p>
+<li>
+<i>data messages</i>
+containing actual data for input or output
+<p>
+<li>
+<i>control data</i>
+containing instructions for the STREAMS modules and underlying implementation
+<p>
+<li>
+other messages, which include file descriptors.
+<p>
+</ul>
+<p>
+The interface between the STREAM and the rest of the implementation is
+provided by a set of functions at the STREAM head.  When a process calls
+<i><a href="write.html">write()</a></i>,
+<i><a href="putmsg.html">putmsg()</a></i>,
+<i><a href="putpmsg.html">putpmsg()</a></i>
+or
+<i><a href="ioctl.html">ioctl()</a></i>,
+messages are sent down the STREAM, and
+<i><a href="read.html">read()</a></i>,
+<i><a href="getmsg.html">getmsg()</a></i>
+or
+<i><a href="getpmsg.html">getpmsg()</a></i>
+accepts data from the STREAM and passes it to a process.  Data intended for
+the device at the downstream end of the STREAM is packaged into messages and
+sent downstream, while data and signals from the device are composed into
+messages by the device driver and sent upstream to the STREAM head.
+<p>
+When a STREAMS-based device is opened, a STREAM is created that contains two
+modules:  the STREAM head module and the STREAM end (driver) module.  If pipes
+are STREAMS-based in an implementation, when a pipe is created, two STREAMS
+are created, each containing a STREAM head module.  Other modules are added to
+the STREAM using
+<i><a href="ioctl.html">ioctl()</a></i>.
+New modules are "pushed" onto the STREAM one at a time in last-in, first-out
+(LIFO) style, as though the STREAM was a push-down stack.
+<h5><a name = "tag_000_001_000_001">&nbsp;</a>Priority</h5>
+<p>
+Message types are classified according to their queueing priority and may be
+normal (non-priority), priority, or high-priority messages.  A message belongs
+to a particular priority band that determines its ordering when placed on a
+queue.  Normal messages have a priority band of 0 and are always placed at
+the end of the queue following all other messages in the queue.  High-priority
+messages are always placed at the head of the queue, but will be discarded
+if there is already  a high-priority message in the queue.  Their priority 
+band is ignored;
+they are high-priority by virtue of their type.  Priority messages have a
+priority band greater than 0.  Priority messages are always placed after
+any messages of the same or higher priority.  High-priority and priority
+messages are used to send control and data information outside the normal flow
+of control.  By convention, high-priority messages are not affected by flow
+control.  Normal and priority messages have separate flow controls.
+<h5><a name = "tag_000_001_000_002">&nbsp;</a>Message Parts</h5>
+<p>
+A process may access STREAMS messages that contain a data part, control part,
+or both.  The data part is that information which is transmitted over the
+communication medium and the control information is used by the local STREAMS
+modules.  The other types of messages are used between modules and are not
+accessible to processes.  Messages containing only a data part are accessible
+via
+<i><a href="putmsg.html">putmsg()</a></i>,
+<i><a href="putpmsg.html">putpmsg()</a></i>,
+<i><a href="getmsg.html">getmsg()</a></i>,
+<i><a href="getpmsg.html">getpmsg()</a></i>,
+<i><a href="read.html">read()</a></i>
+or
+<i><a href="write.html">write()</a></i>.
+Messages containing a control part with or without a data part are
+accessible via calls to
+<i><a href="putmsg.html">putmsg()</a></i>,
+<i><a href="putpmsg.html">putpmsg()</a></i>,
+<i><a href="getmsg.html">getmsg()</a></i>
+or
+<i><a href="getpmsg.html">getpmsg()</a></i>.
+<h4><a name = "tag_000_001_001">&nbsp;</a>Accessing STREAMS</h4>
+<p>
+A process accesses STREAMS-based files using the standard functions
+<i><a href="open.html">open()</a></i>,
+<i><a href="close.html">close()</a></i>,
+<i><a href="read.html">read()</a></i>,
+<i><a href="write.html">write()</a></i>,
+<i><a href="ioctl.html">ioctl()</a></i>,
+<i><a href="pipe.html">pipe()</a></i>,
+<i><a href="putmsg.html">putmsg()</a></i>,
+<i><a href="putpmsg.html">putpmsg()</a></i>,
+<i><a href="getmsg.html">getmsg()</a></i>,
+<i><a href="getpmsg.html">getpmsg()</a></i>
+or
+<i><a href="poll.html">poll()</a></i>.
+Refer to the applicable function definitions for general properties and
+errors.
+<p>
+Calls to
+<i><a href="ioctl.html">ioctl()</a></i>
+are used to perform control functions with the STREAMS-based device
+associated with the file descriptor <i>fildes</i>.  The arguments <i>command</i>
+and <i>arg</i> are passed to the STREAMS file designated by <i>fildes</i> and
+are interpreted by the STREAM head.  Certain combinations of these arguments
+may be passed to a module or driver in the STREAM.
+<p>
+Since these STREAMS requests are a subset of
+<i><a href="ioctl.html">ioctl()</a></i>,
+they are subject to the errors described there.
+<p>
+STREAMS modules and drivers can detect errors, sending an error message to the
+STREAM head, thus causing subsequent functions to fail and set <i>errno</i> to
+the value specified in the message.  In addition, STREAMS modules and drivers
+can elect to fail a particular
+<i><a href="ioctl.html">ioctl()</a></i>
+request alone by sending a negative acknowledgement message to the STREAM
+head.  This causes just the pending
+<i><a href="ioctl.html">ioctl()</a></i>
+request to fail and set <i>errno</i> to the value specified in the message.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

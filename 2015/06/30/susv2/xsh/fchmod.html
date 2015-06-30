@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>fchmod</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_004_119">&nbsp;</a>NAME</h4><blockquote>
+fchmod - change mode of a file
+</blockquote><h4><a name = "tag_000_004_120">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;<a href="sysstat.h.html">sys/stat.h</a>&gt;
+
+int fchmod(int <i>fildes</i>, mode_t <i>mode</i>);
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_004_121">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>fchmod()</i>
+function has the same effect as
+<i><a href="chmod.html">chmod()</a></i>
+except that the file whose permissions are to be changed is specified by the
+file descriptor
+<i>fildes</i>.
+<p>
+If the Shared Memory Objects option is supported, and
+<i>fildes</i>
+references a shared memory object, the
+<i>fchmod()</i>
+function need only affect the S_IRUSR, S_IWUSR, S_IRGRP, S_IWGRP,
+S_IROTH, and S_IWOTH file permission bits.
+</blockquote><h4><a name = "tag_000_004_122">&nbsp;</a>RETURN VALUE</h4><blockquote>
+Upon successful completion,
+<i>fchmod()</i>
+returns 0.  Otherwise, it returns -1 and sets
+<i>errno</i> to indicate the error.
+</blockquote><h4><a name = "tag_000_004_123">&nbsp;</a>ERRORS</h4><blockquote>
+The
+<i>fchmod()</i>
+function will fail if:
+<dl compact>
+
+<dt>[EBADF]<dd>
+The <i>fildes</i> argument is not an open file descriptor.
+
+<dt>[EPERM]<dd>
+The effective user ID does not match the owner of the file and the
+process does not have appropriate privilege.
+
+<dt>[EROFS]<dd>
+The file referred to by <i>fildes</i> resides on a read-only file system.
+
+</dl>
+<p>
+The
+<i>fchmod()</i>
+function may fail if:
+<dl compact>
+
+<dt>[EINTR]<dd>
+The
+<i>fchmod()</i>
+function was interrupted by a signal.
+
+<dt>[EINVAL]<dd>
+The value of the <i>mode</i> argument is invalid.
+
+<dt>[EINVAL]<dd>The
+<i>fildes</i>
+argument refers to a pipe and the implementation disallows 
+execution of
+<i>fchmod()</i>
+on a pipe.
+
+</dl>
+</blockquote><h4><a name = "tag_000_004_124">&nbsp;</a>EXAMPLES</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_004_125">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_004_126">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_004_127">&nbsp;</a>SEE ALSO</h4><blockquote>
+<pre>
+<i><a href="chmod.html">chmod()</a></i>,
+<i><a href="chown.html">chown()</a></i>,
+<i><a href="creat.html">creat()</a></i>,
+<i><a href="fcntl.html">fcntl()</a></i>,
+<i><a href="fstatvfs.html">fstatvfs()</a></i>,
+<i><a href="mknod.html">mknod()</a></i>,
+<i><a href="open.html">open()</a></i>,
+<i><a href="read.html">read()</a></i>,
+<i><a href="stat.html">stat()</a></i>,
+<i><a href="write.html">write()</a></i>,
+<i><a href="sysstat.h.html">&lt;sys/stat.h&gt;</a></i>.
+</pre>
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>

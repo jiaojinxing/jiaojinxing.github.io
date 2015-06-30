@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!-- Copyright 1997 The Open Group, All Rights Reserved -->
+<title>&lt;sys/resource.h&gt;</title>
+</head><body bgcolor=white>
+<center>
+<font size=2>
+The Single UNIX &reg; Specification, Version 2<br>
+Copyright &copy; 1997 The Open Group
+
+</font></center><hr size=2 noshade>
+<h4><a name = "tag_000_009_330">&nbsp;</a>NAME</h4><blockquote>
+sys/resource.h - definitions for XSI resource operations
+</blockquote><h4><a name = "tag_000_009_331">&nbsp;</a>SYNOPSIS</h4><blockquote>
+<pre><code>
+
+#include &lt;sys/resource.h&gt;
+</code>
+</pre>
+</blockquote><h4><a name = "tag_000_009_332">&nbsp;</a>DESCRIPTION</h4><blockquote>
+The
+<i>&lt;sys/resource.h&gt;</i>
+header defines the following symbolic constants as
+possible values of the <i>which</i> argument of
+<i><a href="getpriority.html">getpriority()</a></i>
+and
+<i><a href="setpriority.html">setpriority()</a></i>:
+<dl compact>
+
+<dt>PRIO_PROCESS<dd>
+Identifies <i>who</i> argument as a process ID.
+
+<dt>PRIO_PGRP<dd>
+Identifies <i>who</i> argument as a process group ID.
+
+<dt>PRIO_USER<dd>
+Identifies <i>who</i> argument as a user ID.
+
+</dl>
+<p>
+The following type is defined through
+<b>typedef</b>:
+<dl compact>
+
+<dt><b>rlim_t</b><dd>Unsigned integral type used for limit values.
+
+</dl>
+<p>
+The following symbolic constants are defined:
+<dl compact>
+
+<dt>RLIM_INFINITY<dd>
+A value of <b>rlim_t</b> indicating no limit.
+
+<dt>RLIM_SAVED_MAX<dd>
+A value of type <b>rlim_t</b> indicating an unrepresentable saved 
+hard limit.
+
+<dt>RLIM_SAVED_CUR<dd>
+A value of type <b>rlim_t</b> indicating an unrepresentable saved 
+soft limit.
+
+</dl>
+<p>
+On implementations where all resource limits are representable in an
+object of type
+<b>rlim_t</b>,
+RLIM_SAVED_MAX and RLIM_SAVED_CUR need not be
+distinct from RLIM_INFINITY. 
+<p>
+The following symbolic constants are defined as possible values
+of the <i>who</i> parameter of
+<i><a href="getrusage.html">getrusage()</a></i>:
+<dl compact>
+
+<dt>RUSAGE_SELF<dd>
+Returns information about the current process.
+
+<dt>RUSAGE_CHILDREN<dd>
+Returns information about children of the current process.
+
+</dl>
+<p>
+The
+<i>&lt;sys/resource.h&gt;</i>
+header defines the
+<b>rlimit</b>
+structure that includes at least the following members:
+<pre>
+<code>
+rlim_t rlim_cur the current (soft) limit
+rlim_t rlim_max the hard limit
+</code>
+</pre>
+<p>
+The
+<i>&lt;sys/resource.h&gt;</i>
+header defines the
+<b>rusage</b>
+structure that includes at least the following members:
+<pre>
+<code>
+struct timeval ru_utime   user time used
+struct timeval ru_stime   system time used
+</code>
+</pre>
+<p>
+The <b>timeval</b> structure is defined as described in &lt;<b>sys/time.h</b>&gt;.
+<p>
+The following symbolic constants are defined as possible values for
+the <i>resource</i> argument of
+<i><a href="getrlimit.html">getrlimit()</a></i>
+and
+<i><a href="setrlimit.html">setrlimit()</a></i>:
+<dl compact>
+
+<dt>RLIMIT_CORE<dd>
+Limit on  size of core dump file.
+
+<dt>RLIMIT_CPU<dd>
+Limit on CPU time per process.
+
+<dt>RLIMIT_DATA<dd>
+Limit on data segment size.
+
+<dt>RLIMIT_FSIZE<dd>
+Limit on file size.
+
+<dt>RLIMIT_NOFILE<dd>
+Limit on number of open files.
+
+<dt>RLIMIT_STACK<dd>
+Limit on stack size.
+
+<dt>RLIMIT_AS<dd>
+Limit on address space size.
+
+</dl>
+<p>
+The following are declared as functions and may also be defined as macros.
+Function prototypes must be provided for use with an ISO C
+compiler.
+<pre>
+<code>
+int  <a href="getpriority.html">getpriority</a>(int, id_t);
+int  <a href="getrlimit.html">getrlimit</a>(int, struct rlimit *);
+int  <a href="getrusage.html">getrusage</a>(int, struct rusage *);
+int  <a href="setpriority.html">setpriority</a>(int, id_t, int);
+int  <a href="setrlimit.html">setrlimit</a>(int, const struct rlimit *);
+</code>
+</pre>
+<p>
+The
+<b>id_t</b>
+type is defined through
+<b>typedef</b>
+as described in
+<i><a href="systypes.h.html">&lt;sys/types.h&gt;</a></i>.
+<p>
+Inclusion of the
+<i>&lt;sys/resource.h&gt;</i>
+header may also make visible all symbols from
+<i><a href="systime.h.html">&lt;sys/time.h&gt;</a></i>.
+</blockquote><h4><a name = "tag_000_009_333">&nbsp;</a>APPLICATION USAGE</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_334">&nbsp;</a>FUTURE DIRECTIONS</h4><blockquote>
+None.
+</blockquote><h4><a name = "tag_000_009_335">&nbsp;</a>SEE ALSO</h4><blockquote>
+<i><a href="getpriority.html">getpriority()</a></i>,
+<i><a href="getrusage.html">getrusage()</a></i>,
+<i><a href="getrlimit.html">getrlimit()</a></i>.
+</blockquote><hr size=2 noshade>
+<center><font size=2>
+UNIX &reg; is a registered Trademark of The Open Group.<br>
+Copyright &copy; 1997 The Open Group
+<br> [ <a href="../index.html">Main Index</a> | <a href="../xshix.html">XSH</a> | <a href="../xcuix.html">XCU</a> | <a href="../xbdix.html">XBD</a> | <a href="../cursesix.html">XCURSES</a> | <a href="../xnsix.html">XNS</a> ]
+
+</font></center><hr size=2 noshade>
+</body></html>
