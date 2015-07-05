@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-06-30T08:05:10.642Z</updated>
+  <updated>2015-07-05T08:13:41.249Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -13,6 +13,80 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[STM32F429 Discovery U-Boot]]></title>
+    <link href="jiaojinxing.github.io/2015/07/05/STM32F429-Discovery-U-Boot/"/>
+    <id>jiaojinxing.github.io/2015/07/05/STM32F429-Discovery-U-Boot/</id>
+    <published>2015-07-05T07:11:33.000Z</published>
+    <updated>2015-07-05T08:13:41.249Z</updated>
+    <content type="html"><![CDATA[<h2 id="U-Boot_来源">U-Boot 来源</h2><p>EmCraft Systems 公司提供了支持 Cortex-M3 and Cortex-M4 芯片的 U-Boot：<a href="https://github.com/EmcraftSystems/u-boot" target="_blank" rel="external">https://github.com/EmcraftSystems/u-boot</a></p>
+<h2 id="移植_U-Boot">移植 U-Boot</h2><p>EmCraft Systems 公司提供的 U-Boot 支持 STM32F429 Discovery 开发板，但网口使用 STM32 自带的 STM32_MAC，STM32F429 Discovery 开发板不带网口，所以没法使用。</p>
+<p>本人在 EmCraft Systems 公司提供的 U-Boot 的基础上加入了 ENC28J60 网络芯片的支持，ENC28J60 网络芯片使用 SPI （只需要四根线）与 STM32F429 进行通信，所以需要实现 U-Boot 的 SPI 函数接口，为了方便实现 SPI 函数接口，本人加入了 STM32F4 驱动库（从最新的 STM32Cube_FW_F4_V1.6.0 中提取）。</p>
+<p>U-Boot 的 SPI 函数接口：<br><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">define</span> spi_lock()   disable_interrupts();</span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">define</span> spi_unlock() enable_interrupts();</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">spi_init</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> <span class="title">spi_read</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">spi_write</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> b)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">spi_set_clock</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> clk_value)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">spi_set_cfg</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> phase,</span><br><span class="line">                 <span class="keyword">unsigned</span> <span class="keyword">char</span> polarity,</span><br><span class="line">                 <span class="keyword">unsigned</span> <span class="keyword">char</span> lsbf)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#<span class="keyword">define</span> ENC28J60_CS	1</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">spi_select</span><span class="params">(<span class="keyword">int</span> cs)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">spi_deselect</span><span class="params">(<span class="keyword">int</span> cs)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>移植好的 U-Boot 放在本人的 github 上：<a href="https://github.com/jiaojinxing/u-boot" target="_blank" rel="external">https://github.com/jiaojinxing/u-boot</a></p>
+<h2 id="编译_U-Boot">编译 U-Boot</h2><p>编译 U-Boot 在 Ubuntu-12.04 上进行，编译 U-Boot 需要使用 arm-uclinuxeabi-gcc 编译器。</p>
+<p>arm-uclinuxeabi-gcc 交叉编译器：<a href="https://sourcery.mentor.com/sgpp/lite/arm/portal/package6503/public/arm-uclinuxeabi/arm-2010q1-189-arm-uclinuxeabi-i686-pc-linux-gnu.tar.bz2" target="_blank" rel="external">arm-uclinuxeabi-2010q1</a></p>
+<p>下载交叉编译器后解压，然后将其中 bin 目录路径加入到 PATH 变量中，如：<br><figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line"><span class="label">export</span> PATH=/usr/lib/gcc-<span class="preprocessor">arm</span>-uclinuxeabi/<span class="preprocessor">arm</span>-<span class="number">2010</span><span class="literal">q1</span>/<span class="keyword">bin/:$PATH</span></span><br></pre></td></tr></table></figure></p>
+<p>下载本人移植好的 U-Boot 源码：<br><figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">git clone <span class="string">https:</span><span class="comment">//github.com/jiaojinxing/u-boot.git</span></span><br></pre></td></tr></table></figure></p>
+<p>编译 U-Boot：<br><figure class="highlight stata"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cd</span> <span class="keyword">u</span>-<span class="keyword">boot</span></span><br><span class="line">make stm32f429-discovery_config</span><br><span class="line">make CROSS_COMPILE=arm-uclinuxeabi-</span><br></pre></td></tr></table></figure></p>
+<h2 id="烧写_U-Boot">烧写 U-Boot</h2><p>编译完毕后会在 u-boot 目录生成 u-boot.bin 文件，使用 STM32 ST-LINK Utility 烧写到地址 0x08000000 处（烧写前建议擦除整片）：<br><img src="/img/STM32F429-Discovery-U-Boot/STM32 ST-LINK.png" alt="STM32 ST-LINK.png"></p>
+<h2 id="启动_U-Boot">启动 U-Boot</h2><p>如下是复位 STM32F429 Discovery 开发板后的串口输出：<br><figure class="highlight coffeescript"><table><tr><td class="code"><pre><span class="line">U-Boot <span class="number">2010.03</span>-<span class="number">00017</span>-g2fa4d6c-dirty (Jul <span class="number">05</span> <span class="number">2015</span> - <span class="number">02</span>:<span class="number">50</span>:<span class="number">58</span>)</span><br><span class="line"></span><br><span class="line">CPU  : STM32F4 (Cortex-M4)</span><br><span class="line"><span class="attribute">Freqs</span>: SYSCLK=<span class="number">180</span>MHz,HCLK=<span class="number">180</span>MHz,PCLK1=<span class="number">45</span>MHz,PCLK2=<span class="number">90</span>MHz</span><br><span class="line"><span class="attribute">Board</span>: STM32F429-DISCOVERY Rev <span class="number">1.</span>A</span><br><span class="line"><span class="attribute">DRAM</span>:   <span class="number">8</span> MB</span><br><span class="line">*** Warning - bad CRC, using <span class="reserved">default</span> environment</span><br><span class="line"></span><br><span class="line"><span class="attribute">In</span>:    serial</span><br><span class="line"><span class="attribute">Out</span>:   serial</span><br><span class="line"><span class="attribute">Err</span>:   serial</span><br><span class="line">Hit any key to stop <span class="attribute">autoboot</span>:  <span class="number">0</span></span><br><span class="line">TFTP from server <span class="number">192.168</span>.1.10; our IP address <span class="keyword">is</span> <span class="number">192.168</span>.1.11</span><br><span class="line">Filename <span class="string">'bspstm32f4.bin'</span>.</span><br><span class="line">Load <span class="attribute">address</span>: <span class="number">0xd0000000</span></span><br><span class="line"><span class="attribute">Loading</span>: T <span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">#####</span><br><span class="line">         ###</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">##</span></span><br><span class="line">         <span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">#####</span><br><span class="line">         ###</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">##</span></span><br><span class="line">done</span><br><span class="line">Bytes transferred = <span class="number">3813056</span> (<span class="number">3</span>a2ec0 hex)</span><br><span class="line"><span class="comment">## Starting application at 0xD0000000 ...</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="下载_SylixOS_操作系统">下载 SylixOS 操作系统</h2><p>默认 IP 是 192.168.1.10，服务器 IP 是 192.168.1.11，下载地址是 0xd0000000，下载文件是 bspstm32f4.bin，启动命令是：<br><figure class="highlight dns"><table><tr><td class="code"><pre><span class="line">tftp<span class="comment">; go 0xd0000000</span></span><br></pre></td></tr></table></figure></p>
+<p>即从服务器下载 bspstm32f4.bin 文件到地址 0xd0000000（即外部 SDRAM 的开始地址），然后跳到地址 0xd0000000 处运行。</p>
+<p>服务器运行 TFTP 服务器 tftpd32.exe 并将 bspstm32f4.bin 文件放入 tftpd32.exe 所在的目录。</p>
+<p><img src="/img/STM32F429-Discovery-U-Boot/TFTPD32.png" alt="TFTPD32.png"></p>
+<p>bspstm32f4.bin 是 STM32F429 Discovery 开发板的 SylixOS BSP 镜像，该 BSP 将后续提供。</p>
+<h2 id="硬件连接">硬件连接</h2><p>STM32F4 的 UART 知识请看：<br><a href="http://stm32f4-discovery.com/2014/04/library-04-connect-stm32f429-discovery-to-computer-with-usart/" target="_blank" rel="external">http://stm32f4-discovery.com/2014/04/library-04-connect-stm32f429-discovery-to-computer-with-usart/</a></p>
+<p>在这里我们使用 STM32F429 的 UART1 与 MAX232 模块连接：</p>
+<table>
+<thead>
+<tr>
+<th>USART1_TX</th>
+<th>USART1_RX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PA9</td>
+<td>PA10</td>
+</tr>
+</tbody>
+</table>
+<p>STM32F4 的 SPI 知识请看：<br><a href="http://stm32f4-discovery.com/2014/04/library-05-spi-for-stm32f4xx/" target="_blank" rel="external">http://stm32f4-discovery.com/2014/04/library-05-spi-for-stm32f4xx/</a></p>
+<p>在这里我们使用 STM32F429 的 SPI1 与 ENC28J60 网络模块连接，使用 PA.04 作 ENC28J60 的片选线控制引脚：</p>
+<table>
+<thead>
+<tr>
+<th>SPI1_MOSI</th>
+<th>SPI1_MISO</th>
+<th>SPI1_SCK</th>
+<th>SPI1_CS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PA7</td>
+<td>PA6</td>
+<td>PA5</td>
+<td>PA4</td>
+</tr>
+</tbody>
+</table>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="U-Boot_来源">U-Boot 来源</h2><p>EmCraft Systems 公司提供了支持 Cortex-M3 and Cortex-M4 芯片的 U-Boot：<a href="https://github.com/EmcraftSystems/u-]]>
+    </summary>
+    
+      <category term="ARMv7-M" scheme="jiaojinxing.github.io/tags/ARMv7-M/"/>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
+    
+      <category term="U-Boot" scheme="jiaojinxing.github.io/tags/U-Boot/"/>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[ppt]]></title>

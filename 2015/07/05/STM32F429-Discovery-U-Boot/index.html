@@ -1,0 +1,558 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>STM32F429 Discovery U-Boot | JinXing’s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="jiaojinxing">
+    
+
+    
+    <meta name="description" content="U-Boot 来源EmCraft Systems 公司提供了支持 Cortex-M3 and Cortex-M4 芯片的 U-Boot：https://github.com/EmcraftSystems/u-boot
+移植 U-BootEmCraft Systems 公司提供的 U-Boot 支持 STM32F429 Discovery 开发板，但网口使用 STM32 自带的 STM32_MAC，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STM32F429 Discovery U-Boot">
+<meta property="og:url" content="jiaojinxing.github.io/2015/07/05/STM32F429-Discovery-U-Boot/index.html">
+<meta property="og:site_name" content="JinXing’s blog">
+<meta property="og:description" content="U-Boot 来源EmCraft Systems 公司提供了支持 Cortex-M3 and Cortex-M4 芯片的 U-Boot：https://github.com/EmcraftSystems/u-boot
+移植 U-BootEmCraft Systems 公司提供的 U-Boot 支持 STM32F429 Discovery 开发板，但网口使用 STM32 自带的 STM32_MAC，">
+<meta property="og:image" content="jiaojinxing.github.io/img/STM32F429-Discovery-U-Boot/STM32 ST-LINK.png">
+<meta property="og:image" content="jiaojinxing.github.io/img/STM32F429-Discovery-U-Boot/TFTPD32.png">
+<meta property="og:updated_time" content="2015-07-05T08:13:41.249Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="STM32F429 Discovery U-Boot">
+<meta name="twitter:description" content="U-Boot 来源EmCraft Systems 公司提供了支持 Cortex-M3 and Cortex-M4 芯片的 U-Boot：https://github.com/EmcraftSystems/u-boot
+移植 U-BootEmCraft Systems 公司提供的 U-Boot 支持 STM32F429 Discovery 开发板，但网口使用 STM32 自带的 STM32_MAC，">
+
+    
+    <link rel="alternative" href="/atom.xml" title="JinXing’s blog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="JinXing’s blog" title="JinXing’s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="JinXing’s blog">JinXing’s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+						<form class="search">
+							<label>Search</label>
+						<input type="text" id="ts-search-input" name="q" size="30" placeholder="搜索"><br>
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/07/05/STM32F429-Discovery-U-Boot/" title="STM32F429 Discovery U-Boot" itemprop="url">STM32F429 Discovery U-Boot</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="jiaojinxing" target="_blank" itemprop="author">jiaojinxing</a>
+		
+  <p class="article-time">
+    <time datetime="2015-07-05T07:11:33.000Z" itemprop="datePublished"> 发表于 2015-07-05</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#U-Boot_来源"><span class="toc-number">1.</span> <span class="toc-text">U-Boot 来源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#移植_U-Boot"><span class="toc-number">2.</span> <span class="toc-text">移植 U-Boot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编译_U-Boot"><span class="toc-number">3.</span> <span class="toc-text">编译 U-Boot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#烧写_U-Boot"><span class="toc-number">4.</span> <span class="toc-text">烧写 U-Boot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动_U-Boot"><span class="toc-number">5.</span> <span class="toc-text">启动 U-Boot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下载_SylixOS_操作系统"><span class="toc-number">6.</span> <span class="toc-text">下载 SylixOS 操作系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#硬件连接"><span class="toc-number">7.</span> <span class="toc-text">硬件连接</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="U-Boot_来源">U-Boot 来源</h2><p>EmCraft Systems 公司提供了支持 Cortex-M3 and Cortex-M4 芯片的 U-Boot：<a href="https://github.com/EmcraftSystems/u-boot" target="_blank" rel="external">https://github.com/EmcraftSystems/u-boot</a></p>
+<h2 id="移植_U-Boot">移植 U-Boot</h2><p>EmCraft Systems 公司提供的 U-Boot 支持 STM32F429 Discovery 开发板，但网口使用 STM32 自带的 STM32_MAC，STM32F429 Discovery 开发板不带网口，所以没法使用。</p>
+<p>本人在 EmCraft Systems 公司提供的 U-Boot 的基础上加入了 ENC28J60 网络芯片的支持，ENC28J60 网络芯片使用 SPI （只需要四根线）与 STM32F429 进行通信，所以需要实现 U-Boot 的 SPI 函数接口，为了方便实现 SPI 函数接口，本人加入了 STM32F4 驱动库（从最新的 STM32Cube_FW_F4_V1.6.0 中提取）。</p>
+<p>U-Boot 的 SPI 函数接口：<br><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">define</span> spi_lock()   disable_interrupts();</span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">define</span> spi_unlock() enable_interrupts();</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">spi_init</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> <span class="title">spi_read</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">spi_write</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> b)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">spi_set_clock</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> clk_value)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">spi_set_cfg</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> phase,</span><br><span class="line">                 <span class="keyword">unsigned</span> <span class="keyword">char</span> polarity,</span><br><span class="line">                 <span class="keyword">unsigned</span> <span class="keyword">char</span> lsbf)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#<span class="keyword">define</span> ENC28J60_CS	1</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">spi_select</span><span class="params">(<span class="keyword">int</span> cs)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">spi_deselect</span><span class="params">(<span class="keyword">int</span> cs)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>移植好的 U-Boot 放在本人的 github 上：<a href="https://github.com/jiaojinxing/u-boot" target="_blank" rel="external">https://github.com/jiaojinxing/u-boot</a></p>
+<h2 id="编译_U-Boot">编译 U-Boot</h2><p>编译 U-Boot 在 Ubuntu-12.04 上进行，编译 U-Boot 需要使用 arm-uclinuxeabi-gcc 编译器。</p>
+<p>arm-uclinuxeabi-gcc 交叉编译器：<a href="https://sourcery.mentor.com/sgpp/lite/arm/portal/package6503/public/arm-uclinuxeabi/arm-2010q1-189-arm-uclinuxeabi-i686-pc-linux-gnu.tar.bz2" target="_blank" rel="external">arm-uclinuxeabi-2010q1</a></p>
+<p>下载交叉编译器后解压，然后将其中 bin 目录路径加入到 PATH 变量中，如：<br><figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line"><span class="label">export</span> PATH=/usr/lib/gcc-<span class="preprocessor">arm</span>-uclinuxeabi/<span class="preprocessor">arm</span>-<span class="number">2010</span><span class="literal">q1</span>/<span class="keyword">bin/:$PATH</span></span><br></pre></td></tr></table></figure></p>
+<p>下载本人移植好的 U-Boot 源码：<br><figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">git clone <span class="string">https:</span><span class="comment">//github.com/jiaojinxing/u-boot.git</span></span><br></pre></td></tr></table></figure></p>
+<p>编译 U-Boot：<br><figure class="highlight stata"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cd</span> <span class="keyword">u</span>-<span class="keyword">boot</span></span><br><span class="line">make stm32f429-discovery_config</span><br><span class="line">make CROSS_COMPILE=arm-uclinuxeabi-</span><br></pre></td></tr></table></figure></p>
+<h2 id="烧写_U-Boot">烧写 U-Boot</h2><p>编译完毕后会在 u-boot 目录生成 u-boot.bin 文件，使用 STM32 ST-LINK Utility 烧写到地址 0x08000000 处（烧写前建议擦除整片）：<br><img src="/img/STM32F429-Discovery-U-Boot/STM32 ST-LINK.png" alt="STM32 ST-LINK.png"></p>
+<h2 id="启动_U-Boot">启动 U-Boot</h2><p>如下是复位 STM32F429 Discovery 开发板后的串口输出：<br><figure class="highlight coffeescript"><table><tr><td class="code"><pre><span class="line">U-Boot <span class="number">2010.03</span>-<span class="number">00017</span>-g2fa4d6c-dirty (Jul <span class="number">05</span> <span class="number">2015</span> - <span class="number">02</span>:<span class="number">50</span>:<span class="number">58</span>)</span><br><span class="line"></span><br><span class="line">CPU  : STM32F4 (Cortex-M4)</span><br><span class="line"><span class="attribute">Freqs</span>: SYSCLK=<span class="number">180</span>MHz,HCLK=<span class="number">180</span>MHz,PCLK1=<span class="number">45</span>MHz,PCLK2=<span class="number">90</span>MHz</span><br><span class="line"><span class="attribute">Board</span>: STM32F429-DISCOVERY Rev <span class="number">1.</span>A</span><br><span class="line"><span class="attribute">DRAM</span>:   <span class="number">8</span> MB</span><br><span class="line">*** Warning - bad CRC, using <span class="reserved">default</span> environment</span><br><span class="line"></span><br><span class="line"><span class="attribute">In</span>:    serial</span><br><span class="line"><span class="attribute">Out</span>:   serial</span><br><span class="line"><span class="attribute">Err</span>:   serial</span><br><span class="line">Hit any key to stop <span class="attribute">autoboot</span>:  <span class="number">0</span></span><br><span class="line">TFTP from server <span class="number">192.168</span>.1.10; our IP address <span class="keyword">is</span> <span class="number">192.168</span>.1.11</span><br><span class="line">Filename <span class="string">'bspstm32f4.bin'</span>.</span><br><span class="line">Load <span class="attribute">address</span>: <span class="number">0xd0000000</span></span><br><span class="line"><span class="attribute">Loading</span>: T <span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">#####</span><br><span class="line">         ###</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">##</span></span><br><span class="line">         <span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">#####</span><br><span class="line">         ###</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">##</span></span><br><span class="line">done</span><br><span class="line">Bytes transferred = <span class="number">3813056</span> (<span class="number">3</span>a2ec0 hex)</span><br><span class="line"><span class="comment">## Starting application at 0xD0000000 ...</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="下载_SylixOS_操作系统">下载 SylixOS 操作系统</h2><p>默认 IP 是 192.168.1.10，服务器 IP 是 192.168.1.11，下载地址是 0xd0000000，下载文件是 bspstm32f4.bin，启动命令是：<br><figure class="highlight dns"><table><tr><td class="code"><pre><span class="line">tftp<span class="comment">; go 0xd0000000</span></span><br></pre></td></tr></table></figure></p>
+<p>即从服务器下载 bspstm32f4.bin 文件到地址 0xd0000000（即外部 SDRAM 的开始地址），然后跳到地址 0xd0000000 处运行。</p>
+<p>服务器运行 TFTP 服务器 tftpd32.exe 并将 bspstm32f4.bin 文件放入 tftpd32.exe 所在的目录。</p>
+<p><img src="/img/STM32F429-Discovery-U-Boot/TFTPD32.png" alt="TFTPD32.png"></p>
+<p>bspstm32f4.bin 是 STM32F429 Discovery 开发板的 SylixOS BSP 镜像，该 BSP 将后续提供。</p>
+<h2 id="硬件连接">硬件连接</h2><p>STM32F4 的 UART 知识请看：<br><a href="http://stm32f4-discovery.com/2014/04/library-04-connect-stm32f429-discovery-to-computer-with-usart/" target="_blank" rel="external">http://stm32f4-discovery.com/2014/04/library-04-connect-stm32f429-discovery-to-computer-with-usart/</a></p>
+<p>在这里我们使用 STM32F429 的 UART1 与 MAX232 模块连接：</p>
+<table>
+<thead>
+<tr>
+<th>USART1_TX</th>
+<th>USART1_RX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PA9</td>
+<td>PA10</td>
+</tr>
+</tbody>
+</table>
+<p>STM32F4 的 SPI 知识请看：<br><a href="http://stm32f4-discovery.com/2014/04/library-05-spi-for-stm32f4xx/" target="_blank" rel="external">http://stm32f4-discovery.com/2014/04/library-05-spi-for-stm32f4xx/</a></p>
+<p>在这里我们使用 STM32F429 的 SPI1 与 ENC28J60 网络模块连接，使用 PA.04 作 ENC28J60 的片选线控制引脚：</p>
+<table>
+<thead>
+<tr>
+<th>SPI1_MOSI</th>
+<th>SPI1_MISO</th>
+<th>SPI1_SCK</th>
+<th>SPI1_CS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PA7</td>
+<td>PA6</td>
+<td>PA5</td>
+<td>PA4</td>
+</tr>
+</tbody>
+</table>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/SylixOS/">SylixOS</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/ARMv7-M/">ARMv7-M</a><a href="/tags/SylixOS/">SylixOS</a><a href="/tags/U-Boot/">U-Boot</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2015/06/30/ppt/"  title="ppt">
+ <strong>下一篇：</strong><br/> 
+ <span>ppt
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+<section id="comments" class="comment">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#U-Boot_来源"><span class="toc-number">1.</span> <span class="toc-text">U-Boot 来源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#移植_U-Boot"><span class="toc-number">2.</span> <span class="toc-text">移植 U-Boot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编译_U-Boot"><span class="toc-number">3.</span> <span class="toc-text">编译 U-Boot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#烧写_U-Boot"><span class="toc-number">4.</span> <span class="toc-text">烧写 U-Boot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动_U-Boot"><span class="toc-number">5.</span> <span class="toc-text">启动 U-Boot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下载_SylixOS_操作系统"><span class="toc-number">6.</span> <span class="toc-text">下载 SylixOS 操作系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#硬件连接"><span class="toc-number">7.</span> <span class="toc-text">硬件连接</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>9</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/全栈/" title="全栈">全栈<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/线程间通信/" title="线程间通信">线程间通信<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/书稿/" title="书稿">书稿<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ARMv7-M/" title="ARMv7-M">ARMv7-M<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/程序员的自我修养/" title="程序员的自我修养">程序员的自我修养<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/全栈/" title="全栈">全栈<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/硬件/" title="硬件">硬件<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/U-Boot/" title="U-Boot">U-Boot<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://www.sylixos.com" target="_blank" title=" SylixOS社区">SylixOS</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> SylixOS操作系统开发者 <br/>
+			北京正通天和软件科技有限公司</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/jiaojinxing" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:jiaojinxing1987@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="/about" target="_blank" title="jiaojinxing">jiaojinxing</a>
+		
+		
+		</p>
+		
+		<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+		<span id="busuanzi_container_page_pv">本文总阅读量 <span id="busuanzi_value_page_pv"></span> 次</span>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+
+<script type="text/javascript">
+
+var disqus_shortname = 'jinxingblog';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<script>
+var option = {
+  engineKey: 'fdc3f1775f4719dd9d41'
+};
+(function(w,d,t,u,n,s,e){
+  s = d.createElement(t);
+  s.src = u;
+  s.async = 1;
+  w[n] = function(r){
+    w[n].opts = r;
+  };
+  e = d.getElementsByTagName(t)[0];
+  e.parentNode.insertBefore(s, e);
+})(window,document,'script','//tinysou-cdn.b0.upaiyun.com/ts.js','_ts');
+_ts(option);
+</script>
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
