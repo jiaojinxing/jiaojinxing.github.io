@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-07-05T08:13:41.249Z</updated>
+  <updated>2015-07-10T06:18:39.044Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -13,6 +13,88 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Hello World]]></title>
+    <link href="jiaojinxing.github.io/2015/07/10/hello-world/"/>
+    <id>jiaojinxing.github.io/2015/07/10/hello-world/</id>
+    <published>2015-07-10T06:18:39.044Z</published>
+    <updated>2015-07-10T06:18:39.044Z</updated>
+    <content type="html"><![CDATA[<p>Markdown 编辑器：mdcharm(<a href="http://www.mdcharm.com/" target="_blank" rel="external">http://www.mdcharm.com/</a>)</p>
+<p>Markdown 语法：<a href="http://wowubuntu.com/markdown/" target="_blank" rel="external">http://wowubuntu.com/markdown/</a></p>
+<p>表格语法：</p>
+<figure class="highlight gherkin"><table><tr><td class="code"><pre><span class="line">|<span class="string">宏名                       </span>|<span class="string">含义</span>|</span><br><span class="line">|<span class="string">---                        </span>|<span class="string">:---</span>|</span><br><span class="line">|<span class="string">LW_OPTION_NOT_WAIT	        </span>|<span class="string">不等待立即退出</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_INFINITE    </span>|<span class="string">永远等待</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_A_TICK      </span>|<span class="string">等待一个时钟嘀嗒</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_A_SECOND    </span>|<span class="string">等待一秒</span>|</span><br></pre></td></tr></table></figure>
+<p>表格效果：</p>
+<table>
+<thead>
+<tr>
+<th>宏名</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LW_OPTION_NOT_WAIT</td>
+<td style="text-align:left">不等待立即退出</td>
+</tr>
+<tr>
+<td>LW_OPTION_WAIT_INFINITE</td>
+<td style="text-align:left">永远等待</td>
+</tr>
+<tr>
+<td>LW_OPTION_WAIT_A_TICK</td>
+<td style="text-align:left">等待一个时钟嘀嗒</td>
+</tr>
+<tr>
+<td>LW_OPTION_WAIT_A_SECOND</td>
+<td style="text-align:left">等待一秒</td>
+</tr>
+</tbody>
+</table>
+<p>plantuml 语法：<a href="http://plantuml.sourceforge.net/" target="_blank" rel="external">http://plantuml.sourceforge.net/</a></p>
+<p>PC 上使用 Eclipse 插件 plantuml - <a href="http://plantuml.sourceforge.net/updatesite/" target="_blank" rel="external">http://plantuml.sourceforge.net/updatesite/</a> </p>
+<p>plantuml 生成 UML 图的例子：</p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">&#123;% plantuml %&#125;</span><br><span class="line"></span><br><span class="line"><span class="annotation">@startuml</span></span><br><span class="line">Alice -&gt; <span class="string">Bob:</span> Authentication Request</span><br><span class="line">Bob --&gt; <span class="string">Alice:</span> Authentication Response</span><br><span class="line"></span><br><span class="line">Alice -&gt; <span class="string">Bob:</span> Another authentication Request</span><br><span class="line">Alice &lt;-- <span class="string">Bob:</span> another authentication Response</span><br><span class="line"><span class="annotation">@enduml</span></span><br><span class="line"></span><br><span class="line">&#123;% endplantuml %&#125;</span><br></pre></td></tr></table></figure>
+<img src="http://www.plantuml.com/plantuml/svg/TSx13O0W38NXErDqWIvWZ057S0F49f9WKIZxIyIJmVFxykVfB3P9EO8omJi2d62Ewm2co4uitbdnaM6Xgr0MLJV0QXxSKVcCd4bzOnohIs3xqOP7nARjdtxZcdYhXsy0">
+<p>plantuml 使用 DOT 语法生成流程图的例子：</p>
+<figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line">&#123;% plantuml %&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">@startuml</span></span><br><span class="line"><span class="label">digraph</span> G &#123;</span><br><span class="line">    <span class="keyword">subgraph </span>cluster0 &#123;</span><br><span class="line">        node [style<span class="label">=filled</span>,color<span class="label">=white</span>]<span class="comment">;</span></span><br><span class="line">        style<span class="label">=filled</span><span class="comment">;</span></span><br><span class="line">        color<span class="label">=lightgrey</span><span class="comment">;</span></span><br><span class="line">        a0 -&gt; <span class="literal">a1</span> -&gt; <span class="literal">a2</span> -&gt; <span class="literal">a3</span><span class="comment">;</span></span><br><span class="line">        label = <span class="string">"process #1"</span><span class="comment">;</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">subgraph </span>cluster1 &#123;</span><br><span class="line">        node [style<span class="label">=filled</span>]<span class="comment">;</span></span><br><span class="line">        <span class="keyword">b0 </span>-&gt; <span class="keyword">b1 </span>-&gt; <span class="keyword">b2 </span>-&gt; <span class="keyword">b3;</span><br><span class="line"></span>        label = <span class="string">"process #2"</span><span class="comment">;</span></span><br><span class="line">        color<span class="label">=blue</span></span><br><span class="line">    &#125;</span><br><span class="line">    start -&gt; a0<span class="comment">;</span></span><br><span class="line">    start -&gt; <span class="keyword">b0;</span><br><span class="line"></span>    <span class="literal">a1</span> -&gt; <span class="keyword">b3;</span><br><span class="line"></span>    <span class="keyword">b2 </span>-&gt; <span class="literal">a3</span><span class="comment">;</span></span><br><span class="line">    <span class="literal">a3</span> -&gt; a0<span class="comment">;</span></span><br><span class="line">    <span class="literal">a3</span> -&gt; <span class="preprocessor">end</span><span class="comment">;</span></span><br><span class="line">    <span class="keyword">b3 </span>-&gt; <span class="preprocessor">end</span><span class="comment">;</span></span><br><span class="line">    start [shape<span class="label">=Mdiamond</span>]<span class="comment">;</span></span><br><span class="line">    <span class="preprocessor">end</span> [shape<span class="label">=Msquare</span>]<span class="comment">;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">@enduml</span></span><br><span class="line"></span><br><span class="line">&#123;% endplantuml %&#125;</span><br></pre></td></tr></table></figure>
+<img src="http://www.plantuml.com/plantuml/svg/VL7BReD03Bpp5HQvfX8anuWgjvxo1QW76rnOoM79FbH5KVuzi4i2L5LyiEJnxCxOFbg7nlcp9BLg3FOjVC4jWI6ifmXKugrZaqtu69sk6KhhhiB5ZnBXUbjfqQRuRPNZxyEBkAJCQEIAQbhN6BxE3SpWunCm3taNydxk2X8B593sHbTiBMpoD7Rl_phEtpfUkAGWIq6MWYozbTsbVsSXyRnqCYursCyEQu0c8CxubA7LhBXVFeqLTzF-Q5t6ZqlROi_5gLPurjrpj87qwjYBHpDUvfuS1tmu-0C0">
+<p>也可以使用 Graphviz <a href="http://www.graphviz.org/" target="_blank" rel="external">http://www.graphviz.org/</a> ，而不使用 plantuml 插件，但只能用 DOT 语法。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>Markdown 编辑器：mdcharm(<a href="http://www.mdcharm.com/" target="_blank" rel="external">http://www.mdcharm.com/</a>)</p>
+<p>Markdown 语法：<a ]]>
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[科学计算统计图表生成]]></title>
+    <link href="jiaojinxing.github.io/2015/07/10/%E7%A7%91%E5%AD%A6%E8%AE%A1%E7%AE%97%E7%BB%9F%E8%AE%A1%E5%9B%BE%E8%A1%A8%E7%94%9F%E6%88%90/"/>
+    <id>jiaojinxing.github.io/2015/07/10/科学计算统计图表生成/</id>
+    <published>2015-07-10T05:52:44.000Z</published>
+    <updated>2015-07-10T06:12:40.371Z</updated>
+    <content type="html"><![CDATA[<p>我们在软件开发过程中，少不了的是软件性能的测试和相关报告的编写，软件性能的测试往往会生成大量的数据，我们需要用这些数据生成直观的统计图表并用于报告。</p>
+<p>生成统计图表有很多，在这里记录我在 SylixOS 实时性测试过程中用到的方法。</p>
+<p>SylixOS 实时性测试我做过两种类型：</p>
+<ol>
+<li>在代码关键处加入 GPIO 引脚输出高低电平的代码，运行时利用示波器测试电平变化的时间，计算机端用 matlab 通过 USB 连接示波器收集时间数据，matlab 再将这些数据绘制成统计图表；</li>
+<li>利用 cyclictest 测试，cyclictest 会生成统计数据，将统计数据保存为文件，计算机端用 gnuplot 以文件作为输入绘制成统计图表。</li>
+</ol>
+<p>方法一示例代码如下：<br><figure class="highlight dns"><table><tr><td class="code"><pre><span class="line">MSO1000Z = visa('ni','US<span class="number">B0::0</span>x<span class="number">1AB1::0</span>x<span class="number">04CE::D</span>S1ZA<span class="number">154902817</span><span class="number">::</span>INSTR')<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">MSO1000Z.InputBufferSize = 2048<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">fopen(MSO1000Z)<span class="comment">; </span></span><br><span class="line"></span><br><span class="line">N = 10000<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">delay&#123;1&#125; = 1<span class="comment">;</span></span><br><span class="line">delay&#123;N&#125; = 6<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">for i=2:N-1</span><br><span class="line">   fprintf(MSO1000Z, ':MEASure:STATistic:ITEM? CURRent,RDELay,CHANnel1,CHANnel2' )<span class="comment">; </span></span><br><span class="line">   value = fgets(MSO1000Z)<span class="comment">;</span></span><br><span class="line">   delay&#123;i&#125; = str2double(value) * <span class="number">1000000</span><span class="comment">;</span></span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">fclose(MSO1000Z)<span class="comment">; </span></span><br><span class="line">delete(MSO1000Z)<span class="comment">; </span></span><br><span class="line">clear MSO1000Z<span class="comment">; </span></span><br><span class="line"></span><br><span class="line">new_delay = cell2mat(delay)<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">x = sort(new_delay)<span class="comment">;</span></span><br><span class="line">y = normpdf(x, mean(x), 0.1)<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">subplot(211)<span class="comment">; </span></span><br><span class="line"></span><br><span class="line">plot(x, y)<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">xlabel('SylixOS响应时间(us)')<span class="comment">;</span></span><br></pre></td></tr></table></figure></p>
+<p>生成的统计图表如下：<br><img src="/img/科学计算统计图表生成/1.png" alt="1.png"></p>
+<p>方法二示例代码如下：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash  </span></span><br><span class="line">gnuplot &lt;&lt; FFF</span><br><span class="line">    <span class="built_in">set</span> terminal png truecolor  </span><br><span class="line">    <span class="built_in">set</span> output <span class="string">"sylixos_linux+rt_100w.png"</span>  </span><br><span class="line">	<span class="built_in">set</span> xrange [<span class="string">"0"</span> : <span class="string">"40"</span> ]</span><br><span class="line">	<span class="built_in">set</span> grid</span><br><span class="line">	<span class="built_in">set</span> title <span class="string">'Without pressure latency statistics'</span></span><br><span class="line">	<span class="built_in">set</span> xlabel <span class="string">'Latency(us)'</span></span><br><span class="line">	<span class="built_in">set</span> ylabel <span class="string">'Times'</span> </span><br><span class="line">	plot <span class="string">"up/sylixos_100w.txt"</span> with lines, <span class="string">"up/linux+rt_100w.txt"</span>with lines  </span><br><span class="line">FFF</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"the pic have created, named sylixos_linux+rt_100w.png"</span>  </span><br><span class="line">    <span class="built_in">exit</span> <span class="number">0</span></span><br></pre></td></tr></table></figure></p>
+<p>生成的统计图表如下：</p>
+<p><img src="/img/科学计算统计图表生成/2.png" alt="2.png"></p>
+<p>有了几个两种方法，以后再也不用担心统计图表应该怎么生成了:-)</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>我们在软件开发过程中，少不了的是软件性能的测试和相关报告的编写，软件性能的测试往往会生成大量的数据，我们需要用这些数据生成直观的统计图表并用于报告。</p>
+<p>生成统计图表有很多，在这里记录我在 SylixOS 实时性测试过程中用到的方法。</p>
+<p>SylixOS]]>
+    </summary>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[STM32F429 Discovery U-Boot]]></title>
@@ -123,61 +205,6 @@
     <content type="html"><![CDATA[<h2 id="流水线">流水线</h2><h2 id="分支预测">分支预测</h2><h2 id="MMU">MMU</h2><h2 id="TLB">TLB</h2><h2 id="CACHE">CACHE</h2><h2 id="多核">多核</h2><h2 id="VFP">VFP</h2><h2 id="NEON">NEON</h2>]]></content>
     <summary type="html">
     <![CDATA[<h2 id="流水线">流水线</h2><h2 id="分支预测">分支预测</h2><h2 id="MMU">MMU</h2><h2 id="TLB">TLB</h2><h2 id="CACHE">CACHE</h2><h2 id="多核">多核</h2><h2 id="VF]]>
-    </summary>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Hello World]]></title>
-    <link href="jiaojinxing.github.io/2015/06/26/hello-world/"/>
-    <id>jiaojinxing.github.io/2015/06/26/hello-world/</id>
-    <published>2015-06-26T09:50:47.326Z</published>
-    <updated>2015-06-26T09:50:47.326Z</updated>
-    <content type="html"><![CDATA[<p>Markdown 编辑器：mdcharm(<a href="http://www.mdcharm.com/" target="_blank" rel="external">http://www.mdcharm.com/</a>)</p>
-<p>Markdown 语法：<a href="http://wowubuntu.com/markdown/（中文）" target="_blank" rel="external">http://wowubuntu.com/markdown/（中文）</a></p>
-<p>github page 博客不支持的 Markdown 编辑器语法有: 注脚、flow 流程图、seq 序列图。</p>
-<p>表格语法：</p>
-<figure class="highlight gherkin"><table><tr><td class="code"><pre><span class="line">|<span class="string">宏名	                    </span>|<span class="string">含义</span>|</span><br><span class="line">|<span class="string">---                        </span>|<span class="string">:---</span>|</span><br><span class="line">|<span class="string">LW_OPTION_NOT_WAIT	        </span>|<span class="string">不等待立即退出</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_INFINITE	</span>|<span class="string">永远等待</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_A_TICK	    </span>|<span class="string">等待一个时钟嘀嗒</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_A_SECOND	</span>|<span class="string">等待一秒</span>|</span><br></pre></td></tr></table></figure>
-<p>表格效果：</p>
-<table>
-<thead>
-<tr>
-<th>宏名</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>LW_OPTION_NOT_WAIT</td>
-<td style="text-align:left">不等待立即退出</td>
-</tr>
-<tr>
-<td>LW_OPTION_WAIT_INFINITE</td>
-<td style="text-align:left">永远等待</td>
-</tr>
-<tr>
-<td>LW_OPTION_WAIT_A_TICK</td>
-<td style="text-align:left">等待一个时钟嘀嗒</td>
-</tr>
-<tr>
-<td>LW_OPTION_WAIT_A_SECOND</td>
-<td style="text-align:left">等待一秒</td>
-</tr>
-</tbody>
-</table>
-<p>plantuml 语法：<a href="http://plantuml.sourceforge.net/" target="_blank" rel="external">http://plantuml.sourceforge.net/</a></p>
-<p>PC 上使用 Eclipse 插件 plantuml - <a href="http://plantuml.sourceforge.net/updatesite/" target="_blank" rel="external">http://plantuml.sourceforge.net/updatesite/</a> </p>
-<p>plantuml 生成 UML 图的例子：</p>
-<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">&#123;% plantuml %&#125;</span><br><span class="line"></span><br><span class="line"><span class="annotation">@startuml</span></span><br><span class="line">Alice -&gt; <span class="string">Bob:</span> Authentication Request</span><br><span class="line">Bob --&gt; <span class="string">Alice:</span> Authentication Response</span><br><span class="line"></span><br><span class="line">Alice -&gt; <span class="string">Bob:</span> Another authentication Request</span><br><span class="line">Alice &lt;-- <span class="string">Bob:</span> another authentication Response</span><br><span class="line"><span class="annotation">@enduml</span></span><br><span class="line"></span><br><span class="line">&#123;% endplantuml %&#125;</span><br></pre></td></tr></table></figure>
-<img src="http://www.plantuml.com/plantuml/svg/TSx13O0W38NXErDqWIvWZ057S0F49f9WKIZxIyIJmVFxykVfB3P9EO8omJi2d62Ewm2co4uitbdnaM6Xgr0MLJV0QXxSKVcCd4bzOnohIs3xqOP7nARjdtxZcdYhXsy0">
-<p>plantuml 使用 DOT 语法生成流程图的例子：</p>
-<figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line">&#123;% plantuml %&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">@startuml</span></span><br><span class="line"><span class="label">digraph</span> G &#123;</span><br><span class="line">    <span class="keyword">subgraph </span>cluster0 &#123;</span><br><span class="line">        node [style<span class="label">=filled</span>,color<span class="label">=white</span>]<span class="comment">;</span></span><br><span class="line">        style<span class="label">=filled</span><span class="comment">;</span></span><br><span class="line">        color<span class="label">=lightgrey</span><span class="comment">;</span></span><br><span class="line">        a0 -&gt; <span class="literal">a1</span> -&gt; <span class="literal">a2</span> -&gt; <span class="literal">a3</span><span class="comment">;</span></span><br><span class="line">        label = <span class="string">"process #1"</span><span class="comment">;</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">subgraph </span>cluster1 &#123;</span><br><span class="line">        node [style<span class="label">=filled</span>]<span class="comment">;</span></span><br><span class="line">        <span class="keyword">b0 </span>-&gt; <span class="keyword">b1 </span>-&gt; <span class="keyword">b2 </span>-&gt; <span class="keyword">b3;</span><br><span class="line"></span>        label = <span class="string">"process #2"</span><span class="comment">;</span></span><br><span class="line">        color<span class="label">=blue</span></span><br><span class="line">    &#125;</span><br><span class="line">    start -&gt; a0<span class="comment">;</span></span><br><span class="line">    start -&gt; <span class="keyword">b0;</span><br><span class="line"></span>    <span class="literal">a1</span> -&gt; <span class="keyword">b3;</span><br><span class="line"></span>    <span class="keyword">b2 </span>-&gt; <span class="literal">a3</span><span class="comment">;</span></span><br><span class="line">    <span class="literal">a3</span> -&gt; a0<span class="comment">;</span></span><br><span class="line">    <span class="literal">a3</span> -&gt; <span class="preprocessor">end</span><span class="comment">;</span></span><br><span class="line">    <span class="keyword">b3 </span>-&gt; <span class="preprocessor">end</span><span class="comment">;</span></span><br><span class="line">    start [shape<span class="label">=Mdiamond</span>]<span class="comment">;</span></span><br><span class="line">    <span class="preprocessor">end</span> [shape<span class="label">=Msquare</span>]<span class="comment">;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">@enduml</span></span><br><span class="line"></span><br><span class="line">&#123;% endplantuml %&#125;</span><br></pre></td></tr></table></figure>
-<img src="http://www.plantuml.com/plantuml/svg/VL7BReD03Bpp5HQvfX8anuWgjvxo1QW76rnOoM79FbH5KVuzi4i2L5LyiEJnxCxOFbg7nlcp9BLg3FOjVC4jWI6ifmXKugrZaqtu69sk6KhhhiB5ZnBXUbjfqQRuRPNZxyEBkAJCQEIAQbhN6BxE3SpWunCm3taNydxk2X8B593sHbTiBMpoD7Rl_phEtpfUkAGWIq6MWYozbTsbVsSXyRnqCYursCyEQu0c8CxubA7LhBXVFeqLTzF-Q5t6ZqlROi_5gLPurjrpj87qwjYBHpDUvfuS1tmu-0C0">
-<p>也可以使用 Graphviz <a href="http://www.graphviz.org/" target="_blank" rel="external">http://www.graphviz.org/</a> ，而不使用 plantuml 插件，但只能用 DOT 语法。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>Markdown 编辑器：mdcharm(<a href="http://www.mdcharm.com/" target="_blank" rel="external">http://www.mdcharm.com/</a>)</p>
-<p>Markdown 语法：<a ]]>
     </summary>
     
   </entry>
