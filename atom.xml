@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-07-15T12:48:54.447Z</updated>
+  <updated>2015-07-15T12:57:00.176Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -19,8 +19,8 @@
     <link href="jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-gprof-%E5%88%86%E6%9E%90%E4%BB%A3%E7%A0%81%E6%80%A7%E8%83%BD%E5%92%8C%E8%B0%83%E7%94%A8%E6%A0%88/"/>
     <id>jiaojinxing.github.io/2015/07/15/使用-gprof-分析代码性能和调用栈/</id>
     <published>2015-07-15T12:10:12.000Z</published>
-    <updated>2015-07-15T12:48:54.447Z</updated>
-    <content type="html"><![CDATA[<p>在《使用 nbench 测试处理器性能》一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。</p>
+    <updated>2015-07-15T12:57:00.176Z</updated>
+    <content type="html"><![CDATA[<p>在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-nbench-%E6%B5%8B%E8%AF%95%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD/">《使用 nbench 测试处理器性能》</a>一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。</p>
 <p>SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRING SORT 测试中大幅落后于 Linux，其它测试 SylixOS 均优于 Linux。</p>
 <p>MEMORY INDEX （内存性能）低于 Linux 的原故是 STRING SORT 测试中大幅落后于 Linux。</p>
 <p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的原因应该是 SylixOS 相关字符串函数的执行效率不高。</p>
@@ -28,7 +28,7 @@
 <p>nbench 工程编译和链接时加入 -pg 选项，gcc 会在每一个函数入口处调用 gnu_mcount_nc 函数，gnu_mcount_nc 函数将记录该父子函数的调用次数和关系。</p>
 <p>同时启动 ITIMER_PROF 定时器（频率为1000Hz）和绑定 SIGPROF 信号，SIGPROF 信号处理函数获得当前线程的 PC 值，传入 profil_count 函数，profil_count 函数对 nbench 内的函数进行有损精度的耗时统计。</p>
 <p>nbench 退出时会生成 gmon.out 文件，将其上传到计算机，计算机执行 arm-sylixos-eabi-gprof，输入文件为 gmon.out 和 nbench，arm-sylixos-eabi-gprof 将生成函数耗时、调用次数、调用栈报告。</p>
-<p>使用 <a href="https://pypi.python.org/pypi/gprof2dot/" target="_blank" rel="external">gprof2dot</a>可以该报告转换为 .dot 文件，使用 dot（<a href="http://www.graphviz.org/" target="_blank" rel="external">graphviz</a>安装目录内）可将其转换为 png 图片或 svg（矢量图）。</p>
+<p>使用 <a href="https://pypi.python.org/pypi/gprof2dot/" target="_blank" rel="external">gprof2dot</a> 可以该报告转换为 .dot 文件，使用 dot（<a href="http://www.graphviz.org/" target="_blank" rel="external">graphviz</a> 安装目录内）可将其转换为 png 图片或 svg（矢量图）。</p>
 <p>我们只需要使用 nbench 测试 NUMERIC SORT 和 STRING SORT，nbench 支持执行时指定配置文件：<br><figure class="highlight"><table><tr><td class="code"><pre><span class="line">./nbench -CCOM.DAT</span><br></pre></td></tr></table></figure></p>
 <p>COM.DAT文件内容：<br><figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="setting">ALLSTATS=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DONUMSORT=<span class="value">T</span></span></span><br><span class="line"><span class="setting">DOSTRINGSORT=<span class="value">T</span></span></span><br><span class="line"><span class="setting">DOBITFIELD=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOEMF=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOFOUR=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOASSIGN=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOIDEA=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOHUFF=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DONNET=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOLU=<span class="value">F</span></span></span><br></pre></td></tr></table></figure></p>
 <p>执行后输出：<br><figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :           60.56  :       1.55  :       0.51</span><br><span class="line">STRING SORT         :          3.3703  :       1.51  :       0.23</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 1.129</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 0.615</span><br><span class="line">INTEGER INDEX       : 0.845</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br><span class="line">save to libvpmpdm_gmon.out success</span><br><span class="line">save to gmon.out success</span><br></pre></td></tr></table></figure></p>
@@ -41,8 +41,7 @@
 <p>可以得出，如果我们想提升的 nbench 的 MEM 性能，必须优化 lib_memcpy 函数。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>在《使用 nbench 测试处理器性能》一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。</p>
-<p>SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRIN]]>
+    <![CDATA[<p>在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-nbench-%E6%B5%8B%E8%AF%95%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%]]>
     </summary>
     
       <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
@@ -58,7 +57,7 @@
     <link href="jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-nbench-%E6%B5%8B%E8%AF%95%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD/"/>
     <id>jiaojinxing.github.io/2015/07/15/使用-nbench-测试处理器性能/</id>
     <published>2015-07-15T07:22:55.000Z</published>
-    <updated>2015-07-15T12:51:01.928Z</updated>
+    <updated>2015-07-15T12:55:55.496Z</updated>
     <content type="html"><![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 是否发挥 ARMv7A Cache、VFP、NEON 性能，验证 BSP 是否在内存控制器、CPU 主频设置方面存在不合理的地方。</p>
 <p>找出 SylixOS 实时性远优于 Linux 和 RT-Linux，但 Qt 性能测试 <a href="https://github.com/jiaojinxing/qtperf" target="_blank" rel="external">qtperf</a> 不如 Linux 的原因，并提出解决办法。</p>
 <h2 id="硬件平台">硬件平台</h2><p>硬件平台：飞凌嵌入式 OK335xS</p>
@@ -172,7 +171,7 @@
 <p>SylixOS：<br><figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">NUMERIC <span class="string">SORT        :</span>          <span class="number">386.53</span>  :       <span class="number">9.91</span>  :       <span class="number">3.26</span></span><br><span class="line">STRING <span class="string">SORT         :</span>          <span class="number">12.447</span>  :       <span class="number">5.56</span>  :       <span class="number">0.86</span></span><br><span class="line"><span class="string">BITFIELD            :</span>      <span class="number">1.4006e+08</span>  :      <span class="number">24.03</span>  :       <span class="number">5.02</span></span><br><span class="line">FP <span class="string">EMULATION        :</span>          <span class="number">88.258</span>  :      <span class="number">42.35</span>  :       <span class="number">9.77</span></span><br><span class="line"><span class="string">FOURIER             :</span>          <span class="number">1591.8</span>  :       <span class="number">1.81</span>  :       <span class="number">1.02</span></span><br><span class="line"><span class="string">ASSIGNMENT          :</span>          <span class="number">6.4511</span>  :      <span class="number">24.55</span>  :       <span class="number">6.37</span></span><br><span class="line"><span class="string">IDEA                :</span>          <span class="number">958.43</span>  :      <span class="number">14.66</span>  :       <span class="number">4.35</span></span><br><span class="line"><span class="string">HUFFMAN             :</span>          <span class="number">619.13</span>  :      <span class="number">17.17</span>  :       <span class="number">5.48</span></span><br><span class="line">NEURAL <span class="string">NET          :</span>          <span class="number">1.6131</span>  :       <span class="number">2.59</span>  :       <span class="number">1.09</span></span><br><span class="line">LU <span class="string">DECOMPOSITION    :</span>          <span class="number">59.127</span>  :       <span class="number">3.06</span>  :       <span class="number">2.21</span></span><br></pre></td></tr></table></figure></p>
 <p>SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRING SORT 测试中大幅落后于 Linux，其它测试 SylixOS 均优于 Linux。</p>
 <p>MEMORY INDEX （内存性能）低于 Linux 的原故是 STRING SORT 测试中大幅落后于 Linux。</p>
-<p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的原因将在《使用 gprof 分析代码性能和调用栈》一文阐明。</p>
+<p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的原因将在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-gprof-%E5%88%86%E6%9E%90%E4%BB%A3%E7%A0%81%E6%80%A7%E8%83%BD%E5%92%8C%E8%B0%83%E7%94%A8%E6%A0%88/">《使用 gprof 分析代码性能和调用栈》</a>一文阐明。</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 是否发挥 ARMv7A Cache、VFP、NEON 性能，验证 BSP 是否在内存控制器、CPU 主频设置方面存在不合理的地方。</p>
