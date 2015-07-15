@@ -15,7 +15,7 @@
 生成统计图表有很多，在这里记录我在 SylixOS 实时性测试过程中用到的方法。
 SylixOS 实时性测试我做过两种类型：
 
-在 SylixOS 代码关键处加入 GPIO 引脚输出高低电平的代码，运行时利用示波器测量电平变化的时间，计算机端运行 m">
+在 SylixOS 代码关键处加入 GPIO 引脚输出高低电平的代码，运行时利用示波器测量 GPIO 引脚电平变化的时间，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="科学计算统计图表生成">
 <meta property="og:url" content="jiaojinxing.github.io/2015/07/10/科学计算统计图表生成/index.html">
@@ -24,17 +24,17 @@ SylixOS 实时性测试我做过两种类型：
 生成统计图表有很多，在这里记录我在 SylixOS 实时性测试过程中用到的方法。
 SylixOS 实时性测试我做过两种类型：
 
-在 SylixOS 代码关键处加入 GPIO 引脚输出高低电平的代码，运行时利用示波器测量电平变化的时间，计算机端运行 m">
+在 SylixOS 代码关键处加入 GPIO 引脚输出高低电平的代码，运行时利用示波器测量 GPIO 引脚电平变化的时间，">
 <meta property="og:image" content="jiaojinxing.github.io/img/科学计算统计图表生成/1.png">
 <meta property="og:image" content="jiaojinxing.github.io/img/科学计算统计图表生成/2.png">
-<meta property="og:updated_time" content="2015-07-13T10:10:48.755Z">
+<meta property="og:updated_time" content="2015-07-15T07:46:51.138Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="科学计算统计图表生成">
 <meta name="twitter:description" content="我们在软件开发过程中，少不了的是软件性能的测试和相关报告的编写，软件性能的测试往往会生成大量的数据，我们需要用这些数据生成直观的统计图表并用于报告。
 生成统计图表有很多，在这里记录我在 SylixOS 实时性测试过程中用到的方法。
 SylixOS 实时性测试我做过两种类型：
 
-在 SylixOS 代码关键处加入 GPIO 引脚输出高低电平的代码，运行时利用示波器测量电平变化的时间，计算机端运行 m">
+在 SylixOS 代码关键处加入 GPIO 引脚输出高低电平的代码，运行时利用示波器测量 GPIO 引脚电平变化的时间，">
 
     
     <link rel="alternative" href="/atom.xml" title="JinXing’s blog" type="application/atom+xml">
@@ -117,7 +117,7 @@ SylixOS 实时性测试我做过两种类型：
 <p>生成统计图表有很多，在这里记录我在 SylixOS 实时性测试过程中用到的方法。</p>
 <p>SylixOS 实时性测试我做过两种类型：</p>
 <ol>
-<li>在 SylixOS 代码关键处加入 GPIO 引脚输出高低电平的代码，运行时利用示波器测量电平变化的时间，计算机端运行 matlab 通过 USB 连接示波器收集时间数据，matlab 再将这些数据绘制成统计图表；</li>
+<li>在 SylixOS 代码关键处加入 GPIO 引脚输出高低电平的代码，运行时利用示波器测量 GPIO 引脚电平变化的时间，计算机端运行 matlab 通过 USB 连接示波器收集时间数据，matlab 再将这些数据绘制成统计图表；</li>
 <li>利用 cyclictest 测试，cyclictest 会生成统计数据，将统计数据保存为文件，计算机端用 gnuplot 以文件作为输入绘制成统计图表。</li>
 </ol>
 <p>方法一示例代码如下：<br><figure class="highlight dns"><table><tr><td class="code"><pre><span class="line">MSO1000Z = visa('ni','US<span class="number">B0::0</span>x<span class="number">1AB1::0</span>x<span class="number">04CE::D</span>S1ZA<span class="number">154902817</span><span class="number">::</span>INSTR')<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">MSO1000Z.InputBufferSize = 2048<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">fopen(MSO1000Z)<span class="comment">; </span></span><br><span class="line"></span><br><span class="line">N = 10000<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">delay&#123;1&#125; = 1<span class="comment">;</span></span><br><span class="line">delay&#123;N&#125; = 6<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">for i=2:N-1</span><br><span class="line">   fprintf(MSO1000Z, ':MEASure:STATistic:ITEM? CURRent,RDELay,CHANnel1,CHANnel2' )<span class="comment">; </span></span><br><span class="line">   value = fgets(MSO1000Z)<span class="comment">;</span></span><br><span class="line">   delay&#123;i&#125; = str2double(value) * <span class="number">1000000</span><span class="comment">;</span></span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">fclose(MSO1000Z)<span class="comment">; </span></span><br><span class="line">delete(MSO1000Z)<span class="comment">; </span></span><br><span class="line">clear MSO1000Z<span class="comment">; </span></span><br><span class="line"></span><br><span class="line">new_delay = cell2mat(delay)<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">x = sort(new_delay)<span class="comment">;</span></span><br><span class="line">y = normpdf(x, mean(x), 0.1)<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">subplot(211)<span class="comment">; </span></span><br><span class="line"></span><br><span class="line">plot(x, y)<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">xlabel('SylixOS响应时间(us)')<span class="comment">;</span></span><br></pre></td></tr></table></figure></p>
@@ -131,6 +131,16 @@ SylixOS 实时性测试我做过两种类型：
 		<footer class="article-footer clearfix">
 <div class="article-catetags">
 
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/SylixOS/">SylixOS</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/SylixOS/">SylixOS</a><a href="/tags/测试/">测试</a>
+  </div>
 
 </div>
 
@@ -200,7 +210,7 @@ SylixOS 实时性测试我做过两种类型：
 		<ul>
 		
 		  
-			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>9</sup></a></li>
+			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>12</sup></a></li>
 		  
 		
 		  
@@ -217,11 +227,15 @@ SylixOS 实时性测试我做过两种类型：
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>9</sup></a></li>
+				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>12</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/ARMv7-M/" title="ARMv7-M">ARMv7-M<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/测试/" title="测试">测试<sup>3</sup></a></li>
 			
 		
 			
