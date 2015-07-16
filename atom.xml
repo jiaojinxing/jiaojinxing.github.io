@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-07-16T07:25:22.462Z</updated>
+  <updated>2015-07-16T08:24:17.838Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -19,11 +19,11 @@
     <link href="jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-gprof-%E5%88%86%E6%9E%90%E4%BB%A3%E7%A0%81%E6%80%A7%E8%83%BD%E5%92%8C%E8%B0%83%E7%94%A8%E6%A0%88/"/>
     <id>jiaojinxing.github.io/2015/07/15/使用-gprof-分析代码性能和调用栈/</id>
     <published>2015-07-15T12:10:12.000Z</published>
-    <updated>2015-07-16T07:25:22.462Z</updated>
+    <updated>2015-07-16T08:24:17.838Z</updated>
     <content type="html"><![CDATA[<p>在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-nbench-%E6%B5%8B%E8%AF%95%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD/">《使用 nbench 测试处理器性能》</a>一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。</p>
 <p>SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRING SORT 测试中大幅落后于 Linux，其它测试 SylixOS 均优于 Linux。</p>
 <p>MEMORY INDEX （内存性能）低于 Linux 的原故是 STRING SORT 测试中大幅落后于 Linux。</p>
-<p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的可能原因有三：</p>
+<p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的原因可能有三：</p>
 <ol>
 <li>SylixOS 相关字符串函数的执行效率不高；</li>
 <li>SylixOS 未能发挥 ARMv7A Cache 性能；</li>
@@ -67,14 +67,48 @@
 <li>glibc C 库里的 mem 类函数</li>
 </ul>
 <p>以上四种 mem 类函数均使用汇编语言实现。</p>
-<p>FreeBSD 的 C 库里的 mem 类函数容易移植，但没有对 VFP 和 NEON 的优化，实测 nbench 运行到 STRING SORT 测试时直接崩溃，PASS 掉。</p>
-<p>glibc C 库里的 mem 类函数过于复杂，有对 VFP 和 NEON 的优化，但不容易移植。</p>
-<p>编译器内建的 newlib C 库里的 mem 类函数，有对 VFP 和 NEON 的优化，不需要移植，但 SylixOS 不能使用内建的 newlib C 库。</p>
+<p>FreeBSD 的 C 库里的 mem 类函数，容易移植，但没有对 VFP 和 NEON 的优化，实测 nbench 运行到 STRING SORT 测试时直接崩溃，PASS 掉。</p>
+<p>glibc C 库里的 mem 类函数过于复杂，有对 VFP 和 NEON 的优化，但不容易移植，最后才考虑。</p>
+<p>编译器内建的 newlib C 库里的 mem 类函数，有对 VFP 和 NEON 的优化，不需要移植，但 SylixOS 不能使用内建的 newlib C 库，最后才考虑。</p>
 <p>Android 的 bionic C 库里的 mem 类函数，有对 VFP 和 NEON 的优化，同时针对不同的 Cortex-Ax 进行优化，移植还算容易，性能应该有保证，下面尝试之。</p>
 <figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :           386.9  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          85.406  :      38.16  :       5.91</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 2.335</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 1.808</span><br><span class="line">INTEGER INDEX       : 1.344</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
 <p>STRING SORT 测试性能评分提升极大 （从 12.447 提升到 85.406，比 Linux 的 40.032 高出一倍多）。</p>
-<p>阅读 bionic C 库里的 mem 类函数，发现其极大地发挥了 Cache 预取特性。</p>
-<p>后续将使用 Android 的 bionic C 库里的 mem 类函数替换 SylixOS 的 mem 类函数以提升性能。</p>
+<p>阅读 bionic C 库里的 mem 类函数，发现其极大地发挥了 Cache 预取特性（通过 PLD 指令）。</p>
+<p>将 Android 的 bionic C 库里的 mem 类函数替换掉 SylixOS 的 mem 类函数，文件主要有如下几个：<br><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/m</span>emcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/m</span>emset.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>stpcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcat.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>__strcat_chk.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcmp.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>__strcpy_chk.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strlen.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/g</span>eneric<span class="regexp">/bionic/m</span>emcmp.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>denver<span class="regexp">/bionic/m</span>emmove.S \</span><br></pre></td></tr></table></figure></p>
+<p>完成一次完整的测试：</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          386.91  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          85.585  :      38.24  :       5.92</span><br><span class="line">BITFIELD            :      1.4014e+08  :      24.04  :       5.02</span><br><span class="line">FP EMULATION        :          88.262  :      42.35  :       9.77</span><br><span class="line">FOURIER             :          1591.9  :       1.81  :       1.02</span><br><span class="line">ASSIGNMENT          :          6.5071  :      24.76  :       6.42</span><br><span class="line">IDEA                :          958.89  :      14.67  :       4.35</span><br><span class="line">HUFFMAN             :          620.88  :      17.22  :       5.50</span><br><span class="line">NEURAL NET          :          1.6134  :       2.59  :       1.09</span><br><span class="line">LU DECOMPOSITION    :          59.122  :       3.06  :       2.21</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 21.899</span><br><span class="line">FLOATING-POINT INDEX: 2.431</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 5.758</span><br><span class="line">INTEGER INDEX       : 5.255</span><br><span class="line">FLOATING-POINT INDEX: 1.348</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h2 id="Linux_SylixOS_测试结果汇总与对比">Linux SylixOS 测试结果汇总与对比</h2><table>
+<thead>
+<tr>
+<th>AM335x</th>
+<th style="text-align:left">Linux cortex-a8 vfpv3 -O3</th>
+<th style="text-align:left">优化前 SylixOS cortex-a8 neon -O3</th>
+<th style="text-align:left">优化后 SylixOS cortex-a8 neon -O3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MEMORY INDEX</td>
+<td style="text-align:left">4.129</td>
+<td style="text-align:left">3.019</td>
+<td style="text-align:left">5.758</td>
+</tr>
+<tr>
+<td>INTEGER INDEX</td>
+<td style="text-align:left">4.565</td>
+<td style="text-align:left">5.249</td>
+<td style="text-align:left">5.255</td>
+</tr>
+<tr>
+<td>FLOATING-POINT INDEX</td>
+<td style="text-align:left">1.189</td>
+<td style="text-align:left">1.348</td>
+<td style="text-align:left">1.348</td>
+</tr>
+</tbody>
+</table>
+<p>SylixOS 的 INTEGER INDEX （定点处理性能）与 FLOATING-POINT INDEX （浮点处理性能）及 MEMORY INDEX （内存性能）均要优于 Linux。</p>
+<p>SylixOS 优化前后 INTEGER INDEX 和 FLOATING-POINT INDEX 性能基本没有发生变化，但 MEMORY INDEX 性能提升较大（接近一倍的性能提升）。</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-nbench-%E6%B5%8B%E8%AF%95%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%]]>
@@ -93,7 +127,7 @@
     <link href="jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-nbench-%E6%B5%8B%E8%AF%95%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD/"/>
     <id>jiaojinxing.github.io/2015/07/15/使用-nbench-测试处理器性能/</id>
     <published>2015-07-15T07:22:55.000Z</published>
-    <updated>2015-07-16T07:16:03.445Z</updated>
+    <updated>2015-07-16T07:30:36.007Z</updated>
     <content type="html"><![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 是否发挥 ARMv7A Cache、VFP、NEON、分支预测性能，验证 BSP 是否在内存控制器、CPU 主频设置方面存在不正确的地方。</p>
 <p>找出 SylixOS 实时性远优于 Linux 和 RT-Linux，但 Qt 性能测试 <a href="https://github.com/jiaojinxing/qtperf" target="_blank" rel="external">qtperf</a> 不如 Linux 的原因，并提出解决办法。</p>
 <h2 id="硬件平台">硬件平台</h2><p>硬件平台：飞凌嵌入式 OK335xS</p>
@@ -208,7 +242,7 @@
 <p>SylixOS：<br><figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">NUMERIC <span class="string">SORT        :</span>          <span class="number">386.53</span>  :       <span class="number">9.91</span>  :       <span class="number">3.26</span></span><br><span class="line">STRING <span class="string">SORT         :</span>          <span class="number">12.447</span>  :       <span class="number">5.56</span>  :       <span class="number">0.86</span></span><br><span class="line"><span class="string">BITFIELD            :</span>      <span class="number">1.4006e+08</span>  :      <span class="number">24.03</span>  :       <span class="number">5.02</span></span><br><span class="line">FP <span class="string">EMULATION        :</span>          <span class="number">88.258</span>  :      <span class="number">42.35</span>  :       <span class="number">9.77</span></span><br><span class="line"><span class="string">FOURIER             :</span>          <span class="number">1591.8</span>  :       <span class="number">1.81</span>  :       <span class="number">1.02</span></span><br><span class="line"><span class="string">ASSIGNMENT          :</span>          <span class="number">6.4511</span>  :      <span class="number">24.55</span>  :       <span class="number">6.37</span></span><br><span class="line"><span class="string">IDEA                :</span>          <span class="number">958.43</span>  :      <span class="number">14.66</span>  :       <span class="number">4.35</span></span><br><span class="line"><span class="string">HUFFMAN             :</span>          <span class="number">619.13</span>  :      <span class="number">17.17</span>  :       <span class="number">5.48</span></span><br><span class="line">NEURAL <span class="string">NET          :</span>          <span class="number">1.6131</span>  :       <span class="number">2.59</span>  :       <span class="number">1.09</span></span><br><span class="line">LU <span class="string">DECOMPOSITION    :</span>          <span class="number">59.127</span>  :       <span class="number">3.06</span>  :       <span class="number">2.21</span></span><br></pre></td></tr></table></figure></p>
 <p>SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRING SORT 测试中大幅落后于 Linux，其它测试 SylixOS 均优于 Linux。</p>
 <p>MEMORY INDEX （内存性能）低于 Linux 的原故是 STRING SORT 测试中大幅落后于 Linux。</p>
-<p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的原因将在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-gprof-%E5%88%86%E6%9E%90%E4%BB%A3%E7%A0%81%E6%80%A7%E8%83%BD%E5%92%8C%E8%B0%83%E7%94%A8%E6%A0%88/">《使用 gprof 分析代码性能和调用栈》</a>一文阐明。</p>
+<p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的原因和优化的办法将在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-gprof-%E5%88%86%E6%9E%90%E4%BB%A3%E7%A0%81%E6%80%A7%E8%83%BD%E5%92%8C%E8%B0%83%E7%94%A8%E6%A0%88/">《使用 gprof 分析代码性能和调用栈》</a>一文阐明。</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 是否发挥 ARMv7A Cache、VFP、NEON、分支预测性能，验证 BSP 是否在内存控制器、CPU 主频设置方面存在不正确的地方。</p>
