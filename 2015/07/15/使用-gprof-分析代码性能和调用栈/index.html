@@ -11,24 +11,24 @@
     
 
     
-    <meta name="description" content="在《使用 nbench 测试处理器性能》一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。
+    <meta name="description" content="落后原因分析在《使用 nbench 测试处理器性能》一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。
 SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRING SORT 测试中大幅落后于 Linux，其它测试 SylixOS 均优于 Linux。
-MEMORY INDEX （内存性能）低于 Li">
+MEMORY INDEX （内存性能">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用 gprof 分析代码性能和调用栈">
 <meta property="og:url" content="jiaojinxing.github.io/2015/07/15/使用-gprof-分析代码性能和调用栈/index.html">
 <meta property="og:site_name" content="JinXing’s blog">
-<meta property="og:description" content="在《使用 nbench 测试处理器性能》一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。
+<meta property="og:description" content="落后原因分析在《使用 nbench 测试处理器性能》一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。
 SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRING SORT 测试中大幅落后于 Linux，其它测试 SylixOS 均优于 Linux。
-MEMORY INDEX （内存性能）低于 Li">
+MEMORY INDEX （内存性能">
 <meta property="og:image" content="jiaojinxing.github.io/img/使用-gprof-分析代码性能和调用栈/libvpmpdm_gprof.svg">
 <meta property="og:image" content="jiaojinxing.github.io/img/使用-gprof-分析代码性能和调用栈/nbench_gprof.svg">
-<meta property="og:updated_time" content="2015-07-16T08:26:22.571Z">
+<meta property="og:updated_time" content="2015-07-17T03:40:48.005Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用 gprof 分析代码性能和调用栈">
-<meta name="twitter:description" content="在《使用 nbench 测试处理器性能》一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。
+<meta name="twitter:description" content="落后原因分析在《使用 nbench 测试处理器性能》一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。
 SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRING SORT 测试中大幅落后于 Linux，其它测试 SylixOS 均优于 Linux。
-MEMORY INDEX （内存性能）低于 Li">
+MEMORY INDEX （内存性能">
 
     
     <link rel="alternative" href="/atom.xml" title="JinXing’s blog" type="application/atom+xml">
@@ -103,11 +103,11 @@ MEMORY INDEX （内存性能）低于 Li">
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_SylixOS_测试结果汇总与对比"><span class="toc-number">1.</span> <span class="toc-text">Linux SylixOS 测试结果汇总与对比</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#落后原因分析"><span class="toc-number">1.</span> <span class="toc-text">落后原因分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#在_Linux_测试_SylixOS_的_lib_memcpy_函数性能"><span class="toc-number">2.</span> <span class="toc-text">在 Linux 测试 SylixOS 的 lib_memcpy 函数性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用_gprof_分析_nbench"><span class="toc-number">3.</span> <span class="toc-text">使用 gprof 分析 nbench</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lib_memcpy_函数优化"><span class="toc-number">4.</span> <span class="toc-text">lib_memcpy 函数优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mem_类函数移植与测试"><span class="toc-number">5.</span> <span class="toc-text">mem 类函数移植与测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_SylixOS_测试结果汇总与对比"><span class="toc-number">6.</span> <span class="toc-text">Linux SylixOS 测试结果汇总与对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试结论"><span class="toc-number">7.</span> <span class="toc-text">测试结论</span></a></li></ol>
 		
 		</div>
 		
-		<p>在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-nbench-%E6%B5%8B%E8%AF%95%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD/">《使用 nbench 测试处理器性能》</a>一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。</p>
+		<h2 id="落后原因分析">落后原因分析</h2><p>在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-nbench-%E6%B5%8B%E8%AF%95%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD/">《使用 nbench 测试处理器性能》</a>一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。</p>
 <p>SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRING SORT 测试中大幅落后于 Linux，其它测试 SylixOS 均优于 Linux。</p>
 <p>MEMORY INDEX （内存性能）低于 Linux 的原故是 STRING SORT 测试中大幅落后于 Linux。</p>
 <p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的原因可能有三：</p>
@@ -116,7 +116,7 @@ MEMORY INDEX （内存性能）低于 Li">
 <li>SylixOS 未能发挥 ARMv7A Cache 性能；</li>
 <li>BSP 在内存控制器设置方面存在不正确的地方。</li>
 </ol>
-<p>通过分析 nbench 的代码，发现 nbench 调用了 memmove 函数，在 SylixOS 上该函数使用 lib_memcpy 函数实现。</p>
+<h2 id="在_Linux_测试_SylixOS_的_lib_memcpy_函数性能">在 Linux 测试 SylixOS 的 lib_memcpy 函数性能</h2><p>通过分析 nbench 的代码，发现 nbench 调用了 memmove 函数，在 SylixOS 上该函数使用 lib_memcpy 函数实现。</p>
 <p>在 Linux 上，使用 SylixOS 的 lib_memcpy 函数替换 memmove 函数，以测试 SylixOS 的 lib_memcpy 函数的性能，编译选项为： -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O3。</p>
 <p>我们只需要使用 nbench 测试 NUMERIC SORT 和 STRING SORT，nbench 支持执行时指定配置文件：<br><figure class="highlight"><table><tr><td class="code"><pre><span class="line">./nbench -CCOM.DAT</span><br></pre></td></tr></table></figure></p>
 <p>COM.DAT文件内容：<br><figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="setting">ALLSTATS=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DONUMSORT=<span class="value">T</span></span></span><br><span class="line"><span class="setting">DOSTRINGSORT=<span class="value">T</span></span></span><br><span class="line"><span class="setting">DOBITFIELD=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOEMF=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOFOUR=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOASSIGN=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOIDEA=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOHUFF=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DONNET=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOLU=<span class="value">F</span></span></span><br></pre></td></tr></table></figure></p>
@@ -128,7 +128,7 @@ MEMORY INDEX （内存性能）低于 Li">
 <li>SylixOS 正常发挥 ARMv7A Cache 性能；</li>
 <li>BSP 正确设置了内存控制器参数。</li>
 </ol>
-<p>我们可以使用 gprof 工具分析 nbench，得到其运行时代码性能和调用栈。</p>
+<h2 id="使用_gprof_分析_nbench">使用 gprof 分析 nbench</h2><p>我们可以使用 gprof 工具分析 nbench，得到其运行时代码性能和调用栈。</p>
 <p>nbench 工程编译和链接时加入 -pg 选项，gcc 会在每一个函数入口处调用 gnu_mcount_nc 函数，gnu_mcount_nc 函数将记录该父子函数的调用次数和关系。</p>
 <p>同时启动 ITIMER_PROF 定时器（频率为1000Hz）和绑定 SIGPROF 信号，SIGPROF 信号处理函数获得当前线程的 PC 值，传入 profil_count 函数，profil_count 函数对 nbench 内的函数进行有损精度的耗时统计。</p>
 <p>nbench 退出时会生成 gmon.out 文件，将其上传到计算机，计算机执行 arm-sylixos-eabi-gprof，输入文件为 gmon.out 和 nbench，arm-sylixos-eabi-gprof 将生成函数耗时、调用次数、调用栈报告。</p>
@@ -141,11 +141,11 @@ MEMORY INDEX （内存性能）低于 Li">
 <p>nbench 对应的调用栈图：<br><img src="/img/使用-gprof-分析代码性能和调用栈/nbench_gprof.svg" alt="nbench_gprof.svg"></p>
 <p>可以看到 nbench 最耗时的是 NumSift 函数（35.05%）。</p>
 <p>可以得出，如果我们想提升的 nbench 的 MEM 性能，必须优化 lib_memcpy 函数。</p>
-<p>lib_memcpy 函数是一个编译进操作系统镜像的“内核函数”，操作系统的编译参数为 -mcpu=cortex-a8 -O2，没有使用 VFP 或 NEON 及 -O3，尝试把 lib_memcpy 函数放入在 libvpmpdm 工程，应用程序 nbench 将优先使用 libvpmpdm.so 的 lib_memcpy 函数。</p>
+<h2 id="lib_memcpy_函数优化">lib_memcpy 函数优化</h2><p>lib_memcpy 函数是一个编译进操作系统镜像的“内核函数”，操作系统的编译参数为 -mcpu=cortex-a8 -O2，没有使用 VFP 或 NEON 及 -O3，尝试把 lib_memcpy 函数放入在 libvpmpdm 工程，应用程序 nbench 将优先使用 libvpmpdm.so 的 lib_memcpy 函数。</p>
 <p>优化最简单的方法就是修改 libvpmpdm 工程的编译选项，使用 -mcpu=cortex-a8 -mfpu=vfpv3 -O3 编译选项。</p>
 <figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          386.85  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          11.008  :       4.92  :       0.76</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 1.743</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 0.913</span><br><span class="line">INTEGER INDEX       : 1.344</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
 <p>结果有点出乎意料，STRING SORT 测试性能评分不升反降，只能用其它优化方法了。</p>
-<p>优化方法要么重新实现 lib_memcpy 函数，要么使用现成的 mem 类函数（memcpy、memmove等），我倾向于使用现成的 mem 类函数，</p>
+<h2 id="mem_类函数移植与测试">mem 类函数移植与测试</h2><p>优化方法要么重新实现 lib_memcpy 函数，要么使用现成的 mem 类函数（memcpy、memmove等），我倾向于使用现成的 mem 类函数，</p>
 <p>mem 类函数来源有以下几种：</p>
 <ul>
 <li>FreeBSD 的 C 库里的 mem 类函数</li>
@@ -196,6 +196,12 @@ MEMORY INDEX （内存性能）低于 Li">
 </table>
 <p>SylixOS 的 INTEGER INDEX （定点处理性能）与 FLOATING-POINT INDEX （浮点处理性能）及 MEMORY INDEX （内存性能）均要优于 Linux。</p>
 <p>SylixOS 优化前后 INTEGER INDEX 和 FLOATING-POINT INDEX 性能基本没有发生变化，但 MEMORY INDEX 性能提升较大（接近一倍的性能提升）。</p>
+<h2 id="测试结论">测试结论</h2><ol>
+<li>优化后的 mem 类函数的性能比 Linux 的要好；</li>
+<li>SylixOS 正常发挥 ARMv7A Cache、VFP、NEON、分支预测性能，比 Linux 的还要好；</li>
+<li>BSP 正确设置了内存控制器参数和处理器主频。</li>
+<li>SylixOS 使用的编译器(4.9.4)比 Linux 使用的编译器(4.5.3)更能发挥 ARMv7A 性能。</li>
+</ol>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -258,7 +264,7 @@ MEMORY INDEX （内存性能）低于 Li">
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_SylixOS_测试结果汇总与对比"><span class="toc-number">1.</span> <span class="toc-text">Linux SylixOS 测试结果汇总与对比</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#落后原因分析"><span class="toc-number">1.</span> <span class="toc-text">落后原因分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#在_Linux_测试_SylixOS_的_lib_memcpy_函数性能"><span class="toc-number">2.</span> <span class="toc-text">在 Linux 测试 SylixOS 的 lib_memcpy 函数性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用_gprof_分析_nbench"><span class="toc-number">3.</span> <span class="toc-text">使用 gprof 分析 nbench</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lib_memcpy_函数优化"><span class="toc-number">4.</span> <span class="toc-text">lib_memcpy 函数优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mem_类函数移植与测试"><span class="toc-number">5.</span> <span class="toc-text">mem 类函数移植与测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_SylixOS_测试结果汇总与对比"><span class="toc-number">6.</span> <span class="toc-text">Linux SylixOS 测试结果汇总与对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试结论"><span class="toc-number">7.</span> <span class="toc-text">测试结论</span></a></li></ol>
  
   </div>
 
