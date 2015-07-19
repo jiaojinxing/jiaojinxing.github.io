@@ -77,9 +77,100 @@
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2015/06/25/SylixOS线程间通信-线程间通信/" title="SylixOS线程间通信-线程间通信" itemprop="url">
+    <a href="/2015/06/30/susv2/" title="susv2" itemprop="url">
   
-    <h1 itemprop="name">SylixOS线程间通信-线程间通信</h1>
+    <h1 itemprop="name">susv2</h1>
+    
+     
+           <p itemprop="description" ></p>
+        
+    
+    <time datetime="2015-06-30T07:44:43.000Z" itemprop="datePublished">2015-06-30</time>
+  </a>
+</section>
+
+
+
+
+
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2015/06/29/程序员的自我修养-ARM体系结构/" title="程序员的自我修养-ARM体系结构" itemprop="url">
+  
+    <h1 itemprop="name">程序员的自我修养-ARM体系结构</h1>
+    
+     
+           <p itemprop="description" >流水线分支预测MMUTLBCACHE多核VFPNEON</p>
+        
+    
+    <time datetime="2015-06-29T02:22:03.000Z" itemprop="datePublished">2015-06-29</time>
+  </a>
+</section>
+
+
+
+
+
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2015/06/26/程序员的自我修养-工具链使用/" title="程序员的自我修养-工具链使用" itemprop="url">
+  
+    <h1 itemprop="name">程序员的自我修养-工具链使用</h1>
+    
+     
+           <p itemprop="description" >三个概念首先我们区分以下三个概念：
+
+代码
+可执行文件
+进程
+
+我们在开发环境或编辑器编写的叫代码，如：#include &amp;lt;stdio.h&amp;gt;int main (int argc, char *argv[])&amp;#123;	printf(&quot;Hello World!\n&quot;)</p>
+        
+    
+    <time datetime="2015-06-26T03:44:21.000Z" itemprop="datePublished">2015-06-26</time>
+  </a>
+</section>
+
+
+
+
+
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2015/06/25/SylixOS-线程间通信-SylixOS信号量/" title="SylixOS 线程间通信-SylixOS信号量" itemprop="url">
+  
+    <h1 itemprop="name">SylixOS 线程间通信-SylixOS信号量</h1>
+    
+     
+           <p itemprop="description" >SylixOS信号量有两种类型：二进制信号量和计数型信号量。
+二进制信号量的取值范围为FALSE或TRUE；计数型信号量的最小取值为0，而最大取值在创建计数型信号量时决定。
+二进制信号量主要应用在以下场合：
+
+有允许线程访问的一个资源，使用二进制信号量作为互斥手段；
+线程或中断通</p>
+        
+    
+    <time datetime="2015-06-25T09:10:03.000Z" itemprop="datePublished">2015-06-25</time>
+  </a>
+</section>
+
+
+
+
+
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2015/06/25/SylixOS-线程间通信-线程间通信/" title="SylixOS 线程间通信-线程间通信" itemprop="url">
+  
+    <h1 itemprop="name">SylixOS 线程间通信-线程间通信</h1>
     
      
            <p itemprop="description" >什么是线程间通信线程在执行的过程中免不了要与其它线程进行通信，如线程A处理完毕某个事件后通知线程B事件的处理结果，线程B得到事件的处理结果后继续运行。
@@ -102,9 +193,9 @@
   
 <section class="post" itemscope itemprop="blogitem">
   
-    <a href="/2015/06/25/SylixOS线程间通信-共享资源/" title="SylixOS线程间通信-共享资源" itemprop="url">
+    <a href="/2015/06/25/SylixOS-线程间通信-共享资源/" title="SylixOS 线程间通信-共享资源" itemprop="url">
   
-    <h1 itemprop="name">SylixOS线程间通信-共享资源</h1>
+    <h1 itemprop="name">SylixOS 线程间通信-共享资源</h1>
     
      
            <p itemprop="description" >什么是共享资源一个基于RTOS的应用层软件往往需要多个线程才能实现，多个线程可能需要同时访问同一个变量、同一个设备或同一块内存，这时该变量、该设备或该内存块被称为共享资源。
@@ -204,30 +295,9 @@ SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得�
 
 
 
-  
-<section class="post" itemscope itemprop="blogitem">
-  
-    <a href="/2015/06/02/SylixOS-thread/" title="SylixOS线程" itemprop="url">
-  
-    <h1 itemprop="name">SylixOS线程</h1>
-    
-     
-           <p itemprop="description" >线程线程是程序中的一条独立的控制流，线程是SylixOS调度器进行任务调度的基本单位，每个线程都有一个独一无二的ID号、栈、线程控制块（TCB）。
-为了管理线程，SylixOS会为每一个线程分配一个线程控制块，用于记录该线程的信息，如线程入口函数、线程优化级、线程名字、线程当前的</p>
-        
-    
-    <time datetime="2015-06-02T07:45:26.766Z" itemprop="datePublished">2015-06-02</time>
-  </a>
-</section>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix unexpand">
-    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
   </nav>
 
 </div>
@@ -243,7 +313,7 @@ SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得�
 		<ul>
 		
 		  
-			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>12</sup></a></li>
+			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>11</sup></a></li>
 		  
 		
 		  
@@ -260,15 +330,11 @@ SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得�
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>12</sup></a></li>
+				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>11</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/ARMv7-M/" title="ARMv7-M">ARMv7-M<sup>3</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/测试/" title="测试">测试<sup>3</sup></a></li>
 			
 		
 			
@@ -277,6 +343,10 @@ SylixOS 为了发挥这些高级处理器特性(如 Cache)，支持 MMU 变得�
 		
 			
 				<li><a href="/tags/书稿/" title="书稿">书稿<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/测试/" title="测试">测试<sup>2</sup></a></li>
 			
 		
 			

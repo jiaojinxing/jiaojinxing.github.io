@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-07-17T03:40:48.005Z</updated>
+  <updated>2015-07-19T04:10:45.415Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -15,125 +15,65 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title><![CDATA[使用 gprof 分析代码性能和调用栈]]></title>
-    <link href="jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-gprof-%E5%88%86%E6%9E%90%E4%BB%A3%E7%A0%81%E6%80%A7%E8%83%BD%E5%92%8C%E8%B0%83%E7%94%A8%E6%A0%88/"/>
-    <id>jiaojinxing.github.io/2015/07/15/使用-gprof-分析代码性能和调用栈/</id>
-    <published>2015-07-15T12:10:12.000Z</published>
-    <updated>2015-07-17T03:40:48.005Z</updated>
-    <content type="html"><![CDATA[<h2 id="落后原因分析">落后原因分析</h2><p>在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-nbench-%E6%B5%8B%E8%AF%95%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD/">《使用 nbench 测试处理器性能》</a>一文中，我们使用 nbench 测试 Linux 和 SylixOS 在 AM335x 处理器上的 INT、FP、MEM 性能。</p>
-<p>SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRING SORT 测试中大幅落后于 Linux，其它测试 SylixOS 均优于 Linux。</p>
-<p>MEMORY INDEX （内存性能）低于 Linux 的原故是 STRING SORT 测试中大幅落后于 Linux。</p>
-<p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的原因可能有三：</p>
-<ol>
-<li>SylixOS 相关字符串函数的执行效率不高；</li>
-<li>SylixOS 未能发挥 ARMv7A Cache 性能；</li>
-<li>BSP 在内存控制器设置方面存在不正确的地方。</li>
-</ol>
-<h2 id="在_Linux_测试_SylixOS_的_lib_memcpy_函数性能">在 Linux 测试 SylixOS 的 lib_memcpy 函数性能</h2><p>通过分析 nbench 的代码，发现 nbench 调用了 memmove 函数，在 SylixOS 上该函数使用 lib_memcpy 函数实现。</p>
-<p>在 Linux 上，使用 SylixOS 的 lib_memcpy 函数替换 memmove 函数，以测试 SylixOS 的 lib_memcpy 函数的性能，编译选项为： -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O3。</p>
-<p>我们只需要使用 nbench 测试 NUMERIC SORT 和 STRING SORT，nbench 支持执行时指定配置文件：<br><figure class="highlight"><table><tr><td class="code"><pre><span class="line">./nbench -CCOM.DAT</span><br></pre></td></tr></table></figure></p>
-<p>COM.DAT文件内容：<br><figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="setting">ALLSTATS=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DONUMSORT=<span class="value">T</span></span></span><br><span class="line"><span class="setting">DOSTRINGSORT=<span class="value">T</span></span></span><br><span class="line"><span class="setting">DOBITFIELD=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOEMF=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOFOUR=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOASSIGN=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOIDEA=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOHUFF=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DONNET=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOLU=<span class="value">F</span></span></span><br></pre></td></tr></table></figure></p>
-<p>执行后输出：<br><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx</span><span class="comment"># ./nbench -CCOM.DAT</span></span><br><span class="line"></span><br><span class="line"><span class="constant">BYTEmark*</span> <span class="constant">Native Mode Benchmark </span>ver. <span class="number">2</span> (<span class="number">10</span>/<span class="number">95</span>)</span><br><span class="line"><span class="constant">Index-</span>split by <span class="constant">Andrew D.</span> <span class="constant">Balsa </span>(<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"><span class="constant">Linux/Unix*</span> port by <span class="constant">Uwe F.</span> <span class="constant">Mayer </span>(<span class="number">12</span>/<span class="number">96</span>,<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"></span><br><span class="line"><span class="constant">TEST </span>               <span class="symbol">:</span> <span class="constant">Iterations/</span>sec.  <span class="symbol">:</span> <span class="constant">Old Index </span>  <span class="symbol">:</span> <span class="constant">New Index</span></span><br><span class="line">                    <span class="symbol">:</span>                  <span class="symbol">:</span> <span class="constant">Pentium </span><span class="number">90</span>* <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*</span><br><span class="line">--------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"><span class="constant">NUMERIC SORT </span>       <span class="symbol">:</span>          <span class="number">394.56</span>  <span class="symbol">:</span>      <span class="number">10.12</span>  <span class="symbol">:</span>       <span class="number">3.32</span></span><br><span class="line"><span class="constant">STRING SORT </span>        <span class="symbol">:</span>          <span class="number">9.8736</span>  <span class="symbol">:</span>       <span class="number">4.41</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">68</span></span><br><span class="line">==========================<span class="constant">ORIGINAL BYTEMARK RESULTS=</span>=========================</span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">1.721</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">1.000</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">MSDOS*</span>)   <span class="symbol">:</span> <span class="constant">Pentium*</span> <span class="number">90</span>, <span class="number">256</span> <span class="constant">KB L2-</span>cache, <span class="constant">Watcom*</span> compiler <span class="number">10.0</span></span><br><span class="line">==============================<span class="constant">LINUX DATA BELOW=</span>==============================</span><br><span class="line"><span class="constant">CPU </span>                <span class="symbol">:</span></span><br><span class="line"><span class="constant">L2 Cache </span>           <span class="symbol">:</span></span><br><span class="line"><span class="constant">OS </span>                 <span class="symbol">:</span> <span class="constant">Linux </span><span class="number">3.2</span>.<span class="number">0</span></span><br><span class="line"><span class="constant">C </span>compiler          <span class="symbol">:</span> arm-arago-linux-gnueabi-gcc</span><br><span class="line">libc                <span class="symbol">:</span> static</span><br><span class="line"><span class="constant">MEMORY INDEX </span>       <span class="symbol">:</span> <span class="number">0</span>.<span class="number">881</span></span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">1.350</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">1.000</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">LINUX)</span>    <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*, <span class="number">512</span> <span class="constant">KB L2-</span>cache, gcc <span class="number">2.7</span>.<span class="number">2.3</span>, libc-<span class="number">5.4</span>.<span class="number">38</span></span><br><span class="line">* <span class="constant">Trademarks </span>are property of their respective holder.</span><br></pre></td></tr></table></figure></p>
-<p>STRING SORT 测试性能评分下降严重（从 40.032 降低到 9.8736，比 SylixOS 的 12.447 还低），可见 SylixOS 的 lib_memcpy 函数在性能上远不如 Linux 的 memmove 函数。</p>
-<p>同时我们可以得出如下结论：</p>
-<ol>
-<li>SylixOS 的 lib_memcpy 函数在性能上远不如 Linux 的 memmove 函数；</li>
-<li>SylixOS 正常发挥 ARMv7A Cache 性能；</li>
-<li>BSP 正确设置了内存控制器参数。</li>
-</ol>
-<h2 id="使用_gprof_分析_nbench">使用 gprof 分析 nbench</h2><p>我们可以使用 gprof 工具分析 nbench，得到其运行时代码性能和调用栈。</p>
-<p>nbench 工程编译和链接时加入 -pg 选项，gcc 会在每一个函数入口处调用 gnu_mcount_nc 函数，gnu_mcount_nc 函数将记录该父子函数的调用次数和关系。</p>
-<p>同时启动 ITIMER_PROF 定时器（频率为1000Hz）和绑定 SIGPROF 信号，SIGPROF 信号处理函数获得当前线程的 PC 值，传入 profil_count 函数，profil_count 函数对 nbench 内的函数进行有损精度的耗时统计。</p>
-<p>nbench 退出时会生成 gmon.out 文件，将其上传到计算机，计算机执行 arm-sylixos-eabi-gprof，输入文件为 gmon.out 和 nbench，arm-sylixos-eabi-gprof 将生成函数耗时、调用次数、调用栈报告。</p>
-<p>使用 <a href="https://pypi.python.org/pypi/gprof2dot/" target="_blank" rel="external">gprof2dot</a> 可以该报告转换为 .dot 文件，使用 dot（<a href="http://www.graphviz.org/" target="_blank" rel="external">graphviz</a> 安装目录内）可将其转换为 png 图片或 svg 矢量图。</p>
-<p>执行后输出：<br><figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :           60.56  :       1.55  :       0.51</span><br><span class="line">STRING SORT         :          3.3703  :       1.51  :       0.23</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 1.129</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 0.615</span><br><span class="line">INTEGER INDEX       : 0.845</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br><span class="line">save to libvpmpdm_gmon.out success</span><br><span class="line">save to gmon.out success</span><br></pre></td></tr></table></figure></p>
-<p>这里性能参数不具参考价值，我们只关心 libvpmpdm_gmon.out 和 gmon.out。</p>
-<p>libvpmpdm_gmon.out 是 libvpmpdm.so 的性能文件，gmon.out 是 nbench 的性能文件，由于 glibc 自带的 libgmon 只支持静态链接的应用程序，所以我们在移植 libgmon 到 SylixOS 时做了大量的修改，让其支持动态链接的应用程序，每一个链接库和应用程序均生成一个 gmon.out 文件。</p>
-<p>libvpmpdm.so 对应的调用栈图：<br><img src="/img/使用-gprof-分析代码性能和调用栈/libvpmpdm_gprof.svg" alt="libvpmpdm_gprof.svg"></p>
-<p>可以看到 libvpmpdm.so 最耗时的是 lib_memcpy 函数（44.28%）。</p>
-<p>nbench 对应的调用栈图：<br><img src="/img/使用-gprof-分析代码性能和调用栈/nbench_gprof.svg" alt="nbench_gprof.svg"></p>
-<p>可以看到 nbench 最耗时的是 NumSift 函数（35.05%）。</p>
-<p>可以得出，如果我们想提升的 nbench 的 MEM 性能，必须优化 lib_memcpy 函数。</p>
-<h2 id="lib_memcpy_函数优化">lib_memcpy 函数优化</h2><p>lib_memcpy 函数是一个编译进操作系统镜像的“内核函数”，操作系统的编译参数为 -mcpu=cortex-a8 -O2，没有使用 VFP 或 NEON 及 -O3，尝试把 lib_memcpy 函数放入在 libvpmpdm 工程，应用程序 nbench 将优先使用 libvpmpdm.so 的 lib_memcpy 函数。</p>
-<p>优化最简单的方法就是修改 libvpmpdm 工程的编译选项，使用 -mcpu=cortex-a8 -mfpu=vfpv3 -O3 编译选项。</p>
-<figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          386.85  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          11.008  :       4.92  :       0.76</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 1.743</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 0.913</span><br><span class="line">INTEGER INDEX       : 1.344</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
-<p>结果有点出乎意料，STRING SORT 测试性能评分不升反降，只能用其它优化方法了。</p>
-<h2 id="mem_类函数移植与测试">mem 类函数移植与测试</h2><p>优化方法要么重新实现 lib_memcpy 函数，要么使用现成的 mem 类函数（memcpy、memmove等），我倾向于使用现成的 mem 类函数，</p>
-<p>mem 类函数来源有以下几种：</p>
-<ul>
-<li>FreeBSD 的 C 库里的 mem 类函数</li>
-<li>Android 的 bionic C 库里的 mem 类函数</li>
-<li>编译器内建的 newlib C 库里的 mem 类函数</li>
-<li>glibc C 库里的 mem 类函数</li>
-</ul>
-<p>以上四种 mem 类函数均使用汇编语言实现。</p>
-<p>FreeBSD 的 C 库里的 mem 类函数，容易移植，但没有对 VFP 和 NEON 的优化，实测 nbench 运行到 STRING SORT 测试时直接崩溃，PASS 掉。</p>
-<p>glibc C 库里的 mem 类函数过于复杂，有对 VFP 和 NEON 的优化，但不容易移植，最后才考虑。</p>
-<p>编译器内建的 newlib C 库里的 mem 类函数，有对 VFP 和 NEON 的优化，不需要移植，但 SylixOS 不能使用内建的 newlib C 库，最后才考虑。</p>
-<p>Android 的 bionic C 库里的 mem 类函数，有对 VFP 和 NEON 的优化，同时针对不同的 Cortex-Ax 进行优化，移植还算容易，性能应该有保证，下面尝试之。</p>
-<figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :           386.9  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          85.406  :      38.16  :       5.91</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 2.335</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 1.808</span><br><span class="line">INTEGER INDEX       : 1.344</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
-<p>STRING SORT 测试性能评分提升极大 （从 12.447 提升到 85.406，比 Linux 的 40.032 高出一倍多）。</p>
-<p>阅读 bionic C 库里的 mem 类函数，发现其极大地发挥了 Cache 预取特性（通过 PLD 指令）。</p>
-<p>将 Android 的 bionic C 库里的 mem 类函数替换掉 SylixOS 的 mem 类函数，文件主要有如下几个：<br><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/m</span>emcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/m</span>emset.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>stpcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcat.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>__strcat_chk.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcmp.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>__strcpy_chk.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strlen.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/g</span>eneric<span class="regexp">/bionic/m</span>emcmp.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>denver<span class="regexp">/bionic/m</span>emmove.S \</span><br></pre></td></tr></table></figure></p>
-<p>完成一次完整的测试：</p>
-<figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          386.91  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          85.585  :      38.24  :       5.92</span><br><span class="line">BITFIELD            :      1.4014e+08  :      24.04  :       5.02</span><br><span class="line">FP EMULATION        :          88.262  :      42.35  :       9.77</span><br><span class="line">FOURIER             :          1591.9  :       1.81  :       1.02</span><br><span class="line">ASSIGNMENT          :          6.5071  :      24.76  :       6.42</span><br><span class="line">IDEA                :          958.89  :      14.67  :       4.35</span><br><span class="line">HUFFMAN             :          620.88  :      17.22  :       5.50</span><br><span class="line">NEURAL NET          :          1.6134  :       2.59  :       1.09</span><br><span class="line">LU DECOMPOSITION    :          59.122  :       3.06  :       2.21</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 21.899</span><br><span class="line">FLOATING-POINT INDEX: 2.431</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 5.758</span><br><span class="line">INTEGER INDEX       : 5.255</span><br><span class="line">FLOATING-POINT INDEX: 1.348</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
-<h2 id="Linux_SylixOS_测试结果汇总与对比">Linux SylixOS 测试结果汇总与对比</h2><table>
+    <title><![CDATA[Hello World]]></title>
+    <link href="jiaojinxing.github.io/2015/07/19/hello-world/"/>
+    <id>jiaojinxing.github.io/2015/07/19/hello-world/</id>
+    <published>2015-07-19T04:10:45.415Z</published>
+    <updated>2015-07-19T04:10:45.415Z</updated>
+    <content type="html"><![CDATA[<p>Markdown 编辑器：mdcharm(<a href="http://www.mdcharm.com/" target="_blank" rel="external">http://www.mdcharm.com/</a>)</p>
+<p>Markdown 语法：<a href="http://wowubuntu.com/markdown/" target="_blank" rel="external">http://wowubuntu.com/markdown/</a></p>
+<p>表格语法：</p>
+<figure class="highlight gherkin"><table><tr><td class="code"><pre><span class="line">|<span class="string">宏名                       </span>|<span class="string">含义</span>|</span><br><span class="line">|<span class="string">---                        </span>|<span class="string">:---</span>|</span><br><span class="line">|<span class="string">LW_OPTION_NOT_WAIT         </span>|<span class="string">不等待立即退出</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_INFINITE    </span>|<span class="string">永远等待</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_A_TICK      </span>|<span class="string">等待一个时钟嘀嗒</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_A_SECOND    </span>|<span class="string">等待一秒</span>|</span><br></pre></td></tr></table></figure>
+<p>表格效果：</p>
+<table>
 <thead>
 <tr>
-<th>AM335x</th>
-<th style="text-align:left">Linux cortex-a8 vfpv3 -O3</th>
-<th style="text-align:left">优化前 SylixOS cortex-a8 vfpv3 -O3</th>
-<th style="text-align:left">优化后 SylixOS cortex-a8 neon -O3</th>
+<th>宏名</th>
+<th style="text-align:left">含义</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>MEMORY INDEX</td>
-<td style="text-align:left">4.129</td>
-<td style="text-align:left">3.019</td>
-<td style="text-align:left">5.758</td>
+<td>LW_OPTION_NOT_WAIT</td>
+<td style="text-align:left">不等待立即退出</td>
 </tr>
 <tr>
-<td>INTEGER INDEX</td>
-<td style="text-align:left">4.565</td>
-<td style="text-align:left">5.249</td>
-<td style="text-align:left">5.255</td>
+<td>LW_OPTION_WAIT_INFINITE</td>
+<td style="text-align:left">永远等待</td>
 </tr>
 <tr>
-<td>FLOATING-POINT INDEX</td>
-<td style="text-align:left">1.189</td>
-<td style="text-align:left">1.348</td>
-<td style="text-align:left">1.348</td>
+<td>LW_OPTION_WAIT_A_TICK</td>
+<td style="text-align:left">等待一个时钟嘀嗒</td>
+</tr>
+<tr>
+<td>LW_OPTION_WAIT_A_SECOND</td>
+<td style="text-align:left">等待一秒</td>
 </tr>
 </tbody>
 </table>
-<p>SylixOS 的 INTEGER INDEX （定点处理性能）与 FLOATING-POINT INDEX （浮点处理性能）及 MEMORY INDEX （内存性能）均要优于 Linux。</p>
-<p>SylixOS 优化前后 INTEGER INDEX 和 FLOATING-POINT INDEX 性能基本没有发生变化，但 MEMORY INDEX 性能提升较大（接近一倍的性能提升）。</p>
-<h2 id="测试结论">测试结论</h2><ol>
-<li>优化后的 mem 类函数的性能比 Linux 的要好；</li>
-<li>SylixOS 正常发挥 ARMv7A Cache、VFP、NEON、分支预测性能，比 Linux 的还要好；</li>
-<li>BSP 正确设置了内存控制器参数和处理器主频。</li>
-<li>SylixOS 使用的编译器(4.9.4)比 Linux 使用的编译器(4.5.3)更能发挥 ARMv7A 性能。</li>
-</ol>
+<p>plantuml 语法：<a href="http://plantuml.sourceforge.net/" target="_blank" rel="external">http://plantuml.sourceforge.net/</a></p>
+<p>PC 上使用 Eclipse 插件 plantuml - <a href="http://plantuml.sourceforge.net/updatesite/" target="_blank" rel="external">http://plantuml.sourceforge.net/updatesite/</a> </p>
+<p>plantuml 生成 UML 图的例子：</p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">&#123;% plantuml %&#125;</span><br><span class="line"></span><br><span class="line"><span class="annotation">@startuml</span></span><br><span class="line">Alice -&gt; <span class="string">Bob:</span> Authentication Request</span><br><span class="line">Bob --&gt; <span class="string">Alice:</span> Authentication Response</span><br><span class="line"></span><br><span class="line">Alice -&gt; <span class="string">Bob:</span> Another authentication Request</span><br><span class="line">Alice &lt;-- <span class="string">Bob:</span> another authentication Response</span><br><span class="line"><span class="annotation">@enduml</span></span><br><span class="line"></span><br><span class="line">&#123;% endplantuml %&#125;</span><br></pre></td></tr></table></figure>
+<img src="http://www.plantuml.com/plantuml/svg/TSx13O0W38NXErDqWIvWZ057S0F49f9WKIZxIyIJmVFxykVfB3P9EO8omJi2d62Ewm2co4uitbdnaM6Xgr0MLJV0QXxSKVcCd4bzOnohIs3xqOP7nARjdtxZcdYhXsy0">
+<p>plantuml 使用 DOT 语法生成流程图的例子：</p>
+<figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line">&#123;% plantuml %&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">@startuml</span></span><br><span class="line"><span class="label">digraph</span> G &#123;</span><br><span class="line">    <span class="keyword">subgraph </span>cluster0 &#123;</span><br><span class="line">        node [style<span class="label">=filled</span>,color<span class="label">=white</span>]<span class="comment">;</span></span><br><span class="line">        style<span class="label">=filled</span><span class="comment">;</span></span><br><span class="line">        color<span class="label">=lightgrey</span><span class="comment">;</span></span><br><span class="line">        a0 -&gt; <span class="literal">a1</span> -&gt; <span class="literal">a2</span> -&gt; <span class="literal">a3</span><span class="comment">;</span></span><br><span class="line">        label = <span class="string">"process #1"</span><span class="comment">;</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">subgraph </span>cluster1 &#123;</span><br><span class="line">        node [style<span class="label">=filled</span>]<span class="comment">;</span></span><br><span class="line">        <span class="keyword">b0 </span>-&gt; <span class="keyword">b1 </span>-&gt; <span class="keyword">b2 </span>-&gt; <span class="keyword">b3;</span><br><span class="line"></span>        label = <span class="string">"process #2"</span><span class="comment">;</span></span><br><span class="line">        color<span class="label">=blue</span></span><br><span class="line">    &#125;</span><br><span class="line">    start -&gt; a0<span class="comment">;</span></span><br><span class="line">    start -&gt; <span class="keyword">b0;</span><br><span class="line"></span>    <span class="literal">a1</span> -&gt; <span class="keyword">b3;</span><br><span class="line"></span>    <span class="keyword">b2 </span>-&gt; <span class="literal">a3</span><span class="comment">;</span></span><br><span class="line">    <span class="literal">a3</span> -&gt; a0<span class="comment">;</span></span><br><span class="line">    <span class="literal">a3</span> -&gt; <span class="preprocessor">end</span><span class="comment">;</span></span><br><span class="line">    <span class="keyword">b3 </span>-&gt; <span class="preprocessor">end</span><span class="comment">;</span></span><br><span class="line">    start [shape<span class="label">=Mdiamond</span>]<span class="comment">;</span></span><br><span class="line">    <span class="preprocessor">end</span> [shape<span class="label">=Msquare</span>]<span class="comment">;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">@enduml</span></span><br><span class="line"></span><br><span class="line">&#123;% endplantuml %&#125;</span><br></pre></td></tr></table></figure>
+<img src="http://www.plantuml.com/plantuml/svg/VL7BReD03Bpp5HQvfX8anuWgjvxo1QW76rnOoM79FbH5KVuzi4i2L5LyiEJnxCxOFbg7nlcp9BLg3FOjVC4jWI6ifmXKugrZaqtu69sk6KhhhiB5ZnBXUbjfqQRuRPNZxyEBkAJCQEIAQbhN6BxE3SpWunCm3taNydxk2X8B593sHbTiBMpoD7Rl_phEtpfUkAGWIq6MWYozbTsbVsSXyRnqCYursCyEQu0c8CxubA7LhBXVFeqLTzF-Q5t6ZqlROi_5gLPurjrpj87qwjYBHpDUvfuS1tmu-0C0">
+<p>也可以使用 Graphviz <a href="http://www.graphviz.org/" target="_blank" rel="external">http://www.graphviz.org/</a> ，而不使用 plantuml 插件，但只能用 DOT 语法。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<h2 id="落后原因分析">落后原因分析</h2><p>在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-nbench-%E6%B5%8B%E8%AF%95%E5%A4%84%E7%90%]]>
+    <![CDATA[<p>Markdown 编辑器：mdcharm(<a href="http://www.mdcharm.com/" target="_blank" rel="external">http://www.mdcharm.com/</a>)</p>
+<p>Markdown 语法：<a ]]>
     </summary>
-    
-      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
-    
-      <category term="测试" scheme="jiaojinxing.github.io/tags/%E6%B5%8B%E8%AF%95/"/>
-    
-      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
     
   </entry>
   
   <entry>
-    <title><![CDATA[使用 nbench 测试处理器性能]]></title>
-    <link href="jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-nbench-%E6%B5%8B%E8%AF%95%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD/"/>
-    <id>jiaojinxing.github.io/2015/07/15/使用-nbench-测试处理器性能/</id>
-    <published>2015-07-15T07:22:55.000Z</published>
-    <updated>2015-07-16T07:30:36.007Z</updated>
+    <title><![CDATA[SylixOS ARMv7A 处理器性能测试与改进]]></title>
+    <link href="jiaojinxing.github.io/2015/07/17/SylixOS-ARMv7A-%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E4%B8%8E%E6%94%B9%E8%BF%9B/"/>
+    <id>jiaojinxing.github.io/2015/07/17/SylixOS-ARMv7A-处理器性能测试与改进/</id>
+    <published>2015-07-17T13:24:31.000Z</published>
+    <updated>2015-07-17T13:26:17.563Z</updated>
     <content type="html"><![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 是否发挥 ARMv7A Cache、VFP、NEON、分支预测性能，验证 BSP 是否在内存控制器、CPU 主频设置方面存在不正确的地方。</p>
 <p>找出 SylixOS 实时性远优于 Linux 和 RT-Linux，但 Qt 性能测试 <a href="https://github.com/jiaojinxing/qtperf" target="_blank" rel="external">qtperf</a> 不如 Linux 的原因，并提出解决办法。</p>
 <h2 id="硬件平台">硬件平台</h2><p>硬件平台：飞凌嵌入式 OK335xS</p>
@@ -248,7 +188,98 @@
 <p>SylixOS：<br><figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">NUMERIC <span class="string">SORT        :</span>          <span class="number">386.53</span>  :       <span class="number">9.91</span>  :       <span class="number">3.26</span></span><br><span class="line">STRING <span class="string">SORT         :</span>          <span class="number">12.447</span>  :       <span class="number">5.56</span>  :       <span class="number">0.86</span></span><br><span class="line"><span class="string">BITFIELD            :</span>      <span class="number">1.4006e+08</span>  :      <span class="number">24.03</span>  :       <span class="number">5.02</span></span><br><span class="line">FP <span class="string">EMULATION        :</span>          <span class="number">88.258</span>  :      <span class="number">42.35</span>  :       <span class="number">9.77</span></span><br><span class="line"><span class="string">FOURIER             :</span>          <span class="number">1591.8</span>  :       <span class="number">1.81</span>  :       <span class="number">1.02</span></span><br><span class="line"><span class="string">ASSIGNMENT          :</span>          <span class="number">6.4511</span>  :      <span class="number">24.55</span>  :       <span class="number">6.37</span></span><br><span class="line"><span class="string">IDEA                :</span>          <span class="number">958.43</span>  :      <span class="number">14.66</span>  :       <span class="number">4.35</span></span><br><span class="line"><span class="string">HUFFMAN             :</span>          <span class="number">619.13</span>  :      <span class="number">17.17</span>  :       <span class="number">5.48</span></span><br><span class="line">NEURAL <span class="string">NET          :</span>          <span class="number">1.6131</span>  :       <span class="number">2.59</span>  :       <span class="number">1.09</span></span><br><span class="line">LU <span class="string">DECOMPOSITION    :</span>          <span class="number">59.127</span>  :       <span class="number">3.06</span>  :       <span class="number">2.21</span></span><br></pre></td></tr></table></figure></p>
 <p>SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRING SORT 测试中大幅落后于 Linux，其它测试 SylixOS 均优于 Linux。</p>
 <p>MEMORY INDEX （内存性能）低于 Linux 的原故是 STRING SORT 测试中大幅落后于 Linux。</p>
-<p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的原因和优化的办法将在<a href="http://jiaojinxing.github.io/2015/07/15/%E4%BD%BF%E7%94%A8-gprof-%E5%88%86%E6%9E%90%E4%BB%A3%E7%A0%81%E6%80%A7%E8%83%BD%E5%92%8C%E8%B0%83%E7%94%A8%E6%A0%88/">《使用 gprof 分析代码性能和调用栈》</a>一文阐明。</p>
+<h2 id="落后原因分析">落后原因分析</h2><p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的原因可能有三：</p>
+<ol>
+<li>SylixOS 相关字符串函数的执行效率不高；</li>
+<li>SylixOS 未能发挥 ARMv7A Cache 性能；</li>
+<li>BSP 在内存控制器设置方面存在不正确的地方。</li>
+</ol>
+<h2 id="在_Linux_测试_SylixOS_的_lib_memcpy_函数性能">在 Linux 测试 SylixOS 的 lib_memcpy 函数性能</h2><p>通过分析 nbench 的代码，发现 nbench 调用了 memmove 函数，在 SylixOS 上该函数使用 lib_memcpy 函数实现。</p>
+<p>在 Linux 上，使用 SylixOS 的 lib_memcpy 函数替换 memmove 函数，以测试 SylixOS 的 lib_memcpy 函数的性能，编译选项为： -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O3。</p>
+<p>我们只需要使用 nbench 测试 NUMERIC SORT 和 STRING SORT，nbench 支持执行时指定配置文件：<br><figure class="highlight"><table><tr><td class="code"><pre><span class="line">./nbench -CCOM.DAT</span><br></pre></td></tr></table></figure></p>
+<p>COM.DAT文件内容：<br><figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="setting">ALLSTATS=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DONUMSORT=<span class="value">T</span></span></span><br><span class="line"><span class="setting">DOSTRINGSORT=<span class="value">T</span></span></span><br><span class="line"><span class="setting">DOBITFIELD=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOEMF=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOFOUR=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOASSIGN=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOIDEA=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOHUFF=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DONNET=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOLU=<span class="value">F</span></span></span><br></pre></td></tr></table></figure></p>
+<p>执行后输出：<br><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx</span><span class="comment"># ./nbench -CCOM.DAT</span></span><br><span class="line"></span><br><span class="line"><span class="constant">BYTEmark*</span> <span class="constant">Native Mode Benchmark </span>ver. <span class="number">2</span> (<span class="number">10</span>/<span class="number">95</span>)</span><br><span class="line"><span class="constant">Index-</span>split by <span class="constant">Andrew D.</span> <span class="constant">Balsa </span>(<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"><span class="constant">Linux/Unix*</span> port by <span class="constant">Uwe F.</span> <span class="constant">Mayer </span>(<span class="number">12</span>/<span class="number">96</span>,<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"></span><br><span class="line"><span class="constant">TEST </span>               <span class="symbol">:</span> <span class="constant">Iterations/</span>sec.  <span class="symbol">:</span> <span class="constant">Old Index </span>  <span class="symbol">:</span> <span class="constant">New Index</span></span><br><span class="line">                    <span class="symbol">:</span>                  <span class="symbol">:</span> <span class="constant">Pentium </span><span class="number">90</span>* <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*</span><br><span class="line">--------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"><span class="constant">NUMERIC SORT </span>       <span class="symbol">:</span>          <span class="number">394.56</span>  <span class="symbol">:</span>      <span class="number">10.12</span>  <span class="symbol">:</span>       <span class="number">3.32</span></span><br><span class="line"><span class="constant">STRING SORT </span>        <span class="symbol">:</span>          <span class="number">9.8736</span>  <span class="symbol">:</span>       <span class="number">4.41</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">68</span></span><br><span class="line">==========================<span class="constant">ORIGINAL BYTEMARK RESULTS=</span>=========================</span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">1.721</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">1.000</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">MSDOS*</span>)   <span class="symbol">:</span> <span class="constant">Pentium*</span> <span class="number">90</span>, <span class="number">256</span> <span class="constant">KB L2-</span>cache, <span class="constant">Watcom*</span> compiler <span class="number">10.0</span></span><br><span class="line">==============================<span class="constant">LINUX DATA BELOW=</span>==============================</span><br><span class="line"><span class="constant">CPU </span>                <span class="symbol">:</span></span><br><span class="line"><span class="constant">L2 Cache </span>           <span class="symbol">:</span></span><br><span class="line"><span class="constant">OS </span>                 <span class="symbol">:</span> <span class="constant">Linux </span><span class="number">3.2</span>.<span class="number">0</span></span><br><span class="line"><span class="constant">C </span>compiler          <span class="symbol">:</span> arm-arago-linux-gnueabi-gcc</span><br><span class="line">libc                <span class="symbol">:</span> static</span><br><span class="line"><span class="constant">MEMORY INDEX </span>       <span class="symbol">:</span> <span class="number">0</span>.<span class="number">881</span></span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">1.350</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">1.000</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">LINUX)</span>    <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*, <span class="number">512</span> <span class="constant">KB L2-</span>cache, gcc <span class="number">2.7</span>.<span class="number">2.3</span>, libc-<span class="number">5.4</span>.<span class="number">38</span></span><br><span class="line">* <span class="constant">Trademarks </span>are property of their respective holder.</span><br></pre></td></tr></table></figure></p>
+<p>STRING SORT 测试性能评分下降严重（从 40.032 降低到 9.8736，比 SylixOS 的 12.447 还低），可见 SylixOS 的 lib_memcpy 函数在性能上远不如 Linux 的 memmove 函数。</p>
+<p>同时我们可以得出如下结论：</p>
+<ol>
+<li>SylixOS 的 lib_memcpy 函数在性能上远不如 Linux 的 memmove 函数；</li>
+<li>SylixOS 正常发挥 ARMv7A Cache 性能；</li>
+<li>BSP 正确设置了内存控制器参数。</li>
+</ol>
+<h2 id="使用_gprof_分析_nbench">使用 gprof 分析 nbench</h2><p>我们可以使用 gprof 工具分析 nbench，得到其运行时代码性能和调用栈。</p>
+<p>nbench 工程编译和链接时加入 -pg 选项，gcc 会在每一个函数入口处调用 gnu_mcount_nc 函数，gnu_mcount_nc 函数将记录该父子函数的调用次数和关系。</p>
+<p>同时启动 ITIMER_PROF 定时器（频率为1000Hz）和绑定 SIGPROF 信号，SIGPROF 信号处理函数获得当前线程的 PC 值，传入 profil_count 函数，profil_count 函数对 nbench 内的函数进行有损精度的耗时统计。</p>
+<p>nbench 退出时会生成 gmon.out 文件，将其上传到计算机，计算机执行 arm-sylixos-eabi-gprof，输入文件为 gmon.out 和 nbench，arm-sylixos-eabi-gprof 将生成函数耗时、调用次数、调用栈报告。</p>
+<p>使用 <a href="https://pypi.python.org/pypi/gprof2dot/" target="_blank" rel="external">gprof2dot</a> 可以该报告转换为 .dot 文件，使用 dot（<a href="http://www.graphviz.org/" target="_blank" rel="external">graphviz</a> 安装目录内）可将其转换为 png 图片或 svg 矢量图。</p>
+<p>执行后输出：<br><figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :           60.56  :       1.55  :       0.51</span><br><span class="line">STRING SORT         :          3.3703  :       1.51  :       0.23</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 1.129</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 0.615</span><br><span class="line">INTEGER INDEX       : 0.845</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br><span class="line">save to libvpmpdm_gmon.out success</span><br><span class="line">save to gmon.out success</span><br></pre></td></tr></table></figure></p>
+<p>这里性能参数不具参考价值，我们只关心 libvpmpdm_gmon.out 和 gmon.out。</p>
+<p>libvpmpdm_gmon.out 是 libvpmpdm.so 的性能文件，gmon.out 是 nbench 的性能文件，由于 glibc 自带的 libgmon 只支持静态链接的应用程序，所以我们在移植 libgmon 到 SylixOS 时做了大量的修改，让其支持动态链接的应用程序，每一个链接库和应用程序均生成一个 gmon.out 文件。</p>
+<p>libvpmpdm.so 对应的调用栈图：<br><img src="/img/使用-gprof-分析代码性能和调用栈/libvpmpdm_gprof.svg" alt="libvpmpdm_gprof.svg"></p>
+<p>可以看到 libvpmpdm.so 最耗时的是 lib_memcpy 函数（44.28%）。</p>
+<p>nbench 对应的调用栈图：<br><img src="/img/使用-gprof-分析代码性能和调用栈/nbench_gprof.svg" alt="nbench_gprof.svg"></p>
+<p>可以看到 nbench 最耗时的是 NumSift 函数（35.05%）。</p>
+<p>可以得出，如果我们想提升的 nbench 的 MEM 性能，必须优化 lib_memcpy 函数。</p>
+<h2 id="lib_memcpy_函数优化">lib_memcpy 函数优化</h2><p>lib_memcpy 函数是一个编译进操作系统镜像的“内核函数”，操作系统的编译参数为 -mcpu=cortex-a8 -O2，没有使用 VFP 或 NEON 及 -O3，尝试把 lib_memcpy 函数放入在 libvpmpdm 工程，应用程序 nbench 将优先使用 libvpmpdm.so 的 lib_memcpy 函数。</p>
+<p>优化最简单的方法就是修改 libvpmpdm 工程的编译选项，使用 -mcpu=cortex-a8 -mfpu=vfpv3 -O3 编译选项。</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          386.85  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          11.008  :       4.92  :       0.76</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 1.743</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 0.913</span><br><span class="line">INTEGER INDEX       : 1.344</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<p>结果有点出乎意料，STRING SORT 测试性能评分不升反降，只能用其它优化方法了。</p>
+<h2 id="mem_类函数移植与测试">mem 类函数移植与测试</h2><p>优化方法要么重新实现 lib_memcpy 函数，要么使用现成的 mem 类函数（memcpy、memmove等），我倾向于使用现成的 mem 类函数，</p>
+<p>mem 类函数来源有以下几种：</p>
+<ul>
+<li>FreeBSD 的 C 库里的 mem 类函数</li>
+<li>Android 的 bionic C 库里的 mem 类函数</li>
+<li>编译器内建的 newlib C 库里的 mem 类函数</li>
+<li>glibc C 库里的 mem 类函数</li>
+</ul>
+<p>以上四种 mem 类函数均使用汇编语言实现。</p>
+<p>FreeBSD 的 C 库里的 mem 类函数，容易移植，但没有对 VFP 和 NEON 的优化，实测 nbench 运行到 STRING SORT 测试时直接崩溃，PASS 掉。</p>
+<p>glibc C 库里的 mem 类函数过于复杂，有对 VFP 和 NEON 的优化，但不容易移植，最后才考虑。</p>
+<p>编译器内建的 newlib C 库里的 mem 类函数，有对 VFP 和 NEON 的优化，不需要移植，但 SylixOS 不能使用内建的 newlib C 库，最后才考虑。</p>
+<p>Android 的 bionic C 库里的 mem 类函数，有对 VFP 和 NEON 的优化，同时针对不同的 Cortex-Ax 进行优化，移植还算容易，性能应该有保证，下面尝试之。</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :           386.9  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          85.406  :      38.16  :       5.91</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 2.335</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 1.808</span><br><span class="line">INTEGER INDEX       : 1.344</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<p>STRING SORT 测试性能评分提升极大 （从 12.447 提升到 85.406，比 Linux 的 40.032 高出一倍多）。</p>
+<p>阅读 bionic C 库里的 mem 类函数，发现其极大地发挥了 Cache 预取特性（通过 PLD 指令）。</p>
+<p>将 Android 的 bionic C 库里的 mem 类函数替换掉 SylixOS 的 mem 类函数，文件主要有如下几个：<br><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/m</span>emcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/m</span>emset.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>stpcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcat.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>__strcat_chk.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcmp.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>__strcpy_chk.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strlen.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/g</span>eneric<span class="regexp">/bionic/m</span>emcmp.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>denver<span class="regexp">/bionic/m</span>emmove.S \</span><br></pre></td></tr></table></figure></p>
+<p>完成一次完整的测试：</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          386.91  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          85.585  :      38.24  :       5.92</span><br><span class="line">BITFIELD            :      1.4014e+08  :      24.04  :       5.02</span><br><span class="line">FP EMULATION        :          88.262  :      42.35  :       9.77</span><br><span class="line">FOURIER             :          1591.9  :       1.81  :       1.02</span><br><span class="line">ASSIGNMENT          :          6.5071  :      24.76  :       6.42</span><br><span class="line">IDEA                :          958.89  :      14.67  :       4.35</span><br><span class="line">HUFFMAN             :          620.88  :      17.22  :       5.50</span><br><span class="line">NEURAL NET          :          1.6134  :       2.59  :       1.09</span><br><span class="line">LU DECOMPOSITION    :          59.122  :       3.06  :       2.21</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 21.899</span><br><span class="line">FLOATING-POINT INDEX: 2.431</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 5.758</span><br><span class="line">INTEGER INDEX       : 5.255</span><br><span class="line">FLOATING-POINT INDEX: 1.348</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h2 id="Linux_SylixOS_测试结果汇总与对比-1">Linux SylixOS 测试结果汇总与对比</h2><table>
+<thead>
+<tr>
+<th>AM335x</th>
+<th style="text-align:left">Linux cortex-a8 vfpv3 -O3</th>
+<th style="text-align:left">优化前 SylixOS cortex-a8 vfpv3 -O3</th>
+<th style="text-align:left">优化后 SylixOS cortex-a8 neon -O3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MEMORY INDEX</td>
+<td style="text-align:left">4.129</td>
+<td style="text-align:left">3.019</td>
+<td style="text-align:left">5.758</td>
+</tr>
+<tr>
+<td>INTEGER INDEX</td>
+<td style="text-align:left">4.565</td>
+<td style="text-align:left">5.249</td>
+<td style="text-align:left">5.255</td>
+</tr>
+<tr>
+<td>FLOATING-POINT INDEX</td>
+<td style="text-align:left">1.189</td>
+<td style="text-align:left">1.348</td>
+<td style="text-align:left">1.348</td>
+</tr>
+</tbody>
+</table>
+<p>SylixOS 的 INTEGER INDEX （定点处理性能）与 FLOATING-POINT INDEX （浮点处理性能）及 MEMORY INDEX （内存性能）均要优于 Linux。</p>
+<p>SylixOS 优化前后 INTEGER INDEX 和 FLOATING-POINT INDEX 性能基本没有发生变化，但 MEMORY INDEX 性能提升较大（接近一倍的性能提升）。</p>
+<h2 id="测试结论">测试结论</h2><ol>
+<li>优化后的 mem 类函数的性能比 Linux 的要好；</li>
+<li>SylixOS 正常发挥 ARMv7A Cache、VFP、NEON、分支预测性能，比 Linux 的还要好；</li>
+<li>BSP 正确设置了内存控制器参数和处理器主频。</li>
+<li>SylixOS 使用的编译器(4.9.4)比 Linux 使用的编译器(4.5.3)更能发挥 ARMv7A 性能。</li>
+</ol>
 ]]></content>
     <summary type="html">
     <![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 是否发挥 ARMv7A Cache、VFP、NEON、分支预测性能，验证 BSP 是否在内存控制器、CPU 主频设置方面存在不正确的地方。</p>
@@ -264,55 +295,66 @@
   </entry>
   
   <entry>
-    <title><![CDATA[Hello World]]></title>
-    <link href="jiaojinxing.github.io/2015/07/10/hello-world/"/>
-    <id>jiaojinxing.github.io/2015/07/10/hello-world/</id>
-    <published>2015-07-10T06:18:39.044Z</published>
-    <updated>2015-07-10T06:18:39.044Z</updated>
-    <content type="html"><![CDATA[<p>Markdown 编辑器：mdcharm(<a href="http://www.mdcharm.com/" target="_blank" rel="external">http://www.mdcharm.com/</a>)</p>
-<p>Markdown 语法：<a href="http://wowubuntu.com/markdown/" target="_blank" rel="external">http://wowubuntu.com/markdown/</a></p>
-<p>表格语法：</p>
-<figure class="highlight gherkin"><table><tr><td class="code"><pre><span class="line">|<span class="string">宏名                       </span>|<span class="string">含义</span>|</span><br><span class="line">|<span class="string">---                        </span>|<span class="string">:---</span>|</span><br><span class="line">|<span class="string">LW_OPTION_NOT_WAIT	        </span>|<span class="string">不等待立即退出</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_INFINITE    </span>|<span class="string">永远等待</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_A_TICK      </span>|<span class="string">等待一个时钟嘀嗒</span>|</span><br><span class="line">|<span class="string">LW_OPTION_WAIT_A_SECOND    </span>|<span class="string">等待一秒</span>|</span><br></pre></td></tr></table></figure>
-<p>表格效果：</p>
-<table>
-<thead>
-<tr>
-<th>宏名</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>LW_OPTION_NOT_WAIT</td>
-<td style="text-align:left">不等待立即退出</td>
-</tr>
-<tr>
-<td>LW_OPTION_WAIT_INFINITE</td>
-<td style="text-align:left">永远等待</td>
-</tr>
-<tr>
-<td>LW_OPTION_WAIT_A_TICK</td>
-<td style="text-align:left">等待一个时钟嘀嗒</td>
-</tr>
-<tr>
-<td>LW_OPTION_WAIT_A_SECOND</td>
-<td style="text-align:left">等待一秒</td>
-</tr>
-</tbody>
-</table>
-<p>plantuml 语法：<a href="http://plantuml.sourceforge.net/" target="_blank" rel="external">http://plantuml.sourceforge.net/</a></p>
-<p>PC 上使用 Eclipse 插件 plantuml - <a href="http://plantuml.sourceforge.net/updatesite/" target="_blank" rel="external">http://plantuml.sourceforge.net/updatesite/</a> </p>
-<p>plantuml 生成 UML 图的例子：</p>
-<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">&#123;% plantuml %&#125;</span><br><span class="line"></span><br><span class="line"><span class="annotation">@startuml</span></span><br><span class="line">Alice -&gt; <span class="string">Bob:</span> Authentication Request</span><br><span class="line">Bob --&gt; <span class="string">Alice:</span> Authentication Response</span><br><span class="line"></span><br><span class="line">Alice -&gt; <span class="string">Bob:</span> Another authentication Request</span><br><span class="line">Alice &lt;-- <span class="string">Bob:</span> another authentication Response</span><br><span class="line"><span class="annotation">@enduml</span></span><br><span class="line"></span><br><span class="line">&#123;% endplantuml %&#125;</span><br></pre></td></tr></table></figure>
-<img src="http://www.plantuml.com/plantuml/svg/TSx13O0W38NXErDqWIvWZ057S0F49f9WKIZxIyIJmVFxykVfB3P9EO8omJi2d62Ewm2co4uitbdnaM6Xgr0MLJV0QXxSKVcCd4bzOnohIs3xqOP7nARjdtxZcdYhXsy0">
-<p>plantuml 使用 DOT 语法生成流程图的例子：</p>
-<figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line">&#123;% plantuml %&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">@startuml</span></span><br><span class="line"><span class="label">digraph</span> G &#123;</span><br><span class="line">    <span class="keyword">subgraph </span>cluster0 &#123;</span><br><span class="line">        node [style<span class="label">=filled</span>,color<span class="label">=white</span>]<span class="comment">;</span></span><br><span class="line">        style<span class="label">=filled</span><span class="comment">;</span></span><br><span class="line">        color<span class="label">=lightgrey</span><span class="comment">;</span></span><br><span class="line">        a0 -&gt; <span class="literal">a1</span> -&gt; <span class="literal">a2</span> -&gt; <span class="literal">a3</span><span class="comment">;</span></span><br><span class="line">        label = <span class="string">"process #1"</span><span class="comment">;</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">subgraph </span>cluster1 &#123;</span><br><span class="line">        node [style<span class="label">=filled</span>]<span class="comment">;</span></span><br><span class="line">        <span class="keyword">b0 </span>-&gt; <span class="keyword">b1 </span>-&gt; <span class="keyword">b2 </span>-&gt; <span class="keyword">b3;</span><br><span class="line"></span>        label = <span class="string">"process #2"</span><span class="comment">;</span></span><br><span class="line">        color<span class="label">=blue</span></span><br><span class="line">    &#125;</span><br><span class="line">    start -&gt; a0<span class="comment">;</span></span><br><span class="line">    start -&gt; <span class="keyword">b0;</span><br><span class="line"></span>    <span class="literal">a1</span> -&gt; <span class="keyword">b3;</span><br><span class="line"></span>    <span class="keyword">b2 </span>-&gt; <span class="literal">a3</span><span class="comment">;</span></span><br><span class="line">    <span class="literal">a3</span> -&gt; a0<span class="comment">;</span></span><br><span class="line">    <span class="literal">a3</span> -&gt; <span class="preprocessor">end</span><span class="comment">;</span></span><br><span class="line">    <span class="keyword">b3 </span>-&gt; <span class="preprocessor">end</span><span class="comment">;</span></span><br><span class="line">    start [shape<span class="label">=Mdiamond</span>]<span class="comment">;</span></span><br><span class="line">    <span class="preprocessor">end</span> [shape<span class="label">=Msquare</span>]<span class="comment">;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">@enduml</span></span><br><span class="line"></span><br><span class="line">&#123;% endplantuml %&#125;</span><br></pre></td></tr></table></figure>
-<img src="http://www.plantuml.com/plantuml/svg/VL7BReD03Bpp5HQvfX8anuWgjvxo1QW76rnOoM79FbH5KVuzi4i2L5LyiEJnxCxOFbg7nlcp9BLg3FOjVC4jWI6ifmXKugrZaqtu69sk6KhhhiB5ZnBXUbjfqQRuRPNZxyEBkAJCQEIAQbhN6BxE3SpWunCm3taNydxk2X8B593sHbTiBMpoD7Rl_phEtpfUkAGWIq6MWYozbTsbVsSXyRnqCYursCyEQu0c8CxubA7LhBXVFeqLTzF-Q5t6ZqlROi_5gLPurjrpj87qwjYBHpDUvfuS1tmu-0C0">
-<p>也可以使用 Graphviz <a href="http://www.graphviz.org/" target="_blank" rel="external">http://www.graphviz.org/</a> ，而不使用 plantuml 插件，但只能用 DOT 语法。</p>
-]]></content>
+    <title><![CDATA[SylixOS C 库、数学库性能测试]]></title>
+    <link href="jiaojinxing.github.io/2015/07/17/SylixOS-C-%E5%BA%93%E3%80%81%E6%95%B0%E5%AD%A6%E5%BA%93%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/"/>
+    <id>jiaojinxing.github.io/2015/07/17/SylixOS-C-库、数学库性能测试/</id>
+    <published>2015-07-17T13:19:24.000Z</published>
+    <updated>2015-07-17T13:19:24.717Z</updated>
+    <content type="html"></content>
     <summary type="html">
-    <![CDATA[<p>Markdown 编辑器：mdcharm(<a href="http://www.mdcharm.com/" target="_blank" rel="external">http://www.mdcharm.com/</a>)</p>
-<p>Markdown 语法：<a ]]>
+    
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[SylixOS 实时性能测试]]></title>
+    <link href="jiaojinxing.github.io/2015/07/17/SylixOS-%E5%AE%9E%E6%97%B6%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/"/>
+    <id>jiaojinxing.github.io/2015/07/17/SylixOS-实时性能测试/</id>
+    <published>2015-07-17T13:18:53.000Z</published>
+    <updated>2015-07-17T13:18:53.812Z</updated>
+    <content type="html"></content>
+    <summary type="html">
+    
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[SylixOS Qt 图形界面性能测试]]></title>
+    <link href="jiaojinxing.github.io/2015/07/17/SylixOS-Qt-%E5%9B%BE%E5%BD%A2%E7%95%8C%E9%9D%A2%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/"/>
+    <id>jiaojinxing.github.io/2015/07/17/SylixOS-Qt-图形界面性能测试/</id>
+    <published>2015-07-17T13:18:29.000Z</published>
+    <updated>2015-07-17T13:18:29.987Z</updated>
+    <content type="html"></content>
+    <summary type="html">
+    
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[SylixOS UnixBench 性能测试]]></title>
+    <link href="jiaojinxing.github.io/2015/07/17/SylixOS-UnixBench-%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/"/>
+    <id>jiaojinxing.github.io/2015/07/17/SylixOS-UnixBench-性能测试/</id>
+    <published>2015-07-17T13:18:11.000Z</published>
+    <updated>2015-07-17T13:18:11.496Z</updated>
+    <content type="html"></content>
+    <summary type="html">
+    
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[SylixOS POSIX 标准兼容性测试]]></title>
+    <link href="jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-%E6%A0%87%E5%87%86%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95/"/>
+    <id>jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-标准兼容性测试/</id>
+    <published>2015-07-17T13:17:37.000Z</published>
+    <updated>2015-07-17T13:17:37.447Z</updated>
+    <content type="html"></content>
+    <summary type="html">
+    
     </summary>
     
   </entry>
@@ -595,11 +637,11 @@
   </entry>
   
   <entry>
-    <title><![CDATA[SylixOS线程间通信-SylixOS信号量]]></title>
-    <link href="jiaojinxing.github.io/2015/06/25/SylixOS%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-SylixOS%E4%BF%A1%E5%8F%B7%E9%87%8F/"/>
-    <id>jiaojinxing.github.io/2015/06/25/SylixOS线程间通信-SylixOS信号量/</id>
+    <title><![CDATA[SylixOS 线程间通信-SylixOS信号量]]></title>
+    <link href="jiaojinxing.github.io/2015/06/25/SylixOS-%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-SylixOS%E4%BF%A1%E5%8F%B7%E9%87%8F/"/>
+    <id>jiaojinxing.github.io/2015/06/25/SylixOS-线程间通信-SylixOS信号量/</id>
     <published>2015-06-25T09:10:03.000Z</published>
-    <updated>2015-06-26T03:48:08.567Z</updated>
+    <updated>2015-07-17T13:20:10.349Z</updated>
     <content type="html"><![CDATA[<p>SylixOS信号量有两种类型：二进制信号量和计数型信号量。</p>
 <p>二进制信号量的取值范围为FALSE或TRUE；计数型信号量的最小取值为0，而最大取值在创建计数型信号量时决定。</p>
 <p>二进制信号量主要应用在以下场合：</p>
@@ -773,11 +815,11 @@
   </entry>
   
   <entry>
-    <title><![CDATA[SylixOS线程间通信-线程间通信]]></title>
-    <link href="jiaojinxing.github.io/2015/06/25/SylixOS%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/"/>
-    <id>jiaojinxing.github.io/2015/06/25/SylixOS线程间通信-线程间通信/</id>
+    <title><![CDATA[SylixOS 线程间通信-线程间通信]]></title>
+    <link href="jiaojinxing.github.io/2015/06/25/SylixOS-%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/"/>
+    <id>jiaojinxing.github.io/2015/06/25/SylixOS-线程间通信-线程间通信/</id>
     <published>2015-06-25T09:05:21.000Z</published>
-    <updated>2015-06-25T09:30:41.039Z</updated>
+    <updated>2015-07-17T13:20:17.958Z</updated>
     <content type="html"><![CDATA[<h2 id="什么是线程间通信">什么是线程间通信</h2><p>线程在执行的过程中免不了要与其它线程进行通信，如线程A处理完毕某个事件后通知线程B事件的处理结果，线程B得到事件的处理结果后继续运行。</p>
 <p>线程间通信主要有以下几种的类型：</p>
 <ul>
@@ -808,11 +850,11 @@
   </entry>
   
   <entry>
-    <title><![CDATA[SylixOS线程间通信-共享资源]]></title>
-    <link href="jiaojinxing.github.io/2015/06/25/SylixOS%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-%E5%85%B1%E4%BA%AB%E8%B5%84%E6%BA%90/"/>
-    <id>jiaojinxing.github.io/2015/06/25/SylixOS线程间通信-共享资源/</id>
+    <title><![CDATA[SylixOS 线程间通信-共享资源]]></title>
+    <link href="jiaojinxing.github.io/2015/06/25/SylixOS-%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-%E5%85%B1%E4%BA%AB%E8%B5%84%E6%BA%90/"/>
+    <id>jiaojinxing.github.io/2015/06/25/SylixOS-线程间通信-共享资源/</id>
     <published>2015-06-25T09:00:25.000Z</published>
-    <updated>2015-06-25T09:30:30.477Z</updated>
+    <updated>2015-07-17T13:20:14.485Z</updated>
     <content type="html"><![CDATA[<h2 id="什么是共享资源">什么是共享资源</h2><p>一个基于RTOS的应用层软件往往需要多个线程才能实现，多个线程可能需要同时访问同一个变量、同一个设备或同一块内存，这时该变量、该设备或该内存块被称为<strong>共享资源</strong>。</p>
 <p>如果在访问共享资源时不独占该共享资源，可能会造成变量值异常、设备出错或内存块内容不是期望值，从而导致程序运行异常甚至崩溃。<br>比如现在有两个线程需要同时将同一个变量V（初始值为0）进行自增操作。</p>
 <p>在RISC机器上，一般都是Load/store体系结构，即访问内存只允许load和store操作；变量V的自增操作流程如下：</p>
@@ -997,54 +1039,6 @@
     <summary type="html">
     <![CDATA[<ol>
 <li><p>图片类<br>libpng            : <a href="https://github.com/jiaojinxing/libpng" target="_blank" rel="external">PNG图片编解码库</a><br>libjp]]>
-    </summary>
-    
-      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
-    
-      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[SylixOS线程]]></title>
-    <link href="jiaojinxing.github.io/2015/06/02/SylixOS-thread/"/>
-    <id>jiaojinxing.github.io/2015/06/02/SylixOS-thread/</id>
-    <published>2015-06-02T07:45:26.766Z</published>
-    <updated>2015-06-02T07:45:26.766Z</updated>
-    <content type="html"><![CDATA[<h2 id="线程">线程</h2><p>线程是程序中的一条独立的控制流，线程是SylixOS调度器进行任务调度的基本单位，每个线程都有一个独一无二的ID号、栈、线程控制块（TCB）。</p>
-<p>为了管理线程，SylixOS会为每一个线程分配一个线程控制块，用于记录该线程的信息，如线程入口函数、线程优化级、线程名字、线程当前的堆栈指针等。</p>
-<p>线程入口函数可以调用其它函数，函数内定义的局部变量将从它自己的栈里分配，所以不同的线程可以有相同的线程入口函数，但又独立运行。</p>
-<p>线程栈可以由用户自己分配，也可以操作系统代为分配，线程栈的大小不应改过少（容易造成栈溢出），也不应该过大（造成浪费）。</p>
-<p>线程ID在线程被创建时决定，是线程的标识符。</p>
-<p>线程优先级和调度策略是SylixOS调度器进行任务调度的参数，SylixOS是一个实时操作系统（RTOS），始终运行一个优先级最高的就绪态任务。</p>
-<h2 id="线程的基本状态">线程的基本状态</h2><p>线程的基本状态有如下几种：</p>
-<ol>
-<li>初始化          创建线程过程中线程的状态</li>
-<li>就绪            线程可以运行的状态</li>
-<li>等待            线程需要等行某些事件而不能继续的状态</li>
-<li>僵死状态        线程退出后处理的状态</li>
-</ol>
-<p><img src="/img/SylixOS-thread/threadstatus.png" alt="threadstatus.png"></p>
-<h2 id="线程优先级">线程优先级</h2><p>线程优先级的范围处决于操作系统的配置，默认是0~255，0是最高优先级，255是最低优先级:</p>
-<figure class="highlight gherkin"><table><tr><td class="code"><pre><span class="line"><span class="comment">#define LW_PRIO_HIGHEST         0                                       /*  SylixOS 最高优先级          */</span></span><br><span class="line"><span class="comment">#define LW_PRIO_LOWEST          255                                     /*  SylixOS 最低优先级          */</span></span><br><span class="line"></span><br><span class="line">/<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span></span><br><span class="line">    优先级 (一般应用的最高优先级不能高于 LW_PRIO_CRITICAL 最低不能低过 LW_PRIO_LOW)</span><br><span class="line"><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span>/</span><br><span class="line">     </span><br><span class="line"><span class="comment">#define LW_PRIO_EXTREME         LW_PRIO_HIGHEST                         /*  最高优先级                  */</span></span><br><span class="line"><span class="comment">#define LW_PRIO_CRITICAL        50                                      /*  关键处理任务                */</span></span><br><span class="line"><span class="comment">#define LW_PRIO_REALTIME        100                                     /*  实时处理任务                */</span></span><br><span class="line"><span class="comment">#define LW_PRIO_HIGH            150                                     /*  高优先级任务                */</span></span><br><span class="line"><span class="comment">#define LW_PRIO_NORMAL          200                                     /*  正常优先级                  */</span></span><br><span class="line"><span class="comment">#define LW_PRIO_LOW             250                                     /*  低优先级                    */</span></span><br><span class="line"><span class="comment">#define LW_PRIO_IDLE            LW_PRIO_LOWEST                          /*  最低优先级                  */</span></span><br></pre></td></tr></table></figure>
-<h2 id="线程调度策略">线程调度策略</h2><p>SylixOS支持同优先级线程，同优先级线程的调度策略取决于当前线程的调度策略，如果当前线程的调度策略为先来先服务（FIFO），</p>
-<p>那么必须等当前线程的阻塞时，同优先级的其它线程才有机会运行；如果当前线程的调度策略为轮转（RR），</p>
-<p>则当当前线程的时间片用完时或当前线程的阻塞时，同优先级的其它线程才有机会运行。</p>
-<figure class="highlight stylus"><table><tr><td class="code"><pre><span class="line"><span class="hexcolor">#def</span>ine  LW_OPTION_SCHED_FIFO                           <span class="number">0</span>x01            <span class="comment">/*  调度器 FIFO                 */</span></span><br><span class="line"><span class="hexcolor">#def</span>ine  LW_OPTION_SCHED_RR                             <span class="number">0</span>x00            <span class="comment">/*  调度器 RR                   */</span></span><br></pre></td></tr></table></figure>
-<h2 id="线程相关_API">线程相关 API</h2><p>SylixOS 提供了一套 POSIX 线程 API，其接口定义和行为完全符合 POSIX 线程标准，方便了现有 POSIX 程序移植到 SylixOS 上，</p>
-<p>关于 POSIX 线程的编程，市面上有很多书籍，网上也已经有很多资料，这里不再详述，POSIX 线程的编程可以参考这篇文章 <a href="https://computing.llnl.gov/tutorials/pthreads/" target="_blank" rel="external">https://computing.llnl.gov/tutorials/pthreads/</a></p>
-<p>SylixOS 系统内部线程 API 的命名一般以 API_Thread 开始，API 的声明位于 libsylixos/SylixOS/kernel/include/k_api.h 文件，</p>
-<p>为了适应不同语言习惯的人，也提供了一套以 Lw_ 开头的 API，请查看 libsylixos/SylixOS/api 目录下的头文件。</p>
-<h2 id="内部线程_API_相关的数据类型">内部线程 API 相关的数据类型</h2><figure class="highlight gherkin"><table><tr><td class="code"><pre><span class="line">线程句柄  LW_OBJECT_HANDLE</span><br><span class="line">线程 ID   LW_OBJECT_ID</span><br><span class="line">线程属性  LW_CLASS_THREADATTR，<span class="keyword">*</span>PLW_CLASS_THREADATTR</span><br><span class="line">线程函数  PTHREAD_START_ROUTINE</span><br></pre></td></tr></table></figure>
-<p>其中 线程函数 PTHREAD_START_ROUTINE 的类型需要理解，它被定义为如下的函数指针：</p>
-<figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">typedef PVOID       <span class="list">(<span class="keyword">*PTHREAD_START_ROUTINE</span>)</span><span class="list">(<span class="keyword">PVOID</span> pvArg)</span><span class="comment">;              /*  系统线程类型定义            */</span></span><br></pre></td></tr></table></figure>
-<p>所以线程函数一般形如：</p>
-<figure class="highlight inform7"><table><tr><td class="code"><pre><span class="line">PVOID  thread_func (PVOID pvArg)</span><br><span class="line">&#123;</span><br><span class="line">    // do <span class="keyword">thing</span>...</span><br><span class="line">    return  NULL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="一分钟实验">一分钟实验</h2><figure class="highlight openscad"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="built_in">#</span><span class="preprocessor"><span class="keyword">include</span> &lt;SylixOS.h&gt;</span> <span class="comment">// 包含 SylixOS.h 头文件</span></span><br><span class="line">  </span><br><span class="line"><span class="comment">/*</span><br><span class="line">  * 测试用线程函数</span><br><span class="line"> */</span></span><br><span class="line">PVOID  TestThread <span class="params">(PVOID  pvArg)</span></span><br><span class="line">&#123;</span><br><span class="line">    while <span class="params">(<span class="number">1</span>)</span> &#123;</span><br><span class="line">     		printf<span class="params">(<span class="string">"hello in thread\n"</span>)</span>;</span><br><span class="line">     		sleep<span class="params">(<span class="number">1</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">     </span><br><span class="line">LW_OBJECT_HANDLE  hThread; <span class="comment">// 定义线程句柄</span></span><br><span class="line">      </span><br><span class="line">hThread = API_ThreadCreate<span class="params">(<span class="string">"t_test"</span>, TestThread, NULL, NULL)</span>; <span class="comment">// 创建一个名为 t_test 的线程，线程函数为 TestThread，使用默认的线程属性，不接收线程 ID</span></span><br></pre></td></tr></table></figure>
-]]></content>
-    <summary type="html">
-    <![CDATA[<h2 id="线程">线程</h2><p>线程是程序中的一条独立的控制流，线程是SylixOS调度器进行任务调度的基本单位，每个线程都有一个独一无二的ID号、栈、线程控制块（TCB）。</p>
-<p>为了管理线程，SylixOS会为每一个线程分配一个线程控制块，用于记录该线程的]]>
     </summary>
     
       <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
