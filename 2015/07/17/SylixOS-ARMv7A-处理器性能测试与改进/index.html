@@ -1,0 +1,729 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>SylixOS ARMv7A 处理器性能测试与改进 | JinXing’s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="jiaojinxing">
+    
+
+    
+    <meta name="description" content="测试目的验证 SylixOS 是否发挥 ARMv7A Cache、VFP、NEON、分支预测性能，验证 BSP 是否在内存控制器、CPU 主频设置方面存在不正确的地方。
+找出 SylixOS 实时性远优于 Linux 和 RT-Linux，但 Qt 性能测试 qtperf 不如 Linux 的原因，并提出解决办法。
+硬件平台硬件平台：飞凌嵌入式 OK335xS
+处理器：AM335x(800MHz)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SylixOS ARMv7A 处理器性能测试与改进">
+<meta property="og:url" content="jiaojinxing.github.io/2015/07/17/SylixOS-ARMv7A-处理器性能测试与改进/index.html">
+<meta property="og:site_name" content="JinXing’s blog">
+<meta property="og:description" content="测试目的验证 SylixOS 是否发挥 ARMv7A Cache、VFP、NEON、分支预测性能，验证 BSP 是否在内存控制器、CPU 主频设置方面存在不正确的地方。
+找出 SylixOS 实时性远优于 Linux 和 RT-Linux，但 Qt 性能测试 qtperf 不如 Linux 的原因，并提出解决办法。
+硬件平台硬件平台：飞凌嵌入式 OK335xS
+处理器：AM335x(800MHz)">
+<meta property="og:image" content="jiaojinxing.github.io/img/使用-gprof-分析代码性能和调用栈/libvpmpdm_gprof.svg">
+<meta property="og:image" content="jiaojinxing.github.io/img/使用-gprof-分析代码性能和调用栈/nbench_gprof.svg">
+<meta property="og:updated_time" content="2015-07-17T13:26:17.563Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SylixOS ARMv7A 处理器性能测试与改进">
+<meta name="twitter:description" content="测试目的验证 SylixOS 是否发挥 ARMv7A Cache、VFP、NEON、分支预测性能，验证 BSP 是否在内存控制器、CPU 主频设置方面存在不正确的地方。
+找出 SylixOS 实时性远优于 Linux 和 RT-Linux，但 Qt 性能测试 qtperf 不如 Linux 的原因，并提出解决办法。
+硬件平台硬件平台：飞凌嵌入式 OK335xS
+处理器：AM335x(800MHz)">
+
+    
+    <link rel="alternative" href="/atom.xml" title="JinXing’s blog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="JinXing’s blog" title="JinXing’s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="JinXing’s blog">JinXing’s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+						<form class="search">
+							<label>Search</label>
+						<input type="text" id="ts-search-input" name="q" size="30" placeholder="搜索"><br>
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/07/17/SylixOS-ARMv7A-处理器性能测试与改进/" title="SylixOS ARMv7A 处理器性能测试与改进" itemprop="url">SylixOS ARMv7A 处理器性能测试与改进</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="jiaojinxing" target="_blank" itemprop="author">jiaojinxing</a>
+		
+  <p class="article-time">
+    <time datetime="2015-07-17T13:24:31.000Z" itemprop="datePublished"> 发表于 2015-07-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#测试目的"><span class="toc-number">1.</span> <span class="toc-text">测试目的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#硬件平台"><span class="toc-number">2.</span> <span class="toc-text">硬件平台</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#操作系统"><span class="toc-number">3.</span> <span class="toc-text">操作系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试软件"><span class="toc-number">4.</span> <span class="toc-text">测试软件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编译器"><span class="toc-number">5.</span> <span class="toc-text">编译器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux测试结果"><span class="toc-number">6.</span> <span class="toc-text">Linux测试结果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O3"><span class="toc-number">6.1.</span> <span class="toc-text">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=neon_-O3"><span class="toc-number">6.2.</span> <span class="toc-text">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=neon -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-O3"><span class="toc-number">6.3.</span> <span class="toc-text">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-arago-linux-gnueabi-gcc_-mcpu=arm920t_-O3"><span class="toc-number">6.4.</span> <span class="toc-text">arm-arago-linux-gnueabi-gcc -mcpu=arm920t -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O2"><span class="toc-number">6.5.</span> <span class="toc-text">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SylixOS测试结果"><span class="toc-number">7.</span> <span class="toc-text">SylixOS测试结果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O3"><span class="toc-number">7.1.</span> <span class="toc-text">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=neon_-O3"><span class="toc-number">7.2.</span> <span class="toc-text">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=neon -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-O3"><span class="toc-number">7.3.</span> <span class="toc-text">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-sylixos-eabi-gcc_-mcpu=arm920t_-O3"><span class="toc-number">7.4.</span> <span class="toc-text">arm-sylixos-eabi-gcc -mcpu=arm920t -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O2"><span class="toc-number">7.5.</span> <span class="toc-text">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_SylixOS_测试结果汇总与对比"><span class="toc-number">8.</span> <span class="toc-text">Linux SylixOS 测试结果汇总与对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_SylixOS_测试结果对比分析"><span class="toc-number">9.</span> <span class="toc-text">Linux SylixOS 测试结果对比分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#落后原因分析"><span class="toc-number">10.</span> <span class="toc-text">落后原因分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#在_Linux_测试_SylixOS_的_lib_memcpy_函数性能"><span class="toc-number">11.</span> <span class="toc-text">在 Linux 测试 SylixOS 的 lib_memcpy 函数性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用_gprof_分析_nbench"><span class="toc-number">12.</span> <span class="toc-text">使用 gprof 分析 nbench</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lib_memcpy_函数优化"><span class="toc-number">13.</span> <span class="toc-text">lib_memcpy 函数优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mem_类函数移植与测试"><span class="toc-number">14.</span> <span class="toc-text">mem 类函数移植与测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_SylixOS_测试结果汇总与对比-1"><span class="toc-number">15.</span> <span class="toc-text">Linux SylixOS 测试结果汇总与对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试结论"><span class="toc-number">16.</span> <span class="toc-text">测试结论</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 是否发挥 ARMv7A Cache、VFP、NEON、分支预测性能，验证 BSP 是否在内存控制器、CPU 主频设置方面存在不正确的地方。</p>
+<p>找出 SylixOS 实时性远优于 Linux 和 RT-Linux，但 Qt 性能测试 <a href="https://github.com/jiaojinxing/qtperf" target="_blank" rel="external">qtperf</a> 不如 Linux 的原因，并提出解决办法。</p>
+<h2 id="硬件平台">硬件平台</h2><p>硬件平台：飞凌嵌入式 OK335xS</p>
+<p>处理器：AM335x(800MHz)</p>
+<p>L1-Cache：32KB I-Cache/32KB D-Cache</p>
+<p>L2-Cache：256KB</p>
+<p>内存：512MB</p>
+<h2 id="操作系统">操作系统</h2><p>SylixOS + bspam335x：2015/7/15 </p>
+<p>对比测试操作系统 Linux：3.2.0 厂家配套的 </p>
+<h2 id="测试软件">测试软件</h2><p><a href="http://www.tux.org/~mayer/linux/bmark.html" target="_blank" rel="external">nbench</a> 是一个简单的用于测试处理器、存储器性能的基准测试程序，即著名的 BYTE Magazine 杂志的 BYTEmark benchmark program。</p>
+<p>nbench 在系统中运行并将结果和一台运行 Linux 的 AMD K6-233 电脑比较，得到的比值作为性能指数。</p>
+<p>由于是完全开源的，爱好者可以在各种平台和操作系统上运行 nbench，并进行优化和测试，是一个简单有效的性能测试工具。</p>
+<p>nbench 的结果主要分为 MEM、INT 和 FP，其中 MEM 指数主要体现处理器总线、CACHE 和存储器性能，INT 当然是整数处理性能，FP 则体现双精度浮点性能（大多数嵌入式处理器都没有强大的双精度浮点能力）。</p>
+<figure class="highlight smali"><table><tr><td class="code"><pre><span class="line">Numeric sort - Sorts an<span class="instruction"> array </span>of<span class="instruction"> long </span>integers.</span><br><span class="line"></span><br><span class="line">String sort - Sorts an<span class="instruction"> array </span>of strings of arbitrary length.</span><br><span class="line"></span><br><span class="line">Bitfield - Executes a variety of bit manipulation functions.</span><br><span class="line"></span><br><span class="line">Emulated floating-point - A small software floating-point package.</span><br><span class="line"></span><br><span class="line">Fourier coefficients - A numerical analysis routine for calculating series approximations of waveforms.</span><br><span class="line"></span><br><span class="line">Assignment algorithm - A well-known task allocation algorithm.</span><br><span class="line"></span><br><span class="line">Huffman compression - A well-known text<span class="instruction"> and </span>graphics compression algorithm.</span><br><span class="line"></span><br><span class="line">IDEA encryption - A relatively<span class="instruction"> new </span>block cipher algorithm.</span><br><span class="line"></span><br><span class="line">Neural Net - A small but functional back-propagation network simulator.</span><br><span class="line"></span><br><span class="line">LU Decomposition - A robust algorithm for solving linear equations.</span><br></pre></td></tr></table></figure>
+<p>使用版本：2.2.3</p>
+<h2 id="编译器">编译器</h2><p>Linux：</p>
+<p>arm-arago-linux-gnueabi-gcc： gcc version 4.5.3 20110311 (prerelease) (GCC) </p>
+<p>SylixOS：</p>
+<p>arm-sylixos-eabi-gcc: gcc version 4.9.3 20150303 (release) [ARM/embedded-4_9-branch revision 221220] (<br>SylixOS Toolchain for ARM Embedded Processors) </p>
+<h2 id="Linux测试结果">Linux测试结果</h2><h3 id="arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O3">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O3</h3><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx</span><span class="comment"># ./nbench</span></span><br><span class="line"></span><br><span class="line"><span class="constant">BYTEmark*</span> <span class="constant">Native Mode Benchmark </span>ver. <span class="number">2</span> (<span class="number">10</span>/<span class="number">95</span>)</span><br><span class="line"><span class="constant">Index-</span>split by <span class="constant">Andrew D.</span> <span class="constant">Balsa </span>(<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"><span class="constant">Linux/Unix*</span> port by <span class="constant">Uwe F.</span> <span class="constant">Mayer </span>(<span class="number">12</span>/<span class="number">96</span>,<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"></span><br><span class="line"><span class="constant">TEST </span>               <span class="symbol">:</span> <span class="constant">Iterations/</span>sec.  <span class="symbol">:</span> <span class="constant">Old Index </span>  <span class="symbol">:</span> <span class="constant">New Index</span></span><br><span class="line">                    <span class="symbol">:</span>                  <span class="symbol">:</span> <span class="constant">Pentium </span><span class="number">90</span>* <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*</span><br><span class="line">--------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"><span class="constant">NUMERIC SORT </span>       <span class="symbol">:</span>           <span class="number">395.2</span>  <span class="symbol">:</span>      <span class="number">10.14</span>  <span class="symbol">:</span>       <span class="number">3.33</span></span><br><span class="line"><span class="constant">STRING SORT </span>        <span class="symbol">:</span>          <span class="number">40.032</span>  <span class="symbol">:</span>      <span class="number">17.89</span>  <span class="symbol">:</span>       <span class="number">2.77</span></span><br><span class="line"><span class="constant">BITFIELD </span>           <span class="symbol">:</span>      <span class="number">1.3728</span>e+08  <span class="symbol">:</span>      <span class="number">23.55</span>  <span class="symbol">:</span>       <span class="number">4.92</span></span><br><span class="line"><span class="constant">FP EMULATION </span>       <span class="symbol">:</span>            <span class="number">67.8</span>  <span class="symbol">:</span>      <span class="number">32.53</span>  <span class="symbol">:</span>       <span class="number">7.51</span></span><br><span class="line"><span class="constant">FOURIER </span>            <span class="symbol">:</span>          <span class="number">1324.1</span>  <span class="symbol">:</span>       <span class="number">1.51</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">85</span></span><br><span class="line"><span class="constant">ASSIGNMENT </span>         <span class="symbol">:</span>          <span class="number">5.2366</span>  <span class="symbol">:</span>      <span class="number">19.93</span>  <span class="symbol">:</span>       <span class="number">5.17</span></span><br><span class="line"><span class="constant">IDEA </span>               <span class="symbol">:</span>           <span class="number">840.3</span>  <span class="symbol">:</span>      <span class="number">12.85</span>  <span class="symbol">:</span>       <span class="number">3.82</span></span><br><span class="line"><span class="constant">HUFFMAN </span>            <span class="symbol">:</span>          <span class="number">514.44</span>  <span class="symbol">:</span>      <span class="number">14.27</span>  <span class="symbol">:</span>       <span class="number">4.56</span></span><br><span class="line"><span class="constant">NEURAL NET </span>         <span class="symbol">:</span>            <span class="number">1.42</span>  <span class="symbol">:</span>       <span class="number">2.28</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">96</span></span><br><span class="line"><span class="constant">LU DECOMPOSITION </span>   <span class="symbol">:</span>          <span class="number">55.316</span>  <span class="symbol">:</span>       <span class="number">2.87</span>  <span class="symbol">:</span>       <span class="number">2.07</span></span><br><span class="line">==========================<span class="constant">ORIGINAL BYTEMARK RESULTS=</span>=========================</span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">17.524</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">2.143</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">MSDOS*</span>)   <span class="symbol">:</span> <span class="constant">Pentium*</span> <span class="number">90</span>, <span class="number">256</span> <span class="constant">KB L2-</span>cache, <span class="constant">Watcom*</span> compiler <span class="number">10.0</span></span><br><span class="line">==============================<span class="constant">LINUX DATA BELOW=</span>==============================</span><br><span class="line"><span class="constant">CPU </span>                <span class="symbol">:</span></span><br><span class="line"><span class="constant">L2 Cache </span>           <span class="symbol">:</span></span><br><span class="line"><span class="constant">OS </span>                 <span class="symbol">:</span> <span class="constant">Linux </span><span class="number">3.2</span>.<span class="number">0</span></span><br><span class="line"><span class="constant">C </span>compiler          <span class="symbol">:</span> arm-arago-linux-gnueabi-gcc</span><br><span class="line">libc                <span class="symbol">:</span> static</span><br><span class="line"><span class="constant">MEMORY INDEX </span>       <span class="symbol">:</span> <span class="number">4.129</span></span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">4.565</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">1.189</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">LINUX)</span>    <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*, <span class="number">512</span> <span class="constant">KB L2-</span>cache, gcc <span class="number">2.7</span>.<span class="number">2.3</span>, libc-<span class="number">5.4</span>.<span class="number">38</span></span><br><span class="line">* <span class="constant">Trademarks </span>are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h3 id="arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=neon_-O3">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=neon -O3</h3><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx</span><span class="comment"># ./nbench</span></span><br><span class="line"></span><br><span class="line"><span class="constant">BYTEmark*</span> <span class="constant">Native Mode Benchmark </span>ver. <span class="number">2</span> (<span class="number">10</span>/<span class="number">95</span>)</span><br><span class="line"><span class="constant">Index-</span>split by <span class="constant">Andrew D.</span> <span class="constant">Balsa </span>(<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"><span class="constant">Linux/Unix*</span> port by <span class="constant">Uwe F.</span> <span class="constant">Mayer </span>(<span class="number">12</span>/<span class="number">96</span>,<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"></span><br><span class="line"><span class="constant">TEST </span>               <span class="symbol">:</span> <span class="constant">Iterations/</span>sec.  <span class="symbol">:</span> <span class="constant">Old Index </span>  <span class="symbol">:</span> <span class="constant">New Index</span></span><br><span class="line">                    <span class="symbol">:</span>                  <span class="symbol">:</span> <span class="constant">Pentium </span><span class="number">90</span>* <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*</span><br><span class="line">--------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"><span class="constant">NUMERIC SORT </span>       <span class="symbol">:</span>          <span class="number">395.52</span>  <span class="symbol">:</span>      <span class="number">10.14</span>  <span class="symbol">:</span>       <span class="number">3.33</span></span><br><span class="line"><span class="constant">STRING SORT </span>        <span class="symbol">:</span>          <span class="number">34.784</span>  <span class="symbol">:</span>      <span class="number">15.54</span>  <span class="symbol">:</span>       <span class="number">2.41</span></span><br><span class="line"><span class="constant">BITFIELD </span>           <span class="symbol">:</span>      <span class="number">1.3741</span>e+08  <span class="symbol">:</span>      <span class="number">23.57</span>  <span class="symbol">:</span>       <span class="number">4.92</span></span><br><span class="line"><span class="constant">FP EMULATION </span>       <span class="symbol">:</span>          <span class="number">67.746</span>  <span class="symbol">:</span>      <span class="number">32.51</span>  <span class="symbol">:</span>       <span class="number">7.50</span></span><br><span class="line"><span class="constant">FOURIER </span>            <span class="symbol">:</span>          <span class="number">1324.1</span>  <span class="symbol">:</span>       <span class="number">1.51</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">85</span></span><br><span class="line"><span class="constant">ASSIGNMENT </span>         <span class="symbol">:</span>          <span class="number">5.3171</span>  <span class="symbol">:</span>      <span class="number">20.23</span>  <span class="symbol">:</span>       <span class="number">5.25</span></span><br><span class="line"><span class="constant">IDEA </span>               <span class="symbol">:</span>             <span class="number">840</span>  <span class="symbol">:</span>      <span class="number">12.85</span>  <span class="symbol">:</span>       <span class="number">3.81</span></span><br><span class="line"><span class="constant">HUFFMAN </span>            <span class="symbol">:</span>          <span class="number">514.24</span>  <span class="symbol">:</span>      <span class="number">14.26</span>  <span class="symbol">:</span>       <span class="number">4.55</span></span><br><span class="line"><span class="constant">NEURAL NET </span>         <span class="symbol">:</span>          <span class="number">1.4205</span>  <span class="symbol">:</span>       <span class="number">2.28</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">96</span></span><br><span class="line"><span class="constant">LU DECOMPOSITION </span>   <span class="symbol">:</span>          <span class="number">54.778</span>  <span class="symbol">:</span>       <span class="number">2.84</span>  <span class="symbol">:</span>       <span class="number">2.05</span></span><br><span class="line">==========================<span class="constant">ORIGINAL BYTEMARK RESULTS=</span>=========================</span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">17.213</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">2.136</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">MSDOS*</span>)   <span class="symbol">:</span> <span class="constant">Pentium*</span> <span class="number">90</span>, <span class="number">256</span> <span class="constant">KB L2-</span>cache, <span class="constant">Watcom*</span> compiler <span class="number">10.0</span></span><br><span class="line">==============================<span class="constant">LINUX DATA BELOW=</span>==============================</span><br><span class="line"><span class="constant">CPU </span>                <span class="symbol">:</span></span><br><span class="line"><span class="constant">L2 Cache </span>           <span class="symbol">:</span></span><br><span class="line"><span class="constant">OS </span>                 <span class="symbol">:</span> <span class="constant">Linux </span><span class="number">3.2</span>.<span class="number">0</span></span><br><span class="line"><span class="constant">C </span>compiler          <span class="symbol">:</span> arm-arago-linux-gnueabi-gcc</span><br><span class="line">libc                <span class="symbol">:</span> static</span><br><span class="line"><span class="constant">MEMORY INDEX </span>       <span class="symbol">:</span> <span class="number">3.961</span></span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">4.564</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">1.185</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">LINUX)</span>    <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*, <span class="number">512</span> <span class="constant">KB L2-</span>cache, gcc <span class="number">2.7</span>.<span class="number">2.3</span>, libc-<span class="number">5.4</span>.<span class="number">38</span></span><br><span class="line">* <span class="constant">Trademarks </span>are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h3 id="arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-O3">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -O3</h3><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx</span><span class="comment"># ./nbench</span></span><br><span class="line"></span><br><span class="line"><span class="constant">BYTEmark*</span> <span class="constant">Native Mode Benchmark </span>ver. <span class="number">2</span> (<span class="number">10</span>/<span class="number">95</span>)</span><br><span class="line"><span class="constant">Index-</span>split by <span class="constant">Andrew D.</span> <span class="constant">Balsa </span>(<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"><span class="constant">Linux/Unix*</span> port by <span class="constant">Uwe F.</span> <span class="constant">Mayer </span>(<span class="number">12</span>/<span class="number">96</span>,<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"></span><br><span class="line"><span class="constant">TEST </span>               <span class="symbol">:</span> <span class="constant">Iterations/</span>sec.  <span class="symbol">:</span> <span class="constant">Old Index </span>  <span class="symbol">:</span> <span class="constant">New Index</span></span><br><span class="line">                    <span class="symbol">:</span>                  <span class="symbol">:</span> <span class="constant">Pentium </span><span class="number">90</span>* <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*</span><br><span class="line">--------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"><span class="constant">NUMERIC SORT </span>       <span class="symbol">:</span>          <span class="number">394.88</span>  <span class="symbol">:</span>      <span class="number">10.13</span>  <span class="symbol">:</span>       <span class="number">3.33</span></span><br><span class="line"><span class="constant">STRING SORT </span>        <span class="symbol">:</span>          <span class="number">39.968</span>  <span class="symbol">:</span>      <span class="number">17.86</span>  <span class="symbol">:</span>       <span class="number">2.76</span></span><br><span class="line"><span class="constant">BITFIELD </span>           <span class="symbol">:</span>      <span class="number">1.3734</span>e+08  <span class="symbol">:</span>      <span class="number">23.56</span>  <span class="symbol">:</span>       <span class="number">4.92</span></span><br><span class="line"><span class="constant">FP EMULATION </span>       <span class="symbol">:</span>          <span class="number">67.773</span>  <span class="symbol">:</span>      <span class="number">32.52</span>  <span class="symbol">:</span>       <span class="number">7.50</span></span><br><span class="line"><span class="constant">FOURIER </span>            <span class="symbol">:</span>          <span class="number">1324.1</span>  <span class="symbol">:</span>       <span class="number">1.51</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">85</span></span><br><span class="line"><span class="constant">ASSIGNMENT </span>         <span class="symbol">:</span>          <span class="number">5.2469</span>  <span class="symbol">:</span>      <span class="number">19.97</span>  <span class="symbol">:</span>       <span class="number">5.18</span></span><br><span class="line"><span class="constant">IDEA </span>               <span class="symbol">:</span>             <span class="number">840</span>  <span class="symbol">:</span>      <span class="number">12.85</span>  <span class="symbol">:</span>       <span class="number">3.81</span></span><br><span class="line"><span class="constant">HUFFMAN </span>            <span class="symbol">:</span>          <span class="number">514.44</span>  <span class="symbol">:</span>      <span class="number">14.27</span>  <span class="symbol">:</span>       <span class="number">4.56</span></span><br><span class="line"><span class="constant">NEURAL NET </span>         <span class="symbol">:</span>          <span class="number">1.4015</span>  <span class="symbol">:</span>       <span class="number">2.25</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">95</span></span><br><span class="line"><span class="constant">LU DECOMPOSITION </span>   <span class="symbol">:</span>          <span class="number">55.196</span>  <span class="symbol">:</span>       <span class="number">2.86</span>  <span class="symbol">:</span>       <span class="number">2.06</span></span><br><span class="line">==========================<span class="constant">ORIGINAL BYTEMARK RESULTS=</span>=========================</span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">17.522</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">2.132</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">MSDOS*</span>)   <span class="symbol">:</span> <span class="constant">Pentium*</span> <span class="number">90</span>, <span class="number">256</span> <span class="constant">KB L2-</span>cache, <span class="constant">Watcom*</span> compiler <span class="number">10.0</span></span><br><span class="line">==============================<span class="constant">LINUX DATA BELOW=</span>==============================</span><br><span class="line"><span class="constant">CPU </span>                <span class="symbol">:</span></span><br><span class="line"><span class="constant">L2 Cache </span>           <span class="symbol">:</span></span><br><span class="line"><span class="constant">OS </span>                 <span class="symbol">:</span> <span class="constant">Linux </span><span class="number">3.2</span>.<span class="number">0</span></span><br><span class="line"><span class="constant">C </span>compiler          <span class="symbol">:</span> arm-arago-linux-gnueabi-gcc</span><br><span class="line">libc                <span class="symbol">:</span> static</span><br><span class="line"><span class="constant">MEMORY INDEX </span>       <span class="symbol">:</span> <span class="number">4.130</span></span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">4.563</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">1.183</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">LINUX)</span>    <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*, <span class="number">512</span> <span class="constant">KB L2-</span>cache, gcc <span class="number">2.7</span>.<span class="number">2.3</span>, libc-<span class="number">5.4</span>.<span class="number">38</span></span><br><span class="line">* <span class="constant">Trademarks </span>are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h3 id="arm-arago-linux-gnueabi-gcc_-mcpu=arm920t_-O3">arm-arago-linux-gnueabi-gcc -mcpu=arm920t -O3</h3><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx</span><span class="comment"># ./nbench</span></span><br><span class="line"></span><br><span class="line"><span class="constant">BYTEmark*</span> <span class="constant">Native Mode Benchmark </span>ver. <span class="number">2</span> (<span class="number">10</span>/<span class="number">95</span>)</span><br><span class="line"><span class="constant">Index-</span>split by <span class="constant">Andrew D.</span> <span class="constant">Balsa </span>(<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"><span class="constant">Linux/Unix*</span> port by <span class="constant">Uwe F.</span> <span class="constant">Mayer </span>(<span class="number">12</span>/<span class="number">96</span>,<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"></span><br><span class="line"><span class="constant">TEST </span>               <span class="symbol">:</span> <span class="constant">Iterations/</span>sec.  <span class="symbol">:</span> <span class="constant">Old Index </span>  <span class="symbol">:</span> <span class="constant">New Index</span></span><br><span class="line">                    <span class="symbol">:</span>                  <span class="symbol">:</span> <span class="constant">Pentium </span><span class="number">90</span>* <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*</span><br><span class="line">--------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"><span class="constant">NUMERIC SORT </span>       <span class="symbol">:</span>          <span class="number">386.08</span>  <span class="symbol">:</span>       <span class="number">9.90</span>  <span class="symbol">:</span>       <span class="number">3.25</span></span><br><span class="line"><span class="constant">STRING SORT </span>        <span class="symbol">:</span>          <span class="number">39.306</span>  <span class="symbol">:</span>      <span class="number">17.56</span>  <span class="symbol">:</span>       <span class="number">2.72</span></span><br><span class="line"><span class="constant">BITFIELD </span>           <span class="symbol">:</span>      <span class="number">1.1958</span>e+08  <span class="symbol">:</span>      <span class="number">20.51</span>  <span class="symbol">:</span>       <span class="number">4.28</span></span><br><span class="line"><span class="constant">FP EMULATION </span>       <span class="symbol">:</span>          <span class="number">61.975</span>  <span class="symbol">:</span>      <span class="number">29.74</span>  <span class="symbol">:</span>       <span class="number">6.86</span></span><br><span class="line"><span class="constant">FOURIER </span>            <span class="symbol">:</span>          <span class="number">1315.8</span>  <span class="symbol">:</span>       <span class="number">1.50</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">84</span></span><br><span class="line"><span class="constant">ASSIGNMENT </span>         <span class="symbol">:</span>          <span class="number">5.5866</span>  <span class="symbol">:</span>      <span class="number">21.26</span>  <span class="symbol">:</span>       <span class="number">5.51</span></span><br><span class="line"><span class="constant">IDEA </span>               <span class="symbol">:</span>           <span class="number">654.5</span>  <span class="symbol">:</span>      <span class="number">10.01</span>  <span class="symbol">:</span>       <span class="number">2.97</span></span><br><span class="line"><span class="constant">HUFFMAN </span>            <span class="symbol">:</span>          <span class="number">501.35</span>  <span class="symbol">:</span>      <span class="number">13.90</span>  <span class="symbol">:</span>       <span class="number">4.44</span></span><br><span class="line"><span class="constant">NEURAL NET </span>         <span class="symbol">:</span>          <span class="number">1.4306</span>  <span class="symbol">:</span>       <span class="number">2.30</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">97</span></span><br><span class="line"><span class="constant">LU DECOMPOSITION </span>   <span class="symbol">:</span>          <span class="number">55.835</span>  <span class="symbol">:</span>       <span class="number">2.89</span>  <span class="symbol">:</span>       <span class="number">2.09</span></span><br><span class="line">==========================<span class="constant">ORIGINAL BYTEMARK RESULTS=</span>=========================</span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">16.361</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">2.151</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">MSDOS*</span>)   <span class="symbol">:</span> <span class="constant">Pentium*</span> <span class="number">90</span>, <span class="number">256</span> <span class="constant">KB L2-</span>cache, <span class="constant">Watcom*</span> compiler <span class="number">10.0</span></span><br><span class="line">==============================<span class="constant">LINUX DATA BELOW=</span>==============================</span><br><span class="line"><span class="constant">CPU </span>                <span class="symbol">:</span></span><br><span class="line"><span class="constant">L2 Cache </span>           <span class="symbol">:</span></span><br><span class="line"><span class="constant">OS </span>                 <span class="symbol">:</span> <span class="constant">Linux </span><span class="number">3.2</span>.<span class="number">0</span></span><br><span class="line"><span class="constant">C </span>compiler          <span class="symbol">:</span> arm-arago-linux-gnueabi-gcc</span><br><span class="line">libc                <span class="symbol">:</span> static</span><br><span class="line"><span class="constant">MEMORY INDEX </span>       <span class="symbol">:</span> <span class="number">4.005</span></span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">4.142</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">1.193</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">LINUX)</span>    <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*, <span class="number">512</span> <span class="constant">KB L2-</span>cache, gcc <span class="number">2.7</span>.<span class="number">2.3</span>, libc-<span class="number">5.4</span>.<span class="number">38</span></span><br><span class="line">* <span class="constant">Trademarks </span>are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h3 id="arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O2">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O2</h3><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx</span><span class="comment"># ./nbench</span></span><br><span class="line"></span><br><span class="line"><span class="constant">BYTEmark*</span> <span class="constant">Native Mode Benchmark </span>ver. <span class="number">2</span> (<span class="number">10</span>/<span class="number">95</span>)</span><br><span class="line"><span class="constant">Index-</span>split by <span class="constant">Andrew D.</span> <span class="constant">Balsa </span>(<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"><span class="constant">Linux/Unix*</span> port by <span class="constant">Uwe F.</span> <span class="constant">Mayer </span>(<span class="number">12</span>/<span class="number">96</span>,<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"></span><br><span class="line"><span class="constant">TEST </span>               <span class="symbol">:</span> <span class="constant">Iterations/</span>sec.  <span class="symbol">:</span> <span class="constant">Old Index </span>  <span class="symbol">:</span> <span class="constant">New Index</span></span><br><span class="line">                    <span class="symbol">:</span>                  <span class="symbol">:</span> <span class="constant">Pentium </span><span class="number">90</span>* <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*</span><br><span class="line">--------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"><span class="constant">NUMERIC SORT </span>       <span class="symbol">:</span>          <span class="number">356.64</span>  <span class="symbol">:</span>       <span class="number">9.15</span>  <span class="symbol">:</span>       <span class="number">3.00</span></span><br><span class="line"><span class="constant">STRING SORT </span>        <span class="symbol">:</span>          <span class="number">37.949</span>  <span class="symbol">:</span>      <span class="number">16.96</span>  <span class="symbol">:</span>       <span class="number">2.62</span></span><br><span class="line"><span class="constant">BITFIELD </span>           <span class="symbol">:</span>      <span class="number">8.5789</span>e+<span class="number">07</span>  <span class="symbol">:</span>      <span class="number">14.72</span>  <span class="symbol">:</span>       <span class="number">3.07</span></span><br><span class="line"><span class="constant">FP EMULATION </span>       <span class="symbol">:</span>          <span class="number">32.934</span>  <span class="symbol">:</span>      <span class="number">15.80</span>  <span class="symbol">:</span>       <span class="number">3.65</span></span><br><span class="line"><span class="constant">FOURIER </span>            <span class="symbol">:</span>          <span class="number">1303.5</span>  <span class="symbol">:</span>       <span class="number">1.48</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">83</span></span><br><span class="line"><span class="constant">ASSIGNMENT </span>         <span class="symbol">:</span>          <span class="number">5.2346</span>  <span class="symbol">:</span>      <span class="number">19.92</span>  <span class="symbol">:</span>       <span class="number">5.17</span></span><br><span class="line"><span class="constant">IDEA </span>               <span class="symbol">:</span>           <span class="number">646.3</span>  <span class="symbol">:</span>       <span class="number">9.88</span>  <span class="symbol">:</span>       <span class="number">2.93</span></span><br><span class="line"><span class="constant">HUFFMAN </span>            <span class="symbol">:</span>          <span class="number">490.39</span>  <span class="symbol">:</span>      <span class="number">13.60</span>  <span class="symbol">:</span>       <span class="number">4.34</span></span><br><span class="line"><span class="constant">NEURAL NET </span>         <span class="symbol">:</span>          <span class="number">1.5157</span>  <span class="symbol">:</span>       <span class="number">2.43</span>  <span class="symbol">:</span>       <span class="number">1.02</span></span><br><span class="line"><span class="constant">LU DECOMPOSITION </span>   <span class="symbol">:</span>          <span class="number">55.698</span>  <span class="symbol">:</span>       <span class="number">2.89</span>  <span class="symbol">:</span>       <span class="number">2.08</span></span><br><span class="line">==========================<span class="constant">ORIGINAL BYTEMARK RESULTS=</span>=========================</span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">13.826</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">2.184</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">MSDOS*</span>)   <span class="symbol">:</span> <span class="constant">Pentium*</span> <span class="number">90</span>, <span class="number">256</span> <span class="constant">KB L2-</span>cache, <span class="constant">Watcom*</span> compiler <span class="number">10.0</span></span><br><span class="line">==============================<span class="constant">LINUX DATA BELOW=</span>==============================</span><br><span class="line"><span class="constant">CPU </span>                <span class="symbol">:</span></span><br><span class="line"><span class="constant">L2 Cache </span>           <span class="symbol">:</span></span><br><span class="line"><span class="constant">OS </span>                 <span class="symbol">:</span> <span class="constant">Linux </span><span class="number">3.2</span>.<span class="number">0</span></span><br><span class="line"><span class="constant">C </span>compiler          <span class="symbol">:</span> arm-arago-linux-gnueabi-gcc</span><br><span class="line">libc                <span class="symbol">:</span> static</span><br><span class="line"><span class="constant">MEMORY INDEX </span>       <span class="symbol">:</span> <span class="number">3.467</span></span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">3.437</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">1.211</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">LINUX)</span>    <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*, <span class="number">512</span> <span class="constant">KB L2-</span>cache, gcc <span class="number">2.7</span>.<span class="number">2.3</span>, libc-<span class="number">5.4</span>.<span class="number">38</span></span><br><span class="line">* <span class="constant">Trademarks </span>are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h2 id="SylixOS测试结果">SylixOS测试结果</h2><h3 id="arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O3">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O3</h3><figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          386.53  :       9.91  :       3.26</span><br><span class="line">STRING SORT         :          12.447  :       5.56  :       0.86</span><br><span class="line">BITFIELD            :      1.4006e+08  :      24.03  :       5.02</span><br><span class="line">FP EMULATION        :          88.258  :      42.35  :       9.77</span><br><span class="line">FOURIER             :          1591.8  :       1.81  :       1.02</span><br><span class="line">ASSIGNMENT          :          6.4511  :      24.55  :       6.37</span><br><span class="line">IDEA                :          958.43  :      14.66  :       4.35</span><br><span class="line">HUFFMAN             :          619.13  :      17.17  :       5.48</span><br><span class="line">NEURAL NET          :          1.6131  :       2.59  :       1.09</span><br><span class="line">LU DECOMPOSITION    :          59.127  :       3.06  :       2.21</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 16.595</span><br><span class="line">FLOATING-POINT INDEX: 2.431</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 3.019</span><br><span class="line">INTEGER INDEX       : 5.249</span><br><span class="line">FLOATING-POINT INDEX: 1.348</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h3 id="arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=neon_-O3">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=neon -O3</h3><figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          386.79  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :           12.32  :       5.50  :       0.85</span><br><span class="line">BITFIELD            :      1.4009e+08  :      24.03  :       5.02</span><br><span class="line">FP EMULATION        :          84.482  :      40.54  :       9.35</span><br><span class="line">FOURIER             :          1633.5  :       1.86  :       1.04</span><br><span class="line">ASSIGNMENT          :          6.7122  :      25.54  :       6.62</span><br><span class="line">IDEA                :          958.12  :      14.65  :       4.35</span><br><span class="line">HUFFMAN             :          615.79  :      17.08  :       5.45</span><br><span class="line">NEURAL NET          :          1.6196  :       2.60  :       1.09</span><br><span class="line">LU DECOMPOSITION    :          59.124  :       3.06  :       2.21</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 16.549</span><br><span class="line">FLOATING-POINT INDEX: 2.455</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 3.049</span><br><span class="line">INTEGER INDEX       : 5.185</span><br><span class="line">FLOATING-POINT INDEX: 1.362</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h3 id="arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-O3">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -O3</h3><figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          386.91  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          12.429  :       5.55  :       0.86</span><br><span class="line">BITFIELD            :      1.4009e+08  :      24.03  :       5.02</span><br><span class="line">FP EMULATION        :          89.179  :      42.79  :       9.87</span><br><span class="line">FOURIER             :          424.47  :       0.48  :       0.27</span><br><span class="line">ASSIGNMENT          :          6.5648  :      24.98  :       6.48</span><br><span class="line">IDEA                :          958.47  :      14.66  :       4.35</span><br><span class="line">HUFFMAN             :           565.9  :      15.69  :       5.01</span><br><span class="line">NEURAL NET          :         0.53259  :       0.86  :       0.36</span><br><span class="line">LU DECOMPOSITION    :          16.094  :       0.83  :       0.60</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 16.448</span><br><span class="line">FLOATING-POINT INDEX: 0.701</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 3.035</span><br><span class="line">INTEGER INDEX       : 5.147</span><br><span class="line">FLOATING-POINT INDEX: 0.389</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h3 id="arm-sylixos-eabi-gcc_-mcpu=arm920t_-O3">arm-sylixos-eabi-gcc -mcpu=arm920t -O3</h3><figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          400.44  :      10.27  :       3.37</span><br><span class="line">STRING SORT         :          12.422  :       5.55  :       0.86</span><br><span class="line">BITFIELD            :      1.3164e+08  :      22.58  :       4.72</span><br><span class="line">FP EMULATION        :          81.987  :      39.34  :       9.08</span><br><span class="line">FOURIER             :          411.76  :       0.47  :       0.26</span><br><span class="line">ASSIGNMENT          :          6.3944  :      24.33  :       6.31</span><br><span class="line">IDEA                :          1027.1  :      15.71  :       4.66</span><br><span class="line">HUFFMAN             :          559.44  :      15.51  :       4.95</span><br><span class="line">NEURAL NET          :         0.52203  :       0.84  :       0.35</span><br><span class="line">LU DECOMPOSITION    :          15.716  :       0.81  :       0.59</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 16.258</span><br><span class="line">FLOATING-POINT INDEX: 0.684</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 2.946</span><br><span class="line">INTEGER INDEX       : 5.157</span><br><span class="line">FLOATING-POINT INDEX: 0.379</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h3 id="arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O2">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O2</h3><figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          335.32  :       8.60  :       2.82</span><br><span class="line">STRING SORT         :          11.952  :       5.34  :       0.83</span><br><span class="line">BITFIELD            :      1.4737e+08  :      25.28  :       5.28</span><br><span class="line">FP EMULATION        :          55.498  :      26.63  :       6.15</span><br><span class="line">FOURIER             :          1555.4  :       1.77  :       0.99</span><br><span class="line">ASSIGNMENT          :          6.5063  :      24.76  :       6.42</span><br><span class="line">IDEA                :          1042.9  :      15.95  :       4.74</span><br><span class="line">HUFFMAN             :          612.91  :      17.00  :       5.43</span><br><span class="line">NEURAL NET          :          1.5783  :       2.54  :       1.07</span><br><span class="line">LU DECOMPOSITION    :          59.134  :       3.06  :       2.21</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 15.422</span><br><span class="line">FLOATING-POINT INDEX: 2.395</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 3.038</span><br><span class="line">INTEGER INDEX       : 4.596</span><br><span class="line">FLOATING-POINT INDEX: 1.328</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h2 id="Linux_SylixOS_测试结果汇总与对比">Linux SylixOS 测试结果汇总与对比</h2><table>
+<thead>
+<tr>
+<th>Linux AM335x</th>
+<th style="text-align:left">cortex-a8 vfpv3 -O3</th>
+<th style="text-align:left">cortex-a8 neon -O3</th>
+<th style="text-align:left">cortex-a8 -O3</th>
+<th style="text-align:left">arm920t -O3</th>
+<th style="text-align:left">cortex-a8 -vfpv3 -O2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MEMORY INDEX</td>
+<td style="text-align:left">4.129</td>
+<td style="text-align:left">3.961</td>
+<td style="text-align:left">4.130</td>
+<td style="text-align:left">4.005</td>
+<td style="text-align:left">3.467</td>
+</tr>
+<tr>
+<td>INTEGER INDEX</td>
+<td style="text-align:left">4.565</td>
+<td style="text-align:left">4.564</td>
+<td style="text-align:left">4.563</td>
+<td style="text-align:left">4.142</td>
+<td style="text-align:left">3.437</td>
+</tr>
+<tr>
+<td>FLOATING-POINT INDEX</td>
+<td style="text-align:left">1.189</td>
+<td style="text-align:left">1.185</td>
+<td style="text-align:left">1.183</td>
+<td style="text-align:left">1.193</td>
+<td style="text-align:left">1.211</td>
+</tr>
+</tbody>
+</table>
+<p>不同 FPU 编译选项，浮点性能差异极少，怀疑 arm-arago-linux-gnueabi-gcc 默认就打开了硬件浮点。</p>
+<table>
+<thead>
+<tr>
+<th>SylixOS AM335x</th>
+<th style="text-align:left">cortex-a8 vfpv3 -O3</th>
+<th style="text-align:left">cortex-a8 neon -O3</th>
+<th style="text-align:left">cortex-a8 -O3</th>
+<th style="text-align:left">arm920t -O3</th>
+<th style="text-align:left">cortex-a8 -vfpv3 -O2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MEMORY INDEX</td>
+<td style="text-align:left">3.019</td>
+<td style="text-align:left">3.049</td>
+<td style="text-align:left">3.035</td>
+<td style="text-align:left">2.946</td>
+<td style="text-align:left">3.038</td>
+</tr>
+<tr>
+<td>INTEGER INDEX</td>
+<td style="text-align:left">5.249</td>
+<td style="text-align:left">5.185</td>
+<td style="text-align:left">5.147</td>
+<td style="text-align:left">5.157</td>
+<td style="text-align:left">4.596</td>
+</tr>
+<tr>
+<td>FLOATING-POINT INDEX</td>
+<td style="text-align:left">1.348</td>
+<td style="text-align:left">1.362</td>
+<td style="text-align:left">0.389</td>
+<td style="text-align:left">0.379</td>
+<td style="text-align:left">1.328</td>
+</tr>
+</tbody>
+</table>
+<p>不同 FPU 编译选项，浮点性能差异较大，说明 arm-sylixos-eabi-gcc 默认不打开了硬件浮点。</p>
+<p>SylixOS 的 INTEGER INDEX （定点处理性能）与 FLOATING-POINT INDEX （浮点处理性能）要优于 Linux，而 MEMORY INDEX （内存性能）要低于 Linux。</p>
+<p><strong>另外：使用 -mfpu=neon 编译选项不见得比 -mfpu=vfpv3 要好，频繁地切换 ARM/NEON 指令集反而会使性能有所损耗。<br>在 cortex-a8 处理器上 NEON 单元是强制的，但在 cortex-a9 处理器上 NEON 单元却是可选的，使用 -mcpu=cortex-a8 -mfpu=vfpv3 -O3 编译选项可以获得最优化性能和兼容性。<br>当然 -O3 优化可能也会带来一些问题，如果 -O2 优化已经足够，那么建议使用 -O2 优化选项，这也是 SylixOS Release 版本使用的优化选项。</strong></p>
+<h2 id="Linux_SylixOS_测试结果对比分析">Linux SylixOS 测试结果对比分析</h2><p>下面的对比分析基于 -mcpu=cortex-a8 -mfpu=vfpv3 -O3 编译选项。</p>
+<p>Linux：<br><figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">NUMERIC <span class="string">SORT        :</span>           <span class="number">395.2</span>  :      <span class="number">10.14</span>  :       <span class="number">3.33</span></span><br><span class="line">STRING <span class="string">SORT         :</span>          <span class="number">40.032</span>  :      <span class="number">17.89</span>  :       <span class="number">2.77</span></span><br><span class="line"><span class="string">BITFIELD            :</span>      <span class="number">1.3728e+08</span>  :      <span class="number">23.55</span>  :       <span class="number">4.92</span></span><br><span class="line">FP <span class="string">EMULATION        :</span>            <span class="number">67.8</span>  :      <span class="number">32.53</span>  :       <span class="number">7.51</span></span><br><span class="line"><span class="string">FOURIER             :</span>          <span class="number">1324.1</span>  :       <span class="number">1.51</span>  :       <span class="number">0.85</span></span><br><span class="line"><span class="string">ASSIGNMENT          :</span>          <span class="number">5.2366</span>  :      <span class="number">19.93</span>  :       <span class="number">5.17</span></span><br><span class="line"><span class="string">IDEA                :</span>           <span class="number">840.3</span>  :      <span class="number">12.85</span>  :       <span class="number">3.82</span></span><br><span class="line"><span class="string">HUFFMAN             :</span>          <span class="number">514.44</span>  :      <span class="number">14.27</span>  :       <span class="number">4.56</span></span><br><span class="line">NEURAL <span class="string">NET          :</span>            <span class="number">1.42</span>  :       <span class="number">2.28</span>  :       <span class="number">0.96</span></span><br><span class="line">LU <span class="string">DECOMPOSITION    :</span>          <span class="number">55.316</span>  :       <span class="number">2.87</span>  :       <span class="number">2.07</span></span><br></pre></td></tr></table></figure></p>
+<p>SylixOS：<br><figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">NUMERIC <span class="string">SORT        :</span>          <span class="number">386.53</span>  :       <span class="number">9.91</span>  :       <span class="number">3.26</span></span><br><span class="line">STRING <span class="string">SORT         :</span>          <span class="number">12.447</span>  :       <span class="number">5.56</span>  :       <span class="number">0.86</span></span><br><span class="line"><span class="string">BITFIELD            :</span>      <span class="number">1.4006e+08</span>  :      <span class="number">24.03</span>  :       <span class="number">5.02</span></span><br><span class="line">FP <span class="string">EMULATION        :</span>          <span class="number">88.258</span>  :      <span class="number">42.35</span>  :       <span class="number">9.77</span></span><br><span class="line"><span class="string">FOURIER             :</span>          <span class="number">1591.8</span>  :       <span class="number">1.81</span>  :       <span class="number">1.02</span></span><br><span class="line"><span class="string">ASSIGNMENT          :</span>          <span class="number">6.4511</span>  :      <span class="number">24.55</span>  :       <span class="number">6.37</span></span><br><span class="line"><span class="string">IDEA                :</span>          <span class="number">958.43</span>  :      <span class="number">14.66</span>  :       <span class="number">4.35</span></span><br><span class="line"><span class="string">HUFFMAN             :</span>          <span class="number">619.13</span>  :      <span class="number">17.17</span>  :       <span class="number">5.48</span></span><br><span class="line">NEURAL <span class="string">NET          :</span>          <span class="number">1.6131</span>  :       <span class="number">2.59</span>  :       <span class="number">1.09</span></span><br><span class="line">LU <span class="string">DECOMPOSITION    :</span>          <span class="number">59.127</span>  :       <span class="number">3.06</span>  :       <span class="number">2.21</span></span><br></pre></td></tr></table></figure></p>
+<p>SylixOS 在 NUMERIC SORT 测试中小幅落后于 Linux，而 STRING SORT 测试中大幅落后于 Linux，其它测试 SylixOS 均优于 Linux。</p>
+<p>MEMORY INDEX （内存性能）低于 Linux 的原故是 STRING SORT 测试中大幅落后于 Linux。</p>
+<h2 id="落后原因分析">落后原因分析</h2><p>STRING SORT 测试是 Sorts an array of strings of arbitrary length，落后的原因可能有三：</p>
+<ol>
+<li>SylixOS 相关字符串函数的执行效率不高；</li>
+<li>SylixOS 未能发挥 ARMv7A Cache 性能；</li>
+<li>BSP 在内存控制器设置方面存在不正确的地方。</li>
+</ol>
+<h2 id="在_Linux_测试_SylixOS_的_lib_memcpy_函数性能">在 Linux 测试 SylixOS 的 lib_memcpy 函数性能</h2><p>通过分析 nbench 的代码，发现 nbench 调用了 memmove 函数，在 SylixOS 上该函数使用 lib_memcpy 函数实现。</p>
+<p>在 Linux 上，使用 SylixOS 的 lib_memcpy 函数替换 memmove 函数，以测试 SylixOS 的 lib_memcpy 函数的性能，编译选项为： -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O3。</p>
+<p>我们只需要使用 nbench 测试 NUMERIC SORT 和 STRING SORT，nbench 支持执行时指定配置文件：<br><figure class="highlight"><table><tr><td class="code"><pre><span class="line">./nbench -CCOM.DAT</span><br></pre></td></tr></table></figure></p>
+<p>COM.DAT文件内容：<br><figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="setting">ALLSTATS=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DONUMSORT=<span class="value">T</span></span></span><br><span class="line"><span class="setting">DOSTRINGSORT=<span class="value">T</span></span></span><br><span class="line"><span class="setting">DOBITFIELD=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOEMF=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOFOUR=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOASSIGN=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOIDEA=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOHUFF=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DONNET=<span class="value">F</span></span></span><br><span class="line"><span class="setting">DOLU=<span class="value">F</span></span></span><br></pre></td></tr></table></figure></p>
+<p>执行后输出：<br><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx</span><span class="comment"># ./nbench -CCOM.DAT</span></span><br><span class="line"></span><br><span class="line"><span class="constant">BYTEmark*</span> <span class="constant">Native Mode Benchmark </span>ver. <span class="number">2</span> (<span class="number">10</span>/<span class="number">95</span>)</span><br><span class="line"><span class="constant">Index-</span>split by <span class="constant">Andrew D.</span> <span class="constant">Balsa </span>(<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"><span class="constant">Linux/Unix*</span> port by <span class="constant">Uwe F.</span> <span class="constant">Mayer </span>(<span class="number">12</span>/<span class="number">96</span>,<span class="number">11</span>/<span class="number">97</span>)</span><br><span class="line"></span><br><span class="line"><span class="constant">TEST </span>               <span class="symbol">:</span> <span class="constant">Iterations/</span>sec.  <span class="symbol">:</span> <span class="constant">Old Index </span>  <span class="symbol">:</span> <span class="constant">New Index</span></span><br><span class="line">                    <span class="symbol">:</span>                  <span class="symbol">:</span> <span class="constant">Pentium </span><span class="number">90</span>* <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*</span><br><span class="line">--------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"><span class="constant">NUMERIC SORT </span>       <span class="symbol">:</span>          <span class="number">394.56</span>  <span class="symbol">:</span>      <span class="number">10.12</span>  <span class="symbol">:</span>       <span class="number">3.32</span></span><br><span class="line"><span class="constant">STRING SORT </span>        <span class="symbol">:</span>          <span class="number">9.8736</span>  <span class="symbol">:</span>       <span class="number">4.41</span>  <span class="symbol">:</span>       <span class="number">0</span>.<span class="number">68</span></span><br><span class="line">==========================<span class="constant">ORIGINAL BYTEMARK RESULTS=</span>=========================</span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">1.721</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">1.000</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">MSDOS*</span>)   <span class="symbol">:</span> <span class="constant">Pentium*</span> <span class="number">90</span>, <span class="number">256</span> <span class="constant">KB L2-</span>cache, <span class="constant">Watcom*</span> compiler <span class="number">10.0</span></span><br><span class="line">==============================<span class="constant">LINUX DATA BELOW=</span>==============================</span><br><span class="line"><span class="constant">CPU </span>                <span class="symbol">:</span></span><br><span class="line"><span class="constant">L2 Cache </span>           <span class="symbol">:</span></span><br><span class="line"><span class="constant">OS </span>                 <span class="symbol">:</span> <span class="constant">Linux </span><span class="number">3.2</span>.<span class="number">0</span></span><br><span class="line"><span class="constant">C </span>compiler          <span class="symbol">:</span> arm-arago-linux-gnueabi-gcc</span><br><span class="line">libc                <span class="symbol">:</span> static</span><br><span class="line"><span class="constant">MEMORY INDEX </span>       <span class="symbol">:</span> <span class="number">0</span>.<span class="number">881</span></span><br><span class="line"><span class="constant">INTEGER INDEX </span>      <span class="symbol">:</span> <span class="number">1.350</span></span><br><span class="line"><span class="constant">FLOATING-POINT INDEX:</span> <span class="number">1.000</span></span><br><span class="line"><span class="constant">Baseline </span>(<span class="constant">LINUX)</span>    <span class="symbol">:</span> <span class="constant">AMD K6/</span><span class="number">233</span>*, <span class="number">512</span> <span class="constant">KB L2-</span>cache, gcc <span class="number">2.7</span>.<span class="number">2.3</span>, libc-<span class="number">5.4</span>.<span class="number">38</span></span><br><span class="line">* <span class="constant">Trademarks </span>are property of their respective holder.</span><br></pre></td></tr></table></figure></p>
+<p>STRING SORT 测试性能评分下降严重（从 40.032 降低到 9.8736，比 SylixOS 的 12.447 还低），可见 SylixOS 的 lib_memcpy 函数在性能上远不如 Linux 的 memmove 函数。</p>
+<p>同时我们可以得出如下结论：</p>
+<ol>
+<li>SylixOS 的 lib_memcpy 函数在性能上远不如 Linux 的 memmove 函数；</li>
+<li>SylixOS 正常发挥 ARMv7A Cache 性能；</li>
+<li>BSP 正确设置了内存控制器参数。</li>
+</ol>
+<h2 id="使用_gprof_分析_nbench">使用 gprof 分析 nbench</h2><p>我们可以使用 gprof 工具分析 nbench，得到其运行时代码性能和调用栈。</p>
+<p>nbench 工程编译和链接时加入 -pg 选项，gcc 会在每一个函数入口处调用 gnu_mcount_nc 函数，gnu_mcount_nc 函数将记录该父子函数的调用次数和关系。</p>
+<p>同时启动 ITIMER_PROF 定时器（频率为1000Hz）和绑定 SIGPROF 信号，SIGPROF 信号处理函数获得当前线程的 PC 值，传入 profil_count 函数，profil_count 函数对 nbench 内的函数进行有损精度的耗时统计。</p>
+<p>nbench 退出时会生成 gmon.out 文件，将其上传到计算机，计算机执行 arm-sylixos-eabi-gprof，输入文件为 gmon.out 和 nbench，arm-sylixos-eabi-gprof 将生成函数耗时、调用次数、调用栈报告。</p>
+<p>使用 <a href="https://pypi.python.org/pypi/gprof2dot/" target="_blank" rel="external">gprof2dot</a> 可以该报告转换为 .dot 文件，使用 dot（<a href="http://www.graphviz.org/" target="_blank" rel="external">graphviz</a> 安装目录内）可将其转换为 png 图片或 svg 矢量图。</p>
+<p>执行后输出：<br><figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :           60.56  :       1.55  :       0.51</span><br><span class="line">STRING SORT         :          3.3703  :       1.51  :       0.23</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 1.129</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 0.615</span><br><span class="line">INTEGER INDEX       : 0.845</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br><span class="line">save to libvpmpdm_gmon.out success</span><br><span class="line">save to gmon.out success</span><br></pre></td></tr></table></figure></p>
+<p>这里性能参数不具参考价值，我们只关心 libvpmpdm_gmon.out 和 gmon.out。</p>
+<p>libvpmpdm_gmon.out 是 libvpmpdm.so 的性能文件，gmon.out 是 nbench 的性能文件，由于 glibc 自带的 libgmon 只支持静态链接的应用程序，所以我们在移植 libgmon 到 SylixOS 时做了大量的修改，让其支持动态链接的应用程序，每一个链接库和应用程序均生成一个 gmon.out 文件。</p>
+<p>libvpmpdm.so 对应的调用栈图：<br><img src="/img/使用-gprof-分析代码性能和调用栈/libvpmpdm_gprof.svg" alt="libvpmpdm_gprof.svg"></p>
+<p>可以看到 libvpmpdm.so 最耗时的是 lib_memcpy 函数（44.28%）。</p>
+<p>nbench 对应的调用栈图：<br><img src="/img/使用-gprof-分析代码性能和调用栈/nbench_gprof.svg" alt="nbench_gprof.svg"></p>
+<p>可以看到 nbench 最耗时的是 NumSift 函数（35.05%）。</p>
+<p>可以得出，如果我们想提升的 nbench 的 MEM 性能，必须优化 lib_memcpy 函数。</p>
+<h2 id="lib_memcpy_函数优化">lib_memcpy 函数优化</h2><p>lib_memcpy 函数是一个编译进操作系统镜像的“内核函数”，操作系统的编译参数为 -mcpu=cortex-a8 -O2，没有使用 VFP 或 NEON 及 -O3，尝试把 lib_memcpy 函数放入在 libvpmpdm 工程，应用程序 nbench 将优先使用 libvpmpdm.so 的 lib_memcpy 函数。</p>
+<p>优化最简单的方法就是修改 libvpmpdm 工程的编译选项，使用 -mcpu=cortex-a8 -mfpu=vfpv3 -O3 编译选项。</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          386.85  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          11.008  :       4.92  :       0.76</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 1.743</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 0.913</span><br><span class="line">INTEGER INDEX       : 1.344</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<p>结果有点出乎意料，STRING SORT 测试性能评分不升反降，只能用其它优化方法了。</p>
+<h2 id="mem_类函数移植与测试">mem 类函数移植与测试</h2><p>优化方法要么重新实现 lib_memcpy 函数，要么使用现成的 mem 类函数（memcpy、memmove等），我倾向于使用现成的 mem 类函数，</p>
+<p>mem 类函数来源有以下几种：</p>
+<ul>
+<li>FreeBSD 的 C 库里的 mem 类函数</li>
+<li>Android 的 bionic C 库里的 mem 类函数</li>
+<li>编译器内建的 newlib C 库里的 mem 类函数</li>
+<li>glibc C 库里的 mem 类函数</li>
+</ul>
+<p>以上四种 mem 类函数均使用汇编语言实现。</p>
+<p>FreeBSD 的 C 库里的 mem 类函数，容易移植，但没有对 VFP 和 NEON 的优化，实测 nbench 运行到 STRING SORT 测试时直接崩溃，PASS 掉。</p>
+<p>glibc C 库里的 mem 类函数过于复杂，有对 VFP 和 NEON 的优化，但不容易移植，最后才考虑。</p>
+<p>编译器内建的 newlib C 库里的 mem 类函数，有对 VFP 和 NEON 的优化，不需要移植，但 SylixOS 不能使用内建的 newlib C 库，最后才考虑。</p>
+<p>Android 的 bionic C 库里的 mem 类函数，有对 VFP 和 NEON 的优化，同时针对不同的 Cortex-Ax 进行优化，移植还算容易，性能应该有保证，下面尝试之。</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench -CCOM.DAT</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :           386.9  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          85.406  :      38.16  :       5.91</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 2.335</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 1.808</span><br><span class="line">INTEGER INDEX       : 1.344</span><br><span class="line">FLOATING-POINT INDEX: 1.000</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<p>STRING SORT 测试性能评分提升极大 （从 12.447 提升到 85.406，比 Linux 的 40.032 高出一倍多）。</p>
+<p>阅读 bionic C 库里的 mem 类函数，发现其极大地发挥了 Cache 预取特性（通过 PLD 指令）。</p>
+<p>将 Android 的 bionic C 库里的 mem 类函数替换掉 SylixOS 的 mem 类函数，文件主要有如下几个：<br><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/m</span>emcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/m</span>emset.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>stpcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcat.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>__strcat_chk.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcmp.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strcpy.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>__strcpy_chk.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>cortex-a15<span class="regexp">/bionic/</span>strlen.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/g</span>eneric<span class="regexp">/bionic/m</span>emcmp.S \</span><br><span class="line">SylixOS<span class="regexp">/lib/</span>bionic<span class="regexp">/arch-arm/</span>denver<span class="regexp">/bionic/m</span>emmove.S \</span><br></pre></td></tr></table></figure></p>
+<p>完成一次完整的测试：</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps]# ./nbench</span><br><span class="line"></span><br><span class="line">BYTEmark* Native Mode Benchmark ver. 2 (10/95)</span><br><span class="line">Index-split by Andrew D. Balsa (11/97)</span><br><span class="line">Linux/Unix* port by Uwe F. Mayer (12/96,11/97)</span><br><span class="line"></span><br><span class="line">TEST                : Iterations/sec.  : Old Index   : New Index</span><br><span class="line">                    :                  : Pentium 90* : AMD K6/233*</span><br><span class="line">-<span class="ruby">-------------------<span class="symbol">:------------------</span><span class="symbol">:-------------</span><span class="symbol">:------------</span></span><br><span class="line"></span>NUMERIC SORT        :          386.91  :       9.92  :       3.26</span><br><span class="line">STRING SORT         :          85.585  :      38.24  :       5.92</span><br><span class="line">BITFIELD            :      1.4014e+08  :      24.04  :       5.02</span><br><span class="line">FP EMULATION        :          88.262  :      42.35  :       9.77</span><br><span class="line">FOURIER             :          1591.9  :       1.81  :       1.02</span><br><span class="line">ASSIGNMENT          :          6.5071  :      24.76  :       6.42</span><br><span class="line">IDEA                :          958.89  :      14.67  :       4.35</span><br><span class="line">HUFFMAN             :          620.88  :      17.22  :       5.50</span><br><span class="line">NEURAL NET          :          1.6134  :       2.59  :       1.09</span><br><span class="line">LU DECOMPOSITION    :          59.122  :       3.06  :       2.21</span><br><span class="line">=<span class="ruby">=========================<span class="constant">ORIGINAL</span> <span class="constant">BYTEMARK</span> <span class="constant">RESULTS</span>==========================</span><br><span class="line"></span>INTEGER INDEX       : 21.899</span><br><span class="line">FLOATING-POINT INDEX: 2.431</span><br><span class="line">Baseline (MSDOS*)   : Pentium* 90, 256 KB L2-cache, Watcom* compiler 10.0</span><br><span class="line">=<span class="ruby">=============================<span class="constant">LINUX</span> <span class="constant">DATA</span> <span class="constant">BELOW</span>===============================</span><br><span class="line"></span>CPU                 :</span><br><span class="line">L2 Cache            :</span><br><span class="line">OS                  : sh: command not found.</span><br><span class="line">C compiler          :</span><br><span class="line">libc                :</span><br><span class="line">MEMORY INDEX        : 5.758</span><br><span class="line">INTEGER INDEX       : 5.255</span><br><span class="line">FLOATING-POINT INDEX: 1.348</span><br><span class="line">Baseline (LINUX)    : AMD K6/233*, 512 KB L2-cache, gcc 2.7.2.3, libc-5.4.38</span><br><span class="line">* Trademarks are property of their respective holder.</span><br></pre></td></tr></table></figure>
+<h2 id="Linux_SylixOS_测试结果汇总与对比-1">Linux SylixOS 测试结果汇总与对比</h2><table>
+<thead>
+<tr>
+<th>AM335x</th>
+<th style="text-align:left">Linux cortex-a8 vfpv3 -O3</th>
+<th style="text-align:left">优化前 SylixOS cortex-a8 vfpv3 -O3</th>
+<th style="text-align:left">优化后 SylixOS cortex-a8 neon -O3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MEMORY INDEX</td>
+<td style="text-align:left">4.129</td>
+<td style="text-align:left">3.019</td>
+<td style="text-align:left">5.758</td>
+</tr>
+<tr>
+<td>INTEGER INDEX</td>
+<td style="text-align:left">4.565</td>
+<td style="text-align:left">5.249</td>
+<td style="text-align:left">5.255</td>
+</tr>
+<tr>
+<td>FLOATING-POINT INDEX</td>
+<td style="text-align:left">1.189</td>
+<td style="text-align:left">1.348</td>
+<td style="text-align:left">1.348</td>
+</tr>
+</tbody>
+</table>
+<p>SylixOS 的 INTEGER INDEX （定点处理性能）与 FLOATING-POINT INDEX （浮点处理性能）及 MEMORY INDEX （内存性能）均要优于 Linux。</p>
+<p>SylixOS 优化前后 INTEGER INDEX 和 FLOATING-POINT INDEX 性能基本没有发生变化，但 MEMORY INDEX 性能提升较大（接近一倍的性能提升）。</p>
+<h2 id="测试结论">测试结论</h2><ol>
+<li>优化后的 mem 类函数的性能比 Linux 的要好；</li>
+<li>SylixOS 正常发挥 ARMv7A Cache、VFP、NEON、分支预测性能，比 Linux 的还要好；</li>
+<li>BSP 正确设置了内存控制器参数和处理器主频。</li>
+<li>SylixOS 使用的编译器(4.9.4)比 Linux 使用的编译器(4.5.3)更能发挥 ARMv7A 性能。</li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/SylixOS/">SylixOS</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/SylixOS/">SylixOS</a><a href="/tags/测试/">测试</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/07/19/hello-world/" title="Hello World">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Hello World</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/07/17/SylixOS-C-库、数学库性能测试/"  title="SylixOS C 库、数学库性能测试">
+ <strong>下一篇：</strong><br/> 
+ <span>SylixOS C 库、数学库性能测试
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+<section id="comments" class="comment">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#测试目的"><span class="toc-number">1.</span> <span class="toc-text">测试目的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#硬件平台"><span class="toc-number">2.</span> <span class="toc-text">硬件平台</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#操作系统"><span class="toc-number">3.</span> <span class="toc-text">操作系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试软件"><span class="toc-number">4.</span> <span class="toc-text">测试软件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编译器"><span class="toc-number">5.</span> <span class="toc-text">编译器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux测试结果"><span class="toc-number">6.</span> <span class="toc-text">Linux测试结果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O3"><span class="toc-number">6.1.</span> <span class="toc-text">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=neon_-O3"><span class="toc-number">6.2.</span> <span class="toc-text">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=neon -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-O3"><span class="toc-number">6.3.</span> <span class="toc-text">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-arago-linux-gnueabi-gcc_-mcpu=arm920t_-O3"><span class="toc-number">6.4.</span> <span class="toc-text">arm-arago-linux-gnueabi-gcc -mcpu=arm920t -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-arago-linux-gnueabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O2"><span class="toc-number">6.5.</span> <span class="toc-text">arm-arago-linux-gnueabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SylixOS测试结果"><span class="toc-number">7.</span> <span class="toc-text">SylixOS测试结果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O3"><span class="toc-number">7.1.</span> <span class="toc-text">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=neon_-O3"><span class="toc-number">7.2.</span> <span class="toc-text">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=neon -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-O3"><span class="toc-number">7.3.</span> <span class="toc-text">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-sylixos-eabi-gcc_-mcpu=arm920t_-O3"><span class="toc-number">7.4.</span> <span class="toc-text">arm-sylixos-eabi-gcc -mcpu=arm920t -O3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm-sylixos-eabi-gcc_-mcpu=cortex-a8_-mfloat-abi=softfp_-mfpu=vfpv3_-O2"><span class="toc-number">7.5.</span> <span class="toc-text">arm-sylixos-eabi-gcc -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_SylixOS_测试结果汇总与对比"><span class="toc-number">8.</span> <span class="toc-text">Linux SylixOS 测试结果汇总与对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_SylixOS_测试结果对比分析"><span class="toc-number">9.</span> <span class="toc-text">Linux SylixOS 测试结果对比分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#落后原因分析"><span class="toc-number">10.</span> <span class="toc-text">落后原因分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#在_Linux_测试_SylixOS_的_lib_memcpy_函数性能"><span class="toc-number">11.</span> <span class="toc-text">在 Linux 测试 SylixOS 的 lib_memcpy 函数性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用_gprof_分析_nbench"><span class="toc-number">12.</span> <span class="toc-text">使用 gprof 分析 nbench</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lib_memcpy_函数优化"><span class="toc-number">13.</span> <span class="toc-text">lib_memcpy 函数优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mem_类函数移植与测试"><span class="toc-number">14.</span> <span class="toc-text">mem 类函数移植与测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_SylixOS_测试结果汇总与对比-1"><span class="toc-number">15.</span> <span class="toc-text">Linux SylixOS 测试结果汇总与对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试结论"><span class="toc-number">16.</span> <span class="toc-text">测试结论</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>11</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/全栈/" title="全栈">全栈<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ARMv7-M/" title="ARMv7-M">ARMv7-M<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/线程间通信/" title="线程间通信">线程间通信<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/书稿/" title="书稿">书稿<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/测试/" title="测试">测试<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/U-Boot/" title="U-Boot">U-Boot<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/程序员的自我修养/" title="程序员的自我修养">程序员的自我修养<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/全栈/" title="全栈">全栈<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/硬件/" title="硬件">硬件<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://www.sylixos.com" target="_blank" title=" SylixOS社区">SylixOS</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> SylixOS操作系统开发者 <br/>
+			北京正通天和软件科技有限公司</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/jiaojinxing" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:jiaojinxing1987@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="/about" target="_blank" title="jiaojinxing">jiaojinxing</a>
+		
+		
+		</p>
+		
+		<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+		<span id="busuanzi_container_page_pv">本文总阅读量 <span id="busuanzi_value_page_pv"></span> 次</span>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+
+<script type="text/javascript">
+
+var disqus_shortname = 'jinxingblog';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<script>
+var option = {
+  engineKey: 'fdc3f1775f4719dd9d41'
+};
+(function(w,d,t,u,n,s,e){
+  s = d.createElement(t);
+  s.src = u;
+  s.async = 1;
+  w[n] = function(r){
+    w[n].opts = r;
+  };
+  e = d.getElementsByTagName(t)[0];
+  e.parentNode.insertBefore(s, e);
+})(window,document,'script','//tinysou-cdn.b0.upaiyun.com/ts.js','_ts');
+_ts(option);
+</script>
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
