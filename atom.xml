@@ -299,7 +299,7 @@
     <link href="jiaojinxing.github.io/2015/07/17/SylixOS-C-%E5%BA%93%E3%80%81%E6%95%B0%E5%AD%A6%E5%BA%93%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/"/>
     <id>jiaojinxing.github.io/2015/07/17/SylixOS-C-库、数学库性能测试/</id>
     <published>2015-07-17T13:19:24.000Z</published>
-    <updated>2015-07-23T06:16:45.371Z</updated>
+    <updated>2015-07-23T06:53:31.435Z</updated>
     <content type="html"><![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 的 C 库和数学库的某些函数是否存在性能问题。</p>
 <p>找出 SylixOS 实时性远优于 Linux 和 RT-Linux（见《SylixOS实时性测试报告》，和 SylixOS 在 ARMv7A 性能优于 Linux （见<a href="http://jiaojinxing.github.io/2015/07/17/SylixOS-ARMv7A-%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E4%B8%8E%E6%94%B9%E8%BF%9B/">《SylixOS ARMv7A 处理器性能测试与改进》</a>），但 Qt 性能测试 <a href="https://github.com/jiaojinxing/qtperf" target="_blank" rel="external">qtperf</a> 中部分项目不如 Linux 的原因，并提出解决办法。</p>
 <h2 id="测试环境">测试环境</h2><h3 id="硬件平台">硬件平台</h3><p>硬件平台：飞凌嵌入式 OK335xS</p>
@@ -321,7 +321,7 @@
 <li>数学类函数性能测试</li>
 </ol>
 <p>benchtests 覆盖测试了常用的 C 库和数学库函数。</p>
-<p>由于厂家配套的 Linux 使用的 glibc 的版本为 2.12.2 不是（2.21），及 SylixOS 使用的是自已的实现 C 库，所以需要移植 benchtests，屏蔽了若干个 glibc-2.12.2 和 SylixOS 不支持的函数的测试。</p>
+<p>由于厂家配套的 Linux 使用的 glibc 的版本为 2.12.2（不是 2.21），及 SylixOS 使用的是自已的实现 C 库，所以需要移植 benchtests，屏蔽了若干个 glibc-2.12.2 和 SylixOS 不支持的函数的测试。</p>
 <p>benchtests 的编译选项统一使用 -mcpu=cortex-a8 -mfloat-abi=softfp -mfpu=vfpv3 -O2，由于 Linux 的文件系统已经放置了 C 库和数学库的动态库，为了避免使用这些可能不是 VFP 的动态库，所以 Linux 的 benchtests 使用静态链接（加入 -static 选项）。</p>
 <p>移植好的 benchtests 放在 <a href="https://github.com/jiaojinxing/benchtest" target="_blank" rel="external">https://github.com/jiaojinxing/benchtest</a></p>
 <h2 id="测试结果">测试结果</h2><p>Linux 性能测试结果放在 <a href="https://github.com/jiaojinxing/benchtests/tree/master/linux" target="_blank" rel="external">https://github.com/jiaojinxing/benchtests/tree/master/linux</a></p>
