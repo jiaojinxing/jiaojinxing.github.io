@@ -29,7 +29,7 @@ L1-Cache：32KB I-Cache/32KB D-Cache
 L2-Cache：256KB
 内存：512MB
 操作系统SylixOS + bspam335x + 按《SylixOS ARMv7A 处理器性能测试与改进》和《Syl">
-<meta property="og:updated_time" content="2015-07-21T05:47:46.753Z">
+<meta property="og:updated_time" content="2015-07-22T07:37:40.574Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SylixOS Qt 图形界面性能测试">
 <meta name="twitter:description" content="测试目的测试 SylixOS 上 Qt 的性能。
@@ -141,7 +141,7 @@ L2-Cache：256KB
 <h2 id="Linux_测试结果">Linux 测试结果</h2><p>qtperf 编译选项：<br><figure class="highlight nix"><table><tr><td class="code"><pre><span class="line"><span class="variable">-mcpu=</span>cortex-a8 <span class="variable">-mfloat-abi=</span>softfp <span class="variable">-mfpu=</span>vfpv3 -O2</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx/qtperf</span><span class="comment"># ./qtperf4 -qws &amp;</span></span><br><span class="line">[<span class="number">1</span>] <span class="number">1545</span></span><br><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx/qtperf</span><span class="comment"># QLineEdit - 0.755 s</span></span><br><span class="line"><span class="constant">QComboBox </span>- <span class="number">4.08</span> s</span><br><span class="line"><span class="constant">QComboBoxEntry </span>- <span class="number">4.397</span> s</span><br><span class="line"><span class="constant">QSpinBox </span>- <span class="number">0</span>.<span class="number">472</span> s</span><br><span class="line"><span class="constant">QProgressBar </span>- <span class="number">0</span>.<span class="number">754</span> s</span><br><span class="line"><span class="constant">QPushButton </span>- <span class="number">0</span>.<span class="number">333</span> s</span><br><span class="line"><span class="constant">QCheckbox </span>- <span class="number">0</span>.<span class="number">218</span> s</span><br><span class="line"><span class="constant">QRadioButton </span>- <span class="number">0</span>.<span class="number">564</span> s</span><br><span class="line"><span class="constant">QTextEdit </span>add text - <span class="number">2.98</span> s</span><br><span class="line"><span class="constant">QTextEdit </span>scroll - <span class="number">0</span>.<span class="number">462</span> s</span><br><span class="line"><span class="constant">QPainter </span>lines - <span class="number">5.997</span> s</span><br><span class="line"><span class="constant">QPainter </span>circles - <span class="number">5.947</span> s</span><br><span class="line"><span class="constant">QPainter </span>text - <span class="number">6.363</span> s</span><br><span class="line"><span class="constant">QPainter </span>pixmap - <span class="number">6.224</span> s</span><br><span class="line"><span class="constant">Total:</span> <span class="number">39.546001</span> s</span><br></pre></td></tr></table></figure>
 <h2 id="SylixOS测试结果">SylixOS测试结果</h2><h3 id="arm-sylixos-qt-4-8-6">arm-sylixos-qt-4.8.6</h3><p>qtperf 编译选项：<br><figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line">-<span class="keyword">march=armv4 </span>-mno-unaligned-access -O2</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps/qtperf]# ./qtperf4 -qws &amp;</span><br><span class="line">[root@sylixos_station:/apps/qtperf]# Connected to SylixOS FrameBuffer server: 800 x 480 x 32 282x169mm (72x72dpi)</span><br><span class="line">Corrupt calibration data</span><br><span class="line">QSylixOSInputMouseHandler: connected.</span><br><span class="line">QSylixOSInputKeyboardHandler: connected.</span><br><span class="line">QLineEdit - 0.943 <span class="literal">s</span></span><br><span class="line">QComboBox - 5.234 <span class="literal">s</span></span><br><span class="line">QComboBoxEntry - 5.776 <span class="literal">s</span></span><br><span class="line">QSpinBox - 0.653 <span class="literal">s</span></span><br><span class="line">QProgressBar - 0.962 <span class="literal">s</span></span><br><span class="line">QPushButton - 0.421 <span class="literal">s</span></span><br><span class="line">QCheckbox - 0.318 <span class="literal">s</span></span><br><span class="line">QRadioButton - 0.79 <span class="literal">s</span></span><br><span class="line">QTextEdit add text - 2.983 <span class="literal">s</span></span><br><span class="line">QTextEdit scroll - 0.462 <span class="literal">s</span></span><br><span class="line">QPainter lines - 5.487 <span class="literal">s</span></span><br><span class="line">QPainter circles - 5.452 <span class="literal">s</span></span><br><span class="line">QPainter text - 5.938 <span class="literal">s</span></span><br><span class="line">QPainter pixmap - 5.516 <span class="literal">s</span></span><br><span class="line"><span class="keyword">Total</span>: 40.934998 <span class="literal">s</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps/qtperf]# ./qtperf4 -qws &amp;</span><br><span class="line">[root@sylixos_station:/apps/qtperf]# Connected to SylixOS FrameBuffer server: 800 x 480 x 32 282x169mm (72x72dpi)</span><br><span class="line">Corrupt calibration data</span><br><span class="line">QSylixOSInputMouseHandler: connected.</span><br><span class="line">QSylixOSInputKeyboardHandler: connected.</span><br><span class="line">QLineEdit - 0.943 <span class="literal">s</span></span><br><span class="line">QComboBox - 5.179 <span class="literal">s</span></span><br><span class="line">QComboBoxEntry - 5.723 <span class="literal">s</span></span><br><span class="line">QSpinBox - 0.649 <span class="literal">s</span></span><br><span class="line">QProgressBar - 0.955 <span class="literal">s</span></span><br><span class="line">QPushButton - 0.418 <span class="literal">s</span></span><br><span class="line">QCheckbox - 0.313 <span class="literal">s</span></span><br><span class="line">QRadioButton - 0.781 <span class="literal">s</span></span><br><span class="line">QTextEdit add text - 2.871 <span class="literal">s</span></span><br><span class="line">QTextEdit scroll - 0.482 <span class="literal">s</span></span><br><span class="line">QPainter lines - 4.633 <span class="literal">s</span></span><br><span class="line">QPainter circles - 4.598 <span class="literal">s</span></span><br><span class="line">QPainter text - 5.089 <span class="literal">s</span></span><br><span class="line">QPainter pixmap - 4.677 <span class="literal">s</span></span><br><span class="line"><span class="keyword">Total</span>: 37.310997 <span class="literal">s</span></span><br></pre></td></tr></table></figure>
 <h3 id="armv7-sylixos-qt-4-8-6">armv7-sylixos-qt-4.8.6</h3><p>qtperf 编译选项：<br><figure class="highlight nix"><table><tr><td class="code"><pre><span class="line"><span class="variable">-march=</span>armv7-a <span class="variable">-mfloat-abi=</span>softfp <span class="variable">-mfpu=</span>neon -mno-unaligned-access -O2</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps/qtperf]# ./qtperf4 -qws &amp;</span><br><span class="line">[root@sylixos_station:/apps/qtperf]# Connected to SylixOS FrameBuffer server: 80                                                                                                                                                             0 x 480 x 32 282x169mm (72x72dpi)</span><br><span class="line">Corrupt calibration data</span><br><span class="line">QSylixOSInputMouseHandler: connected.</span><br><span class="line">QSylixOSInputKeyboardHandler: connected.</span><br><span class="line">QLineEdit - 0.612 <span class="literal">s</span></span><br><span class="line">QComboBox - 3.506 <span class="literal">s</span></span><br><span class="line">QComboBoxEntry - 3.726 <span class="literal">s</span></span><br><span class="line">QSpinBox - 0.367 <span class="literal">s</span></span><br><span class="line">QProgressBar - 0.568 <span class="literal">s</span></span><br><span class="line">QPushButton - 0.258 <span class="literal">s</span></span><br><span class="line">QCheckbox - 0.185 <span class="literal">s</span></span><br><span class="line">QRadioButton - 0.484 <span class="literal">s</span></span><br><span class="line">QTextEdit add text - 2.434 <span class="literal">s</span></span><br><span class="line">QTextEdit scroll - 0.317 <span class="literal">s</span></span><br><span class="line">QPainter lines - 4.325 <span class="literal">s</span></span><br><span class="line">QPainter circles - 4.279 <span class="literal">s</span></span><br><span class="line">QPainter text - 4.7 <span class="literal">s</span></span><br><span class="line">QPainter pixmap - 4.301 <span class="literal">s</span></span><br><span class="line"><span class="keyword">Total</span>: 30.062002 <span class="literal">s</span></span><br></pre></td></tr></table></figure>
 <h2 id="测试结果汇总与对比">测试结果汇总与对比</h2><p>测试结果汇总如下表：</p>
@@ -164,93 +164,93 @@ L2-Cache：256KB
 <tr>
 <td>QComboBox</td>
 <td style="text-align:left">4.08 s</td>
-<td style="text-align:left">5.234 s</td>
+<td style="text-align:left">5.179 s</td>
 <td style="text-align:left">3.506 s</td>
 </tr>
 <tr>
 <td>QComboBoxEntry</td>
 <td style="text-align:left">4.397 s</td>
-<td style="text-align:left">5.776 s</td>
+<td style="text-align:left">5.723 s</td>
 <td style="text-align:left">3.726 s</td>
 </tr>
 <tr>
 <td>QSpinBox</td>
 <td style="text-align:left">0.472 s</td>
-<td style="text-align:left">0.653 s</td>
+<td style="text-align:left">0.649 s</td>
 <td style="text-align:left">0.367 s</td>
 </tr>
 <tr>
 <td>QProgressBar</td>
 <td style="text-align:left">0.754 s</td>
-<td style="text-align:left">0.962 s</td>
+<td style="text-align:left">0.955 s</td>
 <td style="text-align:left">0.568 s</td>
 </tr>
 <tr>
 <td>QPushButton</td>
 <td style="text-align:left">0.333 s</td>
-<td style="text-align:left">0.421 s</td>
+<td style="text-align:left">0.418 s</td>
 <td style="text-align:left">0.258 s</td>
 </tr>
 <tr>
 <td>QCheckbox</td>
 <td style="text-align:left">0.218 s</td>
-<td style="text-align:left">0.318 s</td>
+<td style="text-align:left">0.313 s</td>
 <td style="text-align:left">0.185 s</td>
 </tr>
 <tr>
 <td>QRadioButton</td>
 <td style="text-align:left">0.564 s</td>
-<td style="text-align:left">0.79 s</td>
+<td style="text-align:left">0.781 s</td>
 <td style="text-align:left">0.484 s</td>
 </tr>
 <tr>
 <td>QTextEdit add text</td>
 <td style="text-align:left">2.98 s</td>
-<td style="text-align:left">2.983 s</td>
+<td style="text-align:left">2.871 s</td>
 <td style="text-align:left">2.434 s</td>
 </tr>
 <tr>
 <td>QTextEdit scroll</td>
 <td style="text-align:left">0.462 s</td>
-<td style="text-align:left">0.462 s</td>
+<td style="text-align:left">0.482 s</td>
 <td style="text-align:left">0.317 s</td>
 </tr>
 <tr>
 <td>QPainter lines</td>
 <td style="text-align:left">5.997 s</td>
-<td style="text-align:left">5.487 s</td>
+<td style="text-align:left">4.633 s</td>
 <td style="text-align:left">4.325 s</td>
 </tr>
 <tr>
 <td>QPainter circles</td>
 <td style="text-align:left">5.947 s</td>
-<td style="text-align:left">5.452 s</td>
+<td style="text-align:left">4.598 s</td>
 <td style="text-align:left">4.279 s</td>
 </tr>
 <tr>
 <td>QPainter text</td>
 <td style="text-align:left">6.363 s</td>
-<td style="text-align:left">5.938 s</td>
+<td style="text-align:left">5.089 s</td>
 <td style="text-align:left">4.7 s</td>
 </tr>
 <tr>
 <td>QPainter pixmap</td>
 <td style="text-align:left">6.224 s</td>
-<td style="text-align:left">5.516 s</td>
+<td style="text-align:left">4.677 s</td>
 <td style="text-align:left">4.301 s</td>
 </tr>
 <tr>
 <td>Total</td>
 <td style="text-align:left">39.546001 s</td>
-<td style="text-align:left">40.934998 s</td>
+<td style="text-align:left">37.310997 s</td>
 <td style="text-align:left">30.062002 s</td>
 </tr>
 </tbody>
 </table>
-<p>armv7-sylixos-qt-4.8.6 的性能最好，Linux Qt-4.8.5 的性能比 arm-sylixos-qt-4.8.6 稍优。</p>
+<p>armv7-sylixos-qt-4.8.6 的性能最好，arm-sylixos-qt-4.8.6 的总体性能比 Linux Qt-4.8.5 稍优，但 Linux Qt-4.8.5 大部分测试项目性能要优于 arm-sylixos-qt-4.8.6。</p>
 <h2 id="测试结果对比分析">测试结果对比分析</h2><p>在测试 armv7-sylixos-qt-4.8.6 和 arm-sylixos-qt-4.8.6 时，使用了相同的运行环境（操作系统镜像、libvpmpdm.so、libcextern.so、xsiipc.ko、xinput.ko 均相同），所以 armv7-sylixos-qt-4.8.6 的性能优于 arm-sylixos-qt-4.8.6 的原因在于 Qt-4.8.6 被编译为更有高级的指令集（ARMv7A 和 NEON）。</p>
 <p>同时 armv7-sylixos-qt-4.8.6 的原子量操作性能比 arm-sylixos-qt-4.8.6 的要好，因为 armv7-sylixos-qt-4.8.6 的原子量操作使用机器指令实现，而 arm-sylixos-qt-4.8.6 的使用 SylixOS API 实现。</p>
-<p>Linux Qt-4.8.5 的性能比 arm-sylixos-qt-4.8.6 稍优，说明了 SylixOS 的 C 库尚有优化的空间。</p>
+<p>Linux Qt-4.8.5 大部分测试项目性能要优于 arm-sylixos-qt-4.8.6，说明了 SylixOS 的 C 库尚有优化的空间。</p>
 <h2 id="测试结论">测试结论</h2><p>armv7-sylixos-qt-4.8.6 的性能最好，建议客户在 ARMv7A 系列处理器（如 Cortex-A8 等）上使用 armv7-sylixos-qt-4.8.6。</p>
   
 	</div>

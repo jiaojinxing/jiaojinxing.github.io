@@ -21,7 +21,7 @@
 <meta property="og:description" content="测试目的验证 SylixOS 的 C 库和数学库的某些函数是否存在性能问题。
 找出 SylixOS 实时性远优于 Linux 和 RT-Linux（见《SylixOS实时性测试报告》，和 SylixOS 在 ARMv7A 性能优于 Linux （见《SylixOS ARMv7A 处理器性能测试与改进》），但 Qt 性能测试 qtperf 中部分项目不如 Linux 的原因，并提出解决办法。
 测试环">
-<meta property="og:updated_time" content="2015-07-21T06:01:09.844Z">
+<meta property="og:updated_time" content="2015-07-23T06:16:45.371Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SylixOS C 库、数学库性能测试">
 <meta name="twitter:description" content="测试目的验证 SylixOS 的 C 库和数学库的某些函数是否存在性能问题。
@@ -134,29 +134,32 @@
 <h2 id="测试结果对比">测试结果对比</h2><p>Linux 与 SylixOS 字符串类函数性能测试结果对比放在 <a href="https://github.com/jiaojinxing/benchtests/tree/master/images" target="_blank" rel="external">https://github.com/jiaojinxing/benchtests/tree/master/images</a></p>
 <p>字符串类函数性能测试结果显示，SylixOS 和 Linux 各有千秋，我们将根据这个结果，对 SylixOS 的 C 库进行优化。</p>
 <p>从完成数学类函数性能测试所耗时来看，SylixOS 远优化于 Linux，本质是 newlib 的 libm 的性能比 glibc 的 libm 的性能要好得多。</p>
-<p>从完成多线程 malloc 函数性能测试所耗时来看，Linux 要优于 SylixOS，本质是 Linux 的 glibc 使用的内存分配算法 ptmalloc 要优化于 SylixOS 使用的 dlmalloc，我们将使用更优秀的内存分配算法和更精细、快速的内存分配锁。</p>
+<p>从完成多线程 malloc 函数性能测试所耗时来看，Linux 要优于 SylixOS，本质是 Linux 的 glibc 使用的内存分配算法要优化于 SylixOS 使用的，我们将使用更优秀的内存分配算法和更精细、快速的内存分配锁。</p>
 <h2 id="SylixOS_的_C_库优化">SylixOS 的 C 库优化</h2><p>规划中，暂略。</p>
 <h2 id="SylixOS_内存分配算法优化">SylixOS 内存分配算法优化</h2><p>这篇文章做了一个常用内存分配算法的对比: <a href="http://webkit.sed.hu/blog/20100324/war-allocators-tlsf-action" target="_blank" rel="external">http://webkit.sed.hu/blog/20100324/war-allocators-tlsf-action</a></p>
 <p>常用内存分配算法有：</p>
 <ol>
-<li>系统默认的 malloc（即 ptmalloc）</li>
-<li>google 的 tcmalloc</li>
+<li>ptmalloc</li>
+<li>tcmalloc</li>
 <li>dlmalloc</li>
 <li>jemalloc</li>
 <li>hoard</li>
 <li>tlsf</li>
+<li>nedmalloc</li>
 </ol>
-<p>dlmalloc 由 Doug Lea 在 1987 年开发完成，这是 Android 系统中使用的内存分配器。而 Linux 系统中采用的是 ptmalloc，ptmalloc 在 dlmalloc 早期的基础上进行了改进，以更好地适应多线程。</p>
-<p>dlmalloc 和 ptmalloc 均使用 C 实现；dlmalloc 使用单 C 文件实现，约 5000 行，可移植性比较好；ptmalloc 与 glibc 绑定比较紧，可移植性比较差。</p>
-<p>tcmalloc 是一款专为高并发而优化的内存分配器。tcmalloc 的 tc 含义是 thread cache，tcmalloc 正是通过 thread cache 这种机制实现了大多数情况下的无锁内存分配。tcmalloc 属于 google-perftools 性能分析工具中的一元，使用 C++ 实现，源代码有点多，可移植性一般。</p>
-<p>tlsf（Two Level Segregated Fit）优势是用两个位图优化合适内存的查找，实现时间复杂度为常数的内存分配，非常适合在实时系统中使用。使用单 C 文件实现，约 1000 行，可移植性非常好。</p>
-<p>jemalloc 是 Jason Evans （FreeBSD 很有名的开发人员）在 2006 年为提高低性能的 malloc 而写的内存分配器。核心算法和 tcmalloc 类似，但 jemalloc 针对多核多线程进行了优化，在多核上的性能表现应该会 tcmalloc 更好。jemalloc 使用 C 实现，源代码有点多，可移植性一般。</p>
-<p>将 dlmalloc、tlsf、jemalloc 移植到 SylixOS 的进程补丁 libvpmpdm.so 上。</p>
+<p><a href="http://g.oswego.edu/dl/" target="_blank" rel="external">dlmalloc</a> 由 Doug Lea 在 1987 年开发完成，这是 Android 系统中使用的内存分配器。dlmalloc 使用单 C 文件实现，约 5000 行，可移植性比较好。</p>
+<p><a href="http://www.malloc.de/" target="_blank" rel="external">ptmalloc</a> 在 dlmalloc 早期的基础上进行了改进，以更好地适应多线程和 SMP，这是 Linux 系统的 glibc 中使用的内存分配器。ptmalloc 与 glibc 绑定比较紧，可移植性比较差。</p>
+<p><a href="http://www.nedprod.com/programs/portable/nedmalloc/" target="_blank" rel="external">nedmalloc</a> 在 dlmalloc 的基础上加入线程 cache，实现了大多数情况下的无锁内存分配。nedmalloc 使用单 C 文件实现，约 7000 行，可移植性比较好。</p>
+<p><a href="https://github.com/gperftools" target="_blank" rel="external">tcmalloc</a> 是 google 开发并开源出来的一款专为高并发而优化的内存分配器。tcmalloc 的 tc 含义是 thread cache，tcmalloc 正是通过 thread cache 这种机制实现了大多数情况下的无锁内存分配。tcmalloc 属于 google-perftools 性能分析工具中的一元，使用 C++ 实现，源代码有点多，可移植性一般。</p>
+<p><a href="http://tlsf.baisoku.org/" target="_blank" rel="external">tlsf</a> （Two Level Segregated Fit）优势是用两个位图优化合适内存的查找，实现时间复杂度为常数的内存分配，非常适合在实时系统中使用。使用单 C 文件实现，约 1000 行，可移植性非常好。tlsf 的不足之处在于在 32 位机器上，malloc 返回的指针是 4 字节对齐，而非 8 字节对齐。</p>
+<p><a href="http://www.canonware.com/jemalloc/" target="_blank" rel="external">jemalloc</a> 是 Jason Evans （FreeBSD 很有名的开发人员）在 2006 年为提高低性能的 malloc 而写的内存分配器。核心算法和 tcmalloc 类似，但 jemalloc 针对多核多线程进行了优化，在多核上的性能表现应该会 tcmalloc 更好。jemalloc 使用 C 实现，源代码有点多，可移植性一般。</p>
+<p>将 dlmalloc、nedmalloc、tlsf、jemalloc 移植到 SylixOS 的进程补丁 libvpmpdm.so 上。</p>
 <p>tlsf 并没有规定使用那种锁机制，可以使用自旋锁 spinlock 或互斥锁 mutex。</p>
-<p>实测（客户的应用程序和 qtperf）三种内存分配算法速度性能表现如下：</p>
-<p>tlsf（spinlock) &gt; tlsf（mutex) &gt; dlmalloc &gt; jemalloc &gt; SylixOS 原生内存分配算法</p>
-<p>所以将使用 tlsf（spinlock) 内存分配算法。</p>
-<p>tlsf 的不足之处在于在 32 位机器上，malloc 返回的指针是 4 字节对齐，而非 8 字节对齐，所以需要修改 tlsf 的代码。</p>
+<p>dlmalloc 和 nedmalloc 可以使用自旋锁 spinlock 或互斥锁 mutex。</p>
+<p>jemalloc 使用互斥锁 mutex。</p>
+<p>实测（客户的应用程序和 qtperf）四种内存分配算法速度性能表现如下：</p>
+<p>dlmalloc（spinlock) &gt; tlsf（spinlock) &gt; tlsf（mutex) &gt; dlmalloc(mutex) &gt; nedmalloc(spinlock) &gt; nedmalloc(mutex) &gt; jemalloc &gt; SylixOS 原生内存分配算法</p>
+<p>所以将使用 dlmalloc（spinlock) 内存分配算法完成后续测试。</p>
   
 	</div>
 		<footer class="article-footer clearfix">

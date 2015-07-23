@@ -299,7 +299,7 @@
     <link href="jiaojinxing.github.io/2015/07/17/SylixOS-C-%E5%BA%93%E3%80%81%E6%95%B0%E5%AD%A6%E5%BA%93%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/"/>
     <id>jiaojinxing.github.io/2015/07/17/SylixOS-C-库、数学库性能测试/</id>
     <published>2015-07-17T13:19:24.000Z</published>
-    <updated>2015-07-21T06:01:09.844Z</updated>
+    <updated>2015-07-23T06:16:45.371Z</updated>
     <content type="html"><![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 的 C 库和数学库的某些函数是否存在性能问题。</p>
 <p>找出 SylixOS 实时性远优于 Linux 和 RT-Linux（见《SylixOS实时性测试报告》，和 SylixOS 在 ARMv7A 性能优于 Linux （见<a href="http://jiaojinxing.github.io/2015/07/17/SylixOS-ARMv7A-%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E4%B8%8E%E6%94%B9%E8%BF%9B/">《SylixOS ARMv7A 处理器性能测试与改进》</a>），但 Qt 性能测试 <a href="https://github.com/jiaojinxing/qtperf" target="_blank" rel="external">qtperf</a> 中部分项目不如 Linux 的原因，并提出解决办法。</p>
 <h2 id="测试环境">测试环境</h2><h3 id="硬件平台">硬件平台</h3><p>硬件平台：飞凌嵌入式 OK335xS</p>
@@ -329,29 +329,32 @@
 <h2 id="测试结果对比">测试结果对比</h2><p>Linux 与 SylixOS 字符串类函数性能测试结果对比放在 <a href="https://github.com/jiaojinxing/benchtests/tree/master/images" target="_blank" rel="external">https://github.com/jiaojinxing/benchtests/tree/master/images</a></p>
 <p>字符串类函数性能测试结果显示，SylixOS 和 Linux 各有千秋，我们将根据这个结果，对 SylixOS 的 C 库进行优化。</p>
 <p>从完成数学类函数性能测试所耗时来看，SylixOS 远优化于 Linux，本质是 newlib 的 libm 的性能比 glibc 的 libm 的性能要好得多。</p>
-<p>从完成多线程 malloc 函数性能测试所耗时来看，Linux 要优于 SylixOS，本质是 Linux 的 glibc 使用的内存分配算法 ptmalloc 要优化于 SylixOS 使用的 dlmalloc，我们将使用更优秀的内存分配算法和更精细、快速的内存分配锁。</p>
+<p>从完成多线程 malloc 函数性能测试所耗时来看，Linux 要优于 SylixOS，本质是 Linux 的 glibc 使用的内存分配算法要优化于 SylixOS 使用的，我们将使用更优秀的内存分配算法和更精细、快速的内存分配锁。</p>
 <h2 id="SylixOS_的_C_库优化">SylixOS 的 C 库优化</h2><p>规划中，暂略。</p>
 <h2 id="SylixOS_内存分配算法优化">SylixOS 内存分配算法优化</h2><p>这篇文章做了一个常用内存分配算法的对比: <a href="http://webkit.sed.hu/blog/20100324/war-allocators-tlsf-action" target="_blank" rel="external">http://webkit.sed.hu/blog/20100324/war-allocators-tlsf-action</a></p>
 <p>常用内存分配算法有：</p>
 <ol>
-<li>系统默认的 malloc（即 ptmalloc）</li>
-<li>google 的 tcmalloc</li>
+<li>ptmalloc</li>
+<li>tcmalloc</li>
 <li>dlmalloc</li>
 <li>jemalloc</li>
 <li>hoard</li>
 <li>tlsf</li>
+<li>nedmalloc</li>
 </ol>
-<p>dlmalloc 由 Doug Lea 在 1987 年开发完成，这是 Android 系统中使用的内存分配器。而 Linux 系统中采用的是 ptmalloc，ptmalloc 在 dlmalloc 早期的基础上进行了改进，以更好地适应多线程。</p>
-<p>dlmalloc 和 ptmalloc 均使用 C 实现；dlmalloc 使用单 C 文件实现，约 5000 行，可移植性比较好；ptmalloc 与 glibc 绑定比较紧，可移植性比较差。</p>
-<p>tcmalloc 是一款专为高并发而优化的内存分配器。tcmalloc 的 tc 含义是 thread cache，tcmalloc 正是通过 thread cache 这种机制实现了大多数情况下的无锁内存分配。tcmalloc 属于 google-perftools 性能分析工具中的一元，使用 C++ 实现，源代码有点多，可移植性一般。</p>
-<p>tlsf（Two Level Segregated Fit）优势是用两个位图优化合适内存的查找，实现时间复杂度为常数的内存分配，非常适合在实时系统中使用。使用单 C 文件实现，约 1000 行，可移植性非常好。</p>
-<p>jemalloc 是 Jason Evans （FreeBSD 很有名的开发人员）在 2006 年为提高低性能的 malloc 而写的内存分配器。核心算法和 tcmalloc 类似，但 jemalloc 针对多核多线程进行了优化，在多核上的性能表现应该会 tcmalloc 更好。jemalloc 使用 C 实现，源代码有点多，可移植性一般。</p>
-<p>将 dlmalloc、tlsf、jemalloc 移植到 SylixOS 的进程补丁 libvpmpdm.so 上。</p>
+<p><a href="http://g.oswego.edu/dl/" target="_blank" rel="external">dlmalloc</a> 由 Doug Lea 在 1987 年开发完成，这是 Android 系统中使用的内存分配器。dlmalloc 使用单 C 文件实现，约 5000 行，可移植性比较好。</p>
+<p><a href="http://www.malloc.de/" target="_blank" rel="external">ptmalloc</a> 在 dlmalloc 早期的基础上进行了改进，以更好地适应多线程和 SMP，这是 Linux 系统的 glibc 中使用的内存分配器。ptmalloc 与 glibc 绑定比较紧，可移植性比较差。</p>
+<p><a href="http://www.nedprod.com/programs/portable/nedmalloc/" target="_blank" rel="external">nedmalloc</a> 在 dlmalloc 的基础上加入线程 cache，实现了大多数情况下的无锁内存分配。nedmalloc 使用单 C 文件实现，约 7000 行，可移植性比较好。</p>
+<p><a href="https://github.com/gperftools" target="_blank" rel="external">tcmalloc</a> 是 google 开发并开源出来的一款专为高并发而优化的内存分配器。tcmalloc 的 tc 含义是 thread cache，tcmalloc 正是通过 thread cache 这种机制实现了大多数情况下的无锁内存分配。tcmalloc 属于 google-perftools 性能分析工具中的一元，使用 C++ 实现，源代码有点多，可移植性一般。</p>
+<p><a href="http://tlsf.baisoku.org/" target="_blank" rel="external">tlsf</a> （Two Level Segregated Fit）优势是用两个位图优化合适内存的查找，实现时间复杂度为常数的内存分配，非常适合在实时系统中使用。使用单 C 文件实现，约 1000 行，可移植性非常好。tlsf 的不足之处在于在 32 位机器上，malloc 返回的指针是 4 字节对齐，而非 8 字节对齐。</p>
+<p><a href="http://www.canonware.com/jemalloc/" target="_blank" rel="external">jemalloc</a> 是 Jason Evans （FreeBSD 很有名的开发人员）在 2006 年为提高低性能的 malloc 而写的内存分配器。核心算法和 tcmalloc 类似，但 jemalloc 针对多核多线程进行了优化，在多核上的性能表现应该会 tcmalloc 更好。jemalloc 使用 C 实现，源代码有点多，可移植性一般。</p>
+<p>将 dlmalloc、nedmalloc、tlsf、jemalloc 移植到 SylixOS 的进程补丁 libvpmpdm.so 上。</p>
 <p>tlsf 并没有规定使用那种锁机制，可以使用自旋锁 spinlock 或互斥锁 mutex。</p>
-<p>实测（客户的应用程序和 qtperf）三种内存分配算法速度性能表现如下：</p>
-<p>tlsf（spinlock) &gt; tlsf（mutex) &gt; dlmalloc &gt; jemalloc &gt; SylixOS 原生内存分配算法</p>
-<p>所以将使用 tlsf（spinlock) 内存分配算法。</p>
-<p>tlsf 的不足之处在于在 32 位机器上，malloc 返回的指针是 4 字节对齐，而非 8 字节对齐，所以需要修改 tlsf 的代码。</p>
+<p>dlmalloc 和 nedmalloc 可以使用自旋锁 spinlock 或互斥锁 mutex。</p>
+<p>jemalloc 使用互斥锁 mutex。</p>
+<p>实测（客户的应用程序和 qtperf）四种内存分配算法速度性能表现如下：</p>
+<p>dlmalloc（spinlock) &gt; tlsf（spinlock) &gt; tlsf（mutex) &gt; dlmalloc(mutex) &gt; nedmalloc(spinlock) &gt; nedmalloc(mutex) &gt; jemalloc &gt; SylixOS 原生内存分配算法</p>
+<p>所以将使用 dlmalloc（spinlock) 内存分配算法完成后续测试。</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 的 C 库和数学库的某些函数是否存在性能问题。</p>
@@ -384,7 +387,7 @@
     <link href="jiaojinxing.github.io/2015/07/17/SylixOS-Qt-%E5%9B%BE%E5%BD%A2%E7%95%8C%E9%9D%A2%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/"/>
     <id>jiaojinxing.github.io/2015/07/17/SylixOS-Qt-图形界面性能测试/</id>
     <published>2015-07-17T13:18:29.000Z</published>
-    <updated>2015-07-21T05:47:46.753Z</updated>
+    <updated>2015-07-22T07:37:40.574Z</updated>
     <content type="html"><![CDATA[<h2 id="测试目的">测试目的</h2><p>测试 SylixOS 上 Qt 的性能。</p>
 <h2 id="测试环境">测试环境</h2><h3 id="硬件平台">硬件平台</h3><p>硬件平台：飞凌嵌入式 OK335xS</p>
 <p>处理器：AM335x(Cortex-A8, 800MHz)</p>
@@ -409,7 +412,7 @@
 <h2 id="Linux_测试结果">Linux 测试结果</h2><p>qtperf 编译选项：<br><figure class="highlight nix"><table><tr><td class="code"><pre><span class="line"><span class="variable">-mcpu=</span>cortex-a8 <span class="variable">-mfloat-abi=</span>softfp <span class="variable">-mfpu=</span>vfpv3 -O2</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx/qtperf</span><span class="comment"># ./qtperf4 -qws &amp;</span></span><br><span class="line">[<span class="number">1</span>] <span class="number">1545</span></span><br><span class="line">root<span class="variable">@ok335x</span><span class="symbol">:/home/forlinx/qtperf</span><span class="comment"># QLineEdit - 0.755 s</span></span><br><span class="line"><span class="constant">QComboBox </span>- <span class="number">4.08</span> s</span><br><span class="line"><span class="constant">QComboBoxEntry </span>- <span class="number">4.397</span> s</span><br><span class="line"><span class="constant">QSpinBox </span>- <span class="number">0</span>.<span class="number">472</span> s</span><br><span class="line"><span class="constant">QProgressBar </span>- <span class="number">0</span>.<span class="number">754</span> s</span><br><span class="line"><span class="constant">QPushButton </span>- <span class="number">0</span>.<span class="number">333</span> s</span><br><span class="line"><span class="constant">QCheckbox </span>- <span class="number">0</span>.<span class="number">218</span> s</span><br><span class="line"><span class="constant">QRadioButton </span>- <span class="number">0</span>.<span class="number">564</span> s</span><br><span class="line"><span class="constant">QTextEdit </span>add text - <span class="number">2.98</span> s</span><br><span class="line"><span class="constant">QTextEdit </span>scroll - <span class="number">0</span>.<span class="number">462</span> s</span><br><span class="line"><span class="constant">QPainter </span>lines - <span class="number">5.997</span> s</span><br><span class="line"><span class="constant">QPainter </span>circles - <span class="number">5.947</span> s</span><br><span class="line"><span class="constant">QPainter </span>text - <span class="number">6.363</span> s</span><br><span class="line"><span class="constant">QPainter </span>pixmap - <span class="number">6.224</span> s</span><br><span class="line"><span class="constant">Total:</span> <span class="number">39.546001</span> s</span><br></pre></td></tr></table></figure>
 <h2 id="SylixOS测试结果">SylixOS测试结果</h2><h3 id="arm-sylixos-qt-4-8-6">arm-sylixos-qt-4.8.6</h3><p>qtperf 编译选项：<br><figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line">-<span class="keyword">march=armv4 </span>-mno-unaligned-access -O2</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps/qtperf]# ./qtperf4 -qws &amp;</span><br><span class="line">[root@sylixos_station:/apps/qtperf]# Connected to SylixOS FrameBuffer server: 800 x 480 x 32 282x169mm (72x72dpi)</span><br><span class="line">Corrupt calibration data</span><br><span class="line">QSylixOSInputMouseHandler: connected.</span><br><span class="line">QSylixOSInputKeyboardHandler: connected.</span><br><span class="line">QLineEdit - 0.943 <span class="literal">s</span></span><br><span class="line">QComboBox - 5.234 <span class="literal">s</span></span><br><span class="line">QComboBoxEntry - 5.776 <span class="literal">s</span></span><br><span class="line">QSpinBox - 0.653 <span class="literal">s</span></span><br><span class="line">QProgressBar - 0.962 <span class="literal">s</span></span><br><span class="line">QPushButton - 0.421 <span class="literal">s</span></span><br><span class="line">QCheckbox - 0.318 <span class="literal">s</span></span><br><span class="line">QRadioButton - 0.79 <span class="literal">s</span></span><br><span class="line">QTextEdit add text - 2.983 <span class="literal">s</span></span><br><span class="line">QTextEdit scroll - 0.462 <span class="literal">s</span></span><br><span class="line">QPainter lines - 5.487 <span class="literal">s</span></span><br><span class="line">QPainter circles - 5.452 <span class="literal">s</span></span><br><span class="line">QPainter text - 5.938 <span class="literal">s</span></span><br><span class="line">QPainter pixmap - 5.516 <span class="literal">s</span></span><br><span class="line"><span class="keyword">Total</span>: 40.934998 <span class="literal">s</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps/qtperf]# ./qtperf4 -qws &amp;</span><br><span class="line">[root@sylixos_station:/apps/qtperf]# Connected to SylixOS FrameBuffer server: 800 x 480 x 32 282x169mm (72x72dpi)</span><br><span class="line">Corrupt calibration data</span><br><span class="line">QSylixOSInputMouseHandler: connected.</span><br><span class="line">QSylixOSInputKeyboardHandler: connected.</span><br><span class="line">QLineEdit - 0.943 <span class="literal">s</span></span><br><span class="line">QComboBox - 5.179 <span class="literal">s</span></span><br><span class="line">QComboBoxEntry - 5.723 <span class="literal">s</span></span><br><span class="line">QSpinBox - 0.649 <span class="literal">s</span></span><br><span class="line">QProgressBar - 0.955 <span class="literal">s</span></span><br><span class="line">QPushButton - 0.418 <span class="literal">s</span></span><br><span class="line">QCheckbox - 0.313 <span class="literal">s</span></span><br><span class="line">QRadioButton - 0.781 <span class="literal">s</span></span><br><span class="line">QTextEdit add text - 2.871 <span class="literal">s</span></span><br><span class="line">QTextEdit scroll - 0.482 <span class="literal">s</span></span><br><span class="line">QPainter lines - 4.633 <span class="literal">s</span></span><br><span class="line">QPainter circles - 4.598 <span class="literal">s</span></span><br><span class="line">QPainter text - 5.089 <span class="literal">s</span></span><br><span class="line">QPainter pixmap - 4.677 <span class="literal">s</span></span><br><span class="line"><span class="keyword">Total</span>: 37.310997 <span class="literal">s</span></span><br></pre></td></tr></table></figure>
 <h3 id="armv7-sylixos-qt-4-8-6">armv7-sylixos-qt-4.8.6</h3><p>qtperf 编译选项：<br><figure class="highlight nix"><table><tr><td class="code"><pre><span class="line"><span class="variable">-march=</span>armv7-a <span class="variable">-mfloat-abi=</span>softfp <span class="variable">-mfpu=</span>neon -mno-unaligned-access -O2</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">[root@sylixos_station:/apps/qtperf]# ./qtperf4 -qws &amp;</span><br><span class="line">[root@sylixos_station:/apps/qtperf]# Connected to SylixOS FrameBuffer server: 80                                                                                                                                                             0 x 480 x 32 282x169mm (72x72dpi)</span><br><span class="line">Corrupt calibration data</span><br><span class="line">QSylixOSInputMouseHandler: connected.</span><br><span class="line">QSylixOSInputKeyboardHandler: connected.</span><br><span class="line">QLineEdit - 0.612 <span class="literal">s</span></span><br><span class="line">QComboBox - 3.506 <span class="literal">s</span></span><br><span class="line">QComboBoxEntry - 3.726 <span class="literal">s</span></span><br><span class="line">QSpinBox - 0.367 <span class="literal">s</span></span><br><span class="line">QProgressBar - 0.568 <span class="literal">s</span></span><br><span class="line">QPushButton - 0.258 <span class="literal">s</span></span><br><span class="line">QCheckbox - 0.185 <span class="literal">s</span></span><br><span class="line">QRadioButton - 0.484 <span class="literal">s</span></span><br><span class="line">QTextEdit add text - 2.434 <span class="literal">s</span></span><br><span class="line">QTextEdit scroll - 0.317 <span class="literal">s</span></span><br><span class="line">QPainter lines - 4.325 <span class="literal">s</span></span><br><span class="line">QPainter circles - 4.279 <span class="literal">s</span></span><br><span class="line">QPainter text - 4.7 <span class="literal">s</span></span><br><span class="line">QPainter pixmap - 4.301 <span class="literal">s</span></span><br><span class="line"><span class="keyword">Total</span>: 30.062002 <span class="literal">s</span></span><br></pre></td></tr></table></figure>
 <h2 id="测试结果汇总与对比">测试结果汇总与对比</h2><p>测试结果汇总如下表：</p>
@@ -432,93 +435,93 @@
 <tr>
 <td>QComboBox</td>
 <td style="text-align:left">4.08 s</td>
-<td style="text-align:left">5.234 s</td>
+<td style="text-align:left">5.179 s</td>
 <td style="text-align:left">3.506 s</td>
 </tr>
 <tr>
 <td>QComboBoxEntry</td>
 <td style="text-align:left">4.397 s</td>
-<td style="text-align:left">5.776 s</td>
+<td style="text-align:left">5.723 s</td>
 <td style="text-align:left">3.726 s</td>
 </tr>
 <tr>
 <td>QSpinBox</td>
 <td style="text-align:left">0.472 s</td>
-<td style="text-align:left">0.653 s</td>
+<td style="text-align:left">0.649 s</td>
 <td style="text-align:left">0.367 s</td>
 </tr>
 <tr>
 <td>QProgressBar</td>
 <td style="text-align:left">0.754 s</td>
-<td style="text-align:left">0.962 s</td>
+<td style="text-align:left">0.955 s</td>
 <td style="text-align:left">0.568 s</td>
 </tr>
 <tr>
 <td>QPushButton</td>
 <td style="text-align:left">0.333 s</td>
-<td style="text-align:left">0.421 s</td>
+<td style="text-align:left">0.418 s</td>
 <td style="text-align:left">0.258 s</td>
 </tr>
 <tr>
 <td>QCheckbox</td>
 <td style="text-align:left">0.218 s</td>
-<td style="text-align:left">0.318 s</td>
+<td style="text-align:left">0.313 s</td>
 <td style="text-align:left">0.185 s</td>
 </tr>
 <tr>
 <td>QRadioButton</td>
 <td style="text-align:left">0.564 s</td>
-<td style="text-align:left">0.79 s</td>
+<td style="text-align:left">0.781 s</td>
 <td style="text-align:left">0.484 s</td>
 </tr>
 <tr>
 <td>QTextEdit add text</td>
 <td style="text-align:left">2.98 s</td>
-<td style="text-align:left">2.983 s</td>
+<td style="text-align:left">2.871 s</td>
 <td style="text-align:left">2.434 s</td>
 </tr>
 <tr>
 <td>QTextEdit scroll</td>
 <td style="text-align:left">0.462 s</td>
-<td style="text-align:left">0.462 s</td>
+<td style="text-align:left">0.482 s</td>
 <td style="text-align:left">0.317 s</td>
 </tr>
 <tr>
 <td>QPainter lines</td>
 <td style="text-align:left">5.997 s</td>
-<td style="text-align:left">5.487 s</td>
+<td style="text-align:left">4.633 s</td>
 <td style="text-align:left">4.325 s</td>
 </tr>
 <tr>
 <td>QPainter circles</td>
 <td style="text-align:left">5.947 s</td>
-<td style="text-align:left">5.452 s</td>
+<td style="text-align:left">4.598 s</td>
 <td style="text-align:left">4.279 s</td>
 </tr>
 <tr>
 <td>QPainter text</td>
 <td style="text-align:left">6.363 s</td>
-<td style="text-align:left">5.938 s</td>
+<td style="text-align:left">5.089 s</td>
 <td style="text-align:left">4.7 s</td>
 </tr>
 <tr>
 <td>QPainter pixmap</td>
 <td style="text-align:left">6.224 s</td>
-<td style="text-align:left">5.516 s</td>
+<td style="text-align:left">4.677 s</td>
 <td style="text-align:left">4.301 s</td>
 </tr>
 <tr>
 <td>Total</td>
 <td style="text-align:left">39.546001 s</td>
-<td style="text-align:left">40.934998 s</td>
+<td style="text-align:left">37.310997 s</td>
 <td style="text-align:left">30.062002 s</td>
 </tr>
 </tbody>
 </table>
-<p>armv7-sylixos-qt-4.8.6 的性能最好，Linux Qt-4.8.5 的性能比 arm-sylixos-qt-4.8.6 稍优。</p>
+<p>armv7-sylixos-qt-4.8.6 的性能最好，arm-sylixos-qt-4.8.6 的总体性能比 Linux Qt-4.8.5 稍优，但 Linux Qt-4.8.5 大部分测试项目性能要优于 arm-sylixos-qt-4.8.6。</p>
 <h2 id="测试结果对比分析">测试结果对比分析</h2><p>在测试 armv7-sylixos-qt-4.8.6 和 arm-sylixos-qt-4.8.6 时，使用了相同的运行环境（操作系统镜像、libvpmpdm.so、libcextern.so、xsiipc.ko、xinput.ko 均相同），所以 armv7-sylixos-qt-4.8.6 的性能优于 arm-sylixos-qt-4.8.6 的原因在于 Qt-4.8.6 被编译为更有高级的指令集（ARMv7A 和 NEON）。</p>
 <p>同时 armv7-sylixos-qt-4.8.6 的原子量操作性能比 arm-sylixos-qt-4.8.6 的要好，因为 armv7-sylixos-qt-4.8.6 的原子量操作使用机器指令实现，而 arm-sylixos-qt-4.8.6 的使用 SylixOS API 实现。</p>
-<p>Linux Qt-4.8.5 的性能比 arm-sylixos-qt-4.8.6 稍优，说明了 SylixOS 的 C 库尚有优化的空间。</p>
+<p>Linux Qt-4.8.5 大部分测试项目性能要优于 arm-sylixos-qt-4.8.6，说明了 SylixOS 的 C 库尚有优化的空间。</p>
 <h2 id="测试结论">测试结论</h2><p>armv7-sylixos-qt-4.8.6 的性能最好，建议客户在 ARMv7A 系列处理器（如 Cortex-A8 等）上使用 armv7-sylixos-qt-4.8.6。</p>
 ]]></content>
     <summary type="html">
