@@ -4,23 +4,47 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>SylixOS POSIX 标准兼容性测试 | JinXing’s blog</title>
+    <title>SylixOS POSIX 标准符合度测试 | JinXing’s blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="jiaojinxing">
     
 
     
-    <meta name="description">
+    <meta name="description" content="测试目的测试 SylixOS 对 IEEE1003（POSIX）标准的符合度。
+测试环境主机操作系统Ubuntu-12.04
+硬件平台硬件平台：飞凌嵌入式 OK335xS
+处理器：AM335x(Cortex-A8, 800MHz)
+L1-Cache：32KB I-Cache/32KB D-Cache
+L2-Cache：256KB
+内存：512MB
+操作系统SylixOS + bspam335x
+对">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SylixOS POSIX 标准兼容性测试">
-<meta property="og:url" content="jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-标准兼容性测试/index.html">
+<meta property="og:title" content="SylixOS POSIX 标准符合度测试">
+<meta property="og:url" content="jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-标准符合度测试/index.html">
 <meta property="og:site_name" content="JinXing’s blog">
-<meta property="og:description">
-<meta property="og:updated_time" content="2015-07-17T13:17:37.447Z">
+<meta property="og:description" content="测试目的测试 SylixOS 对 IEEE1003（POSIX）标准的符合度。
+测试环境主机操作系统Ubuntu-12.04
+硬件平台硬件平台：飞凌嵌入式 OK335xS
+处理器：AM335x(Cortex-A8, 800MHz)
+L1-Cache：32KB I-Cache/32KB D-Cache
+L2-Cache：256KB
+内存：512MB
+操作系统SylixOS + bspam335x
+对">
+<meta property="og:updated_time" content="2015-07-30T07:59:44.004Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="SylixOS POSIX 标准兼容性测试">
-<meta name="twitter:description">
+<meta name="twitter:title" content="SylixOS POSIX 标准符合度测试">
+<meta name="twitter:description" content="测试目的测试 SylixOS 对 IEEE1003（POSIX）标准的符合度。
+测试环境主机操作系统Ubuntu-12.04
+硬件平台硬件平台：飞凌嵌入式 OK335xS
+处理器：AM335x(Cortex-A8, 800MHz)
+L1-Cache：32KB I-Cache/32KB D-Cache
+L2-Cache：256KB
+内存：512MB
+操作系统SylixOS + bspam335x
+对">
 
     
     <link rel="alternative" href="/atom.xml" title="JinXing’s blog" type="application/atom+xml">
@@ -79,7 +103,7 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/07/17/SylixOS-POSIX-标准兼容性测试/" title="SylixOS POSIX 标准兼容性测试" itemprop="url">SylixOS POSIX 标准兼容性测试</a>
+      <a href="/2015/07/17/SylixOS-POSIX-标准符合度测试/" title="SylixOS POSIX 标准符合度测试" itemprop="url">SylixOS POSIX 标准符合度测试</a>
   </h1>
   <p class="article-author">By
        
@@ -95,15 +119,52 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#测试目的"><span class="toc-number">1.</span> <span class="toc-text">测试目的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试环境"><span class="toc-number">2.</span> <span class="toc-text">测试环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主机操作系统"><span class="toc-number">2.1.</span> <span class="toc-text">主机操作系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#硬件平台"><span class="toc-number">2.2.</span> <span class="toc-text">硬件平台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#操作系统"><span class="toc-number">2.3.</span> <span class="toc-text">操作系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编译器"><span class="toc-number">2.4.</span> <span class="toc-text">编译器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试软件"><span class="toc-number">3.</span> <span class="toc-text">测试软件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SylixOS测试结果"><span class="toc-number">4.</span> <span class="toc-text">SylixOS测试结果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux测试结果"><span class="toc-number">5.</span> <span class="toc-text">Linux测试结果</span></a></li></ol>
 		
 		</div>
 		
-		  
+		<h2 id="测试目的">测试目的</h2><p>测试 SylixOS 对 IEEE1003（POSIX）标准的符合度。</p>
+<h2 id="测试环境">测试环境</h2><h3 id="主机操作系统">主机操作系统</h3><p>Ubuntu-12.04</p>
+<h3 id="硬件平台">硬件平台</h3><p>硬件平台：飞凌嵌入式 OK335xS</p>
+<p>处理器：AM335x(Cortex-A8, 800MHz)</p>
+<p>L1-Cache：32KB I-Cache/32KB D-Cache</p>
+<p>L2-Cache：256KB</p>
+<p>内存：512MB</p>
+<h3 id="操作系统">操作系统</h3><p>SylixOS + bspam335x</p>
+<p>对比测试操作系统 Linux：3.2.0（厂家配套的）</p>
+<h3 id="编译器">编译器</h3><p>Linux：</p>
+<p>arm-arago-linux-gnueabi-gcc： gcc version 4.5.3 20110311 (prerelease) (GCC) </p>
+<p>SylixOS：</p>
+<p>arm-sylixos-eabi-gcc: gcc version 4.9.3 20150303 (release) [ARM/embedded-4_9-branch revision 221220] (<br>SylixOS Toolchain for ARM Embedded Processors) </p>
+<h2 id="测试软件">测试软件</h2><p>测试软件使用 posixtestsuite </p>
+<p>posixtestsuite 的官网: <a href="http://sourceforge.net/projects/posixtest/files/?source=navbar" target="_blank" rel="external">http://sourceforge.net/projects/posixtest/files/?source=navbar</a></p>
+<p>posixtestsuite 测试分为三类：标准符合度测试 conformance、功能测试 functional、压力测试 stress。</p>
+<p>移植好的 posixtestsuite 放在：</p>
+<h2 id="SylixOS测试结果">SylixOS测试结果</h2><p>第一次测试命令：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line"><span class="keyword">make</span> -<span class="keyword">f</span> Makefile <span class="number">1</span>&gt;sylixos.<span class="built_in">log</span> <span class="number">2</span>&gt;sylixos_err.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>将符合度结果记录在 sylixos.log 文件，将编译出错的信息记录在 sylixos_err.log 文件。</p>
+<p>测试完毕后，查看 sylixos_err.log 文件，分析编译出错的原因，找出 posixtestsuite 的不合理测试所引致的问题，然后修改 posixtestsuite 的代码。</p>
+<p>第二次测试命令：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line"><span class="keyword">make</span> <span class="number">1</span>&gt;sylixos_new.<span class="built_in">log</span> <span class="number">2</span>&gt;sylixos_err_new.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>查看 sylixos_new.log 文件，统计通过测试的总数和不通过测试的总数，计算 SylixOS 对 IEEE1003（POSIX）标准的符合度。</p>
+<p>备注：跳过链接的测试一般用于检测头文件和类型是否有定义，跳过链接的测试如果成功，则算为通过的测试，否则算为不通过的测试。</p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line"><span class="keyword">Search</span> <span class="string">"PASS"</span> (1728 hits <span class="keyword">in</span> 1 <span class="keyword">file</span>)</span><br><span class="line">  <span class="keyword">D</span>:\workspace_opensource\posixtestsuite\sylixos_new.<span class="keyword">log</span> (1728 hits)</span><br><span class="line">  </span><br><span class="line"><span class="keyword">Search</span> <span class="string">"SKIP"</span> (233 hits <span class="keyword">in</span> 1 <span class="keyword">file</span>)</span><br><span class="line">  <span class="keyword">D</span>:\workspace_opensource\posixtestsuite\sylixos_new.<span class="keyword">log</span> (233 hits)</span><br><span class="line"></span><br><span class="line"><span class="keyword">Search</span> <span class="string">"FAILED"</span> (21 hits <span class="keyword">in</span> 1 <span class="keyword">file</span>)</span><br><span class="line">  <span class="keyword">D</span>:\workspace_opensource\posixtestsuite\sylixos_new.<span class="keyword">log</span> (21 hits)</span><br></pre></td></tr></table></figure>
+<p>SylixOS 对 IEEE1003（POSIX）标准的符合度 = (1728 + 233) / (1728 + 233 + 21) = 0.9894046417759839 = 99%</p>
+<h2 id="Linux测试结果">Linux测试结果</h2>  
 	</div>
 		<footer class="article-footer clearfix">
 <div class="article-catetags">
 
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/SylixOS/">SylixOS</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/SylixOS/">SylixOS</a><a href="/tags/测试/">测试</a>
+  </div>
 
 </div>
 
@@ -111,7 +172,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-标准兼容性测试/" data-title="SylixOS POSIX 标准兼容性测试 | JinXing’s blog" data-tsina="null" class="share clearfix">
+	  <div data-url="jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-标准符合度测试/" data-title="SylixOS POSIX 标准符合度测试 | JinXing’s blog" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -157,7 +218,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#测试目的"><span class="toc-number">1.</span> <span class="toc-text">测试目的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试环境"><span class="toc-number">2.</span> <span class="toc-text">测试环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主机操作系统"><span class="toc-number">2.1.</span> <span class="toc-text">主机操作系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#硬件平台"><span class="toc-number">2.2.</span> <span class="toc-text">硬件平台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#操作系统"><span class="toc-number">2.3.</span> <span class="toc-text">操作系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编译器"><span class="toc-number">2.4.</span> <span class="toc-text">编译器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试软件"><span class="toc-number">3.</span> <span class="toc-text">测试软件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SylixOS测试结果"><span class="toc-number">4.</span> <span class="toc-text">SylixOS测试结果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux测试结果"><span class="toc-number">5.</span> <span class="toc-text">Linux测试结果</span></a></li></ol>
  
   </div>
 
@@ -171,7 +232,7 @@
 		<ul>
 		
 		  
-			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>13</sup></a></li>
+			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>15</sup></a></li>
 		  
 		
 		  
@@ -188,11 +249,11 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>13</sup></a></li>
+				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>15</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/测试/" title="测试">测试<sup>4</sup></a></li>
+				<li><a href="/tags/测试/" title="测试">测试<sup>5</sup></a></li>
 			
 		
 			

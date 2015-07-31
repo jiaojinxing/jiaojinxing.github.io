@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-07-19T04:10:45.415Z</updated>
+  <updated>2015-07-31T03:48:53.564Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -13,6 +13,54 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[SylixOS 网络文件系统 nfs 的使用]]></title>
+    <link href="jiaojinxing.github.io/2015/07/31/SylixOS-%E7%BD%91%E7%BB%9C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-nfs-%E7%9A%84%E4%BD%BF%E7%94%A8/"/>
+    <id>jiaojinxing.github.io/2015/07/31/SylixOS-网络文件系统-nfs-的使用/</id>
+    <published>2015-07-31T03:16:24.000Z</published>
+    <updated>2015-07-31T03:48:53.564Z</updated>
+    <content type="html"><![CDATA[<p>SylixOS 支持网络文件系统 nfs，在开发阶段，当工程文件相当多并修改频繁时，使用 nfs 可以免去频繁下载这些工程文件的麻烦，从而提高开发效率，下面介绍 nfs 的使用方法。</p>
+<h2 id="确保_SylixOS_编译了_nfs_组件">确保 SylixOS 编译了 nfs 组件</h2><p>默认情况 SylixOS 开启了 nfs 的支持，但 nfs 可以裁减，查看 sylixos-base/libsylixos/config/fs/fs_cfg.h 文件，找到 LW_CFG_NFS_EN 的定义，确保 LW_CFG_NFS_EN 被定义为 1，如下：<br><figure class="highlight stylus"><table><tr><td class="code"><pre><span class="line"><span class="hexcolor">#def</span>ine LW_CFG_NFS_EN                       <span class="number">1</span>                           <span class="comment">/*  是否使能 NFS 文件系统服务   */</span></span><br></pre></td></tr></table></figure></p>
+<p>此外，nfs 依赖于如下组件：</p>
+<ol>
+<li>网络</li>
+<li>RPC</li>
+<li>I/O 系统</li>
+</ol>
+<p>需要确保以上组件均已经使能。</p>
+<h2 id="主机运行_nfs_服务器">主机运行 nfs 服务器</h2><p>双击 FreeNFS.exe 运行 nfs 服务器，FreeNFS.exe 运行后会退到系统托盘，在系统托盘选中 FreeNFS 的图标，并右键打开快捷菜单，点击 “settings…” 菜单打开设置对话框。</p>
+<p>切换到 Server 页面：</p>
+<p><img src="/img/SylixOS-网络文件系统-nfs-的使用/图像 1.png" alt="图像 1.png"></p>
+<p>Path 输入框输入主机用于 nfs 的目录路径。</p>
+<p>切换到 Clients 页面：</p>
+<p><img src="/img/SylixOS-网络文件系统-nfs-的使用/图像 2.png" alt="图像 2.png"></p>
+<p>Allowed host 输入允许的开发板的 IP 地址，使用空格分隔多个 IP 地址。</p>
+<p>切换到 Filenames 页面：</p>
+<p><img src="/img/SylixOS-网络文件系统-nfs-的使用/图像 3.png" alt="图像 2.png"></p>
+<p>Codepage 选择 “20936 (简体中文 GB2312)”。</p>
+<p>最后点击 OK 按钮完成设置。</p>
+<h2 id="开发板挂载_nfs">开发板挂载 nfs</h2><p>使用网线连接开发板与主机（或确保开发板与主机在同一网段并可相连)。</p>
+<p>在开发板的 shell 执行如下命令：<br><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">mount -t nfs <span class="number">192.168</span>.<span class="number">1.10</span><span class="symbol">:/posixtestsuite</span> /mnt/nfs</span><br></pre></td></tr></table></figure></p>
+<p>mount 是挂载命令；</p>
+<p>-t 指定了文件系统的类型为 nfs；</p>
+<p>192.168.1.10:/posixtestsuite 是主机的路径，其中 192.168.1.10 是主机的 IP 地址，<strong>而 /posixtestsuite 是主机的 D:\workspace_opensource\posixtestsuite 目录下存在的子目录</strong>; </p>
+<p>/mnt/nfs 是需要挂载到路径，一般情况下我们使用 /mnt 的一个子目录用于挂载，/mnt/nfs 目录在挂载时被创建，所以无需事先创建。</p>
+<p>挂载成功后，进入 /mnt/nfs/ 目录，ls 可查看主机 D:\workspace_opensource\posixtestsuite\posixtestsuite 目录下的内容：<br><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">[root<span class="variable">@sylixos_station</span><span class="symbol">:/</span>]<span class="comment"># cd /mnt/nfs/</span></span><br><span class="line">[root<span class="variable">@sylixos_station</span><span class="symbol">:/mnt/nfs</span>]<span class="comment"># ls</span></span><br><span class="line"><span class="constant">AUTHORS </span>        <span class="constant">BUILD </span>          <span class="constant">ChangeLog </span>      conformance     <span class="constant">COPYING</span></span><br><span class="line"><span class="constant">Documentation </span>  exec-func.sh    execute.sh      functional      <span class="keyword">include</span></span><br><span class="line"><span class="constant">INSTALL </span>        <span class="constant">LDFLAGS </span>        locate-test     logfile         <span class="constant">Makefile.</span>sylixos</span><br><span class="line"><span class="constant">NEWS </span>           posixtestsuite_run_test         <span class="constant">QUICK-START </span>    <span class="constant">README</span></span><br><span class="line">run_tests       sed.exe.stackdump               stress          t<span class="number">0</span>.c</span><br></pre></td></tr></table></figure></p>
+<p>showmount 命令可以查看当前系统挂载的文件系统：<br><figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line">[root<span class="variable">@sylixos_station</span><span class="symbol">:/</span>]<span class="comment"># showmount</span></span><br><span class="line">all mount point show <span class="prompt">&gt;&gt;</span><br><span class="line">       </span><span class="constant">VOLUME</span>                    <span class="constant">BLK</span> <span class="constant">NAME</span></span><br><span class="line">-------------------- --------------------------------</span><br><span class="line"><span class="regexp">/mnt/nfs</span>             <span class="number">192.168</span>.<span class="number">1.10</span><span class="symbol">:/posixtestsuite</span></span><br><span class="line">/ramdisk             <span class="number">0</span></span><br></pre></td></tr></table></figure></p>
+<p>df 命令可以查看文件系统的大小、空闲文间、使用百分比及类型：<br><figure class="highlight brainfuck"><table><tr><td class="code"><pre><span class="line"><span class="title">[</span><span class="comment">root@sylixos_station:/</span><span class="title">]</span><span class="comment">#</span> <span class="comment">df</span> <span class="comment">/mnt/nfs/</span></span><br><span class="line">    <span class="comment">VOLUME</span>         <span class="comment">TOTAL</span>        <span class="comment">FREE</span>     <span class="comment">USED</span> <span class="comment">RO</span>       <span class="comment">FS</span> <span class="comment">TYPE</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span></span><br><span class="line"><span class="comment">/mnt/nfs/</span>          <span class="comment">443</span><span class="string">.</span><span class="comment">22GB</span>     <span class="comment">359</span><span class="string">.</span><span class="comment">69GB</span>  <span class="comment">18%</span> <span class="comment">n</span>  <span class="comment">NFSv3</span> <span class="comment">FileSystem</span></span><br></pre></td></tr></table></figure></p>
+<p>umount 命令可以取消挂载文件系统：<br><figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line">[root<span class="variable">@sylixos_station</span><span class="symbol">:/</span>]<span class="comment"># umount /mnt/nfs/</span></span><br><span class="line">[root<span class="variable">@sylixos_station</span><span class="symbol">:/</span>]<span class="comment"># showmount</span></span><br><span class="line">all mount point show <span class="prompt">&gt;&gt;</span><br><span class="line">       </span><span class="constant">VOLUME</span>                    <span class="constant">BLK</span> <span class="constant">NAME</span></span><br><span class="line">-------------------- --------------------------------</span><br><span class="line"><span class="regexp">/ramdisk             0</span></span><br></pre></td></tr></table></figure></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>SylixOS 支持网络文件系统 nfs，在开发阶段，当工程文件相当多并修改频繁时，使用 nfs 可以免去频繁下载这些工程文件的麻烦，从而提高开发效率，下面介绍 nfs 的使用方法。</p>
+<h2 id="确保_SylixOS_编译了_nfs_组件">确保 SylixOS]]>
+    </summary>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Hello World]]></title>
@@ -73,9 +121,9 @@
     <link href="jiaojinxing.github.io/2015/07/17/SylixOS-ARMv7A-%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E4%B8%8E%E6%94%B9%E8%BF%9B/"/>
     <id>jiaojinxing.github.io/2015/07/17/SylixOS-ARMv7A-处理器性能测试与改进/</id>
     <published>2015-07-17T13:24:31.000Z</published>
-    <updated>2015-07-21T03:22:23.465Z</updated>
+    <updated>2015-07-29T13:04:11.283Z</updated>
     <content type="html"><![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 是否发挥 ARMv7A Cache、VFP、NEON、分支预测性能，验证 BSP 是否在内存控制器、CPU 主频设置方面存在不正确的地方。</p>
-<p>找出 SylixOS 实时性远优于 Linux 和 RT-Linux（见《SylixOS实时性测试报告》，但 Qt 性能测试 <a href="https://github.com/jiaojinxing/qtperf" target="_blank" rel="external">qtperf</a> 不如 Linux 的原因，并提出解决办法。</p>
+<p>找出 SylixOS 实时性远优于 Linux 和 Linux+RT（见《SylixOS实时性测评报告》，但 Qt 性能测试 <a href="https://github.com/jiaojinxing/qtperf" target="_blank" rel="external">qtperf</a> 不如 Linux 的原因，并提出解决办法。</p>
 <h2 id="测试环境">测试环境</h2><h3 id="硬件平台">硬件平台</h3><p>硬件平台：飞凌嵌入式 OK335xS</p>
 <p>处理器：AM335x(Cortex-A8, 800MHz)</p>
 <p>L1-Cache：32KB I-Cache/32KB D-Cache</p>
@@ -299,9 +347,9 @@
     <link href="jiaojinxing.github.io/2015/07/17/SylixOS-C-%E5%BA%93%E3%80%81%E6%95%B0%E5%AD%A6%E5%BA%93%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/"/>
     <id>jiaojinxing.github.io/2015/07/17/SylixOS-C-库、数学库性能测试/</id>
     <published>2015-07-17T13:19:24.000Z</published>
-    <updated>2015-07-23T06:53:31.435Z</updated>
+    <updated>2015-07-29T13:03:54.314Z</updated>
     <content type="html"><![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 的 C 库和数学库的某些函数是否存在性能问题。</p>
-<p>找出 SylixOS 实时性远优于 Linux 和 RT-Linux（见《SylixOS实时性测试报告》，和 SylixOS 在 ARMv7A 性能优于 Linux （见<a href="http://jiaojinxing.github.io/2015/07/17/SylixOS-ARMv7A-%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E4%B8%8E%E6%94%B9%E8%BF%9B/">《SylixOS ARMv7A 处理器性能测试与改进》</a>），但 Qt 性能测试 <a href="https://github.com/jiaojinxing/qtperf" target="_blank" rel="external">qtperf</a> 中部分项目不如 Linux 的原因，并提出解决办法。</p>
+<p>找出 SylixOS 实时性远优于 Linux 和 Linux+RT（见《SylixOS实时性测评报告》，和 SylixOS 在 ARMv7A 性能优于 Linux （见<a href="http://jiaojinxing.github.io/2015/07/17/SylixOS-ARMv7A-%E5%A4%84%E7%90%86%E5%99%A8%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E4%B8%8E%E6%94%B9%E8%BF%9B/">《SylixOS ARMv7A 处理器性能测试与改进》</a>），但 Qt 性能测试 <a href="https://github.com/jiaojinxing/qtperf" target="_blank" rel="external">qtperf</a> 中部分项目不如 Linux 的原因，并提出解决办法。</p>
 <h2 id="测试环境">测试环境</h2><h3 id="硬件平台">硬件平台</h3><p>硬件平台：飞凌嵌入式 OK335xS</p>
 <p>处理器：AM335x(Cortex-A8, 800MHz)</p>
 <p>L1-Cache：32KB I-Cache/32KB D-Cache</p>
@@ -330,7 +378,7 @@
 <p>字符串类函数性能测试结果显示，SylixOS 和 Linux 各有千秋，我们将根据这个结果，对 SylixOS 的 C 库进行优化。</p>
 <p>从完成数学类函数性能测试所耗时来看，SylixOS 远优化于 Linux，本质是 newlib 的 libm 的性能比 glibc 的 libm 的性能要好得多。</p>
 <p>从完成多线程 malloc 函数性能测试所耗时来看，Linux 要优于 SylixOS，本质是 Linux 的 glibc 使用的内存分配算法要优化于 SylixOS 使用的，我们将使用更优秀的内存分配算法和更精细、快速的内存分配锁。</p>
-<h2 id="SylixOS_的_C_库优化">SylixOS 的 C 库优化</h2><p>规划中，暂略。</p>
+<h2 id="SylixOS_的_C_库优化">SylixOS 的 C 库优化</h2><p>根据 Linux 与 SylixOS 字符串类函数性能测试结果对比，找出 SylixOS 中有性能缺陷的字符串类函数，从 glibc-2.21 或 Android 的 bionic C 库中提取并替换原有的。</p>
 <h2 id="SylixOS_内存分配算法优化">SylixOS 内存分配算法优化</h2><p>这篇文章做了一个常用内存分配算法的对比: <a href="http://webkit.sed.hu/blog/20100324/war-allocators-tlsf-action" target="_blank" rel="external">http://webkit.sed.hu/blog/20100324/war-allocators-tlsf-action</a></p>
 <p>常用内存分配算法有：</p>
 <ol>
@@ -358,7 +406,7 @@
 ]]></content>
     <summary type="html">
     <![CDATA[<h2 id="测试目的">测试目的</h2><p>验证 SylixOS 的 C 库和数学库的某些函数是否存在性能问题。</p>
-<p>找出 SylixOS 实时性远优于 Linux 和 RT-Linux（见《SylixOS实时性测试报告》，和 SylixOS 在 ARMv7A ]]>
+<p>找出 SylixOS 实时性远优于 Linux 和 Linux+RT（见《SylixOS实时性测评报告》，和 SylixOS 在 ARMv7A ]]>
     </summary>
     
       <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
@@ -366,19 +414,6 @@
       <category term="测试" scheme="jiaojinxing.github.io/tags/%E6%B5%8B%E8%AF%95/"/>
     
       <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[SylixOS 实时性能测试]]></title>
-    <link href="jiaojinxing.github.io/2015/07/17/SylixOS-%E5%AE%9E%E6%97%B6%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/"/>
-    <id>jiaojinxing.github.io/2015/07/17/SylixOS-实时性能测试/</id>
-    <published>2015-07-17T13:18:53.000Z</published>
-    <updated>2015-07-17T13:18:53.812Z</updated>
-    <content type="html"></content>
-    <summary type="html">
-    
-    </summary>
     
   </entry>
   
@@ -552,15 +587,50 @@
   </entry>
   
   <entry>
-    <title><![CDATA[SylixOS POSIX 标准兼容性测试]]></title>
-    <link href="jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-%E6%A0%87%E5%87%86%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95/"/>
-    <id>jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-标准兼容性测试/</id>
+    <title><![CDATA[SylixOS POSIX 标准符合度测试]]></title>
+    <link href="jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-%E6%A0%87%E5%87%86%E7%AC%A6%E5%90%88%E5%BA%A6%E6%B5%8B%E8%AF%95/"/>
+    <id>jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-标准符合度测试/</id>
     <published>2015-07-17T13:17:37.000Z</published>
-    <updated>2015-07-17T13:17:37.447Z</updated>
-    <content type="html"></content>
+    <updated>2015-07-30T07:59:44.004Z</updated>
+    <content type="html"><![CDATA[<h2 id="测试目的">测试目的</h2><p>测试 SylixOS 对 IEEE1003（POSIX）标准的符合度。</p>
+<h2 id="测试环境">测试环境</h2><h3 id="主机操作系统">主机操作系统</h3><p>Ubuntu-12.04</p>
+<h3 id="硬件平台">硬件平台</h3><p>硬件平台：飞凌嵌入式 OK335xS</p>
+<p>处理器：AM335x(Cortex-A8, 800MHz)</p>
+<p>L1-Cache：32KB I-Cache/32KB D-Cache</p>
+<p>L2-Cache：256KB</p>
+<p>内存：512MB</p>
+<h3 id="操作系统">操作系统</h3><p>SylixOS + bspam335x</p>
+<p>对比测试操作系统 Linux：3.2.0（厂家配套的）</p>
+<h3 id="编译器">编译器</h3><p>Linux：</p>
+<p>arm-arago-linux-gnueabi-gcc： gcc version 4.5.3 20110311 (prerelease) (GCC) </p>
+<p>SylixOS：</p>
+<p>arm-sylixos-eabi-gcc: gcc version 4.9.3 20150303 (release) [ARM/embedded-4_9-branch revision 221220] (<br>SylixOS Toolchain for ARM Embedded Processors) </p>
+<h2 id="测试软件">测试软件</h2><p>测试软件使用 posixtestsuite </p>
+<p>posixtestsuite 的官网: <a href="http://sourceforge.net/projects/posixtest/files/?source=navbar" target="_blank" rel="external">http://sourceforge.net/projects/posixtest/files/?source=navbar</a></p>
+<p>posixtestsuite 测试分为三类：标准符合度测试 conformance、功能测试 functional、压力测试 stress。</p>
+<p>移植好的 posixtestsuite 放在：</p>
+<h2 id="SylixOS测试结果">SylixOS测试结果</h2><p>第一次测试命令：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line"><span class="keyword">make</span> -<span class="keyword">f</span> Makefile <span class="number">1</span>&gt;sylixos.<span class="built_in">log</span> <span class="number">2</span>&gt;sylixos_err.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>将符合度结果记录在 sylixos.log 文件，将编译出错的信息记录在 sylixos_err.log 文件。</p>
+<p>测试完毕后，查看 sylixos_err.log 文件，分析编译出错的原因，找出 posixtestsuite 的不合理测试所引致的问题，然后修改 posixtestsuite 的代码。</p>
+<p>第二次测试命令：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line"><span class="keyword">make</span> <span class="number">1</span>&gt;sylixos_new.<span class="built_in">log</span> <span class="number">2</span>&gt;sylixos_err_new.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>查看 sylixos_new.log 文件，统计通过测试的总数和不通过测试的总数，计算 SylixOS 对 IEEE1003（POSIX）标准的符合度。</p>
+<p>备注：跳过链接的测试一般用于检测头文件和类型是否有定义，跳过链接的测试如果成功，则算为通过的测试，否则算为不通过的测试。</p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line"><span class="keyword">Search</span> <span class="string">"PASS"</span> (1728 hits <span class="keyword">in</span> 1 <span class="keyword">file</span>)</span><br><span class="line">  <span class="keyword">D</span>:\workspace_opensource\posixtestsuite\sylixos_new.<span class="keyword">log</span> (1728 hits)</span><br><span class="line">  </span><br><span class="line"><span class="keyword">Search</span> <span class="string">"SKIP"</span> (233 hits <span class="keyword">in</span> 1 <span class="keyword">file</span>)</span><br><span class="line">  <span class="keyword">D</span>:\workspace_opensource\posixtestsuite\sylixos_new.<span class="keyword">log</span> (233 hits)</span><br><span class="line"></span><br><span class="line"><span class="keyword">Search</span> <span class="string">"FAILED"</span> (21 hits <span class="keyword">in</span> 1 <span class="keyword">file</span>)</span><br><span class="line">  <span class="keyword">D</span>:\workspace_opensource\posixtestsuite\sylixos_new.<span class="keyword">log</span> (21 hits)</span><br></pre></td></tr></table></figure>
+<p>SylixOS 对 IEEE1003（POSIX）标准的符合度 = (1728 + 233) / (1728 + 233 + 21) = 0.9894046417759839 = 99%</p>
+<h2 id="Linux测试结果">Linux测试结果</h2>]]></content>
     <summary type="html">
-    
+    <![CDATA[<h2 id="测试目的">测试目的</h2><p>测试 SylixOS 对 IEEE1003（POSIX）标准的符合度。</p>
+<h2 id="测试环境">测试环境</h2><h3 id="主机操作系统">主机操作系统</h3><p>Ubuntu-12.04</p>
+<h3 ]]>
     </summary>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
+    
+      <category term="测试" scheme="jiaojinxing.github.io/tags/%E6%B5%8B%E8%AF%95/"/>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
     
   </entry>
   
