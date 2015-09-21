@@ -4,29 +4,23 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>SylixOS 线程间通信-共享资源 | JinXing’s blog</title>
+    <title>SylixOS Bootloader 使用 | JinXing’s blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="jiaojinxing">
     
 
     
-    <meta name="description" content="什么是共享资源一个基于RTOS的应用层软件往往需要多个线程才能实现，多个线程可能需要同时访问同一个变量、同一个设备或同一块内存，这时该变量、该设备或该内存块被称为共享资源。
-如果在访问共享资源时不独占该共享资源，可能会造成变量值异常、设备出错或内存块内容不是期望值，从而导致程序运行异常甚至崩溃。比如现在有两个线程需要同时将同一个变量V（初始值为0）进行自增操作。
-在RISC机器上，一般都是Load">
+    <meta name="description" content="一般的嵌入式处理器芯片（如ARM9以上的ARM芯片、MIPS、PowerPC芯片），其厂家或合作厂商一般都会提供该芯片的 Bootloader，">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SylixOS 线程间通信-共享资源">
-<meta property="og:url" content="jiaojinxing.github.io/2015/06/25/SylixOS-线程间通信-共享资源/index.html">
+<meta property="og:title" content="SylixOS Bootloader 使用">
+<meta property="og:url" content="jiaojinxing.github.io/2015/07/31/SylixOS-Bootloader-使用/index.html">
 <meta property="og:site_name" content="JinXing’s blog">
-<meta property="og:description" content="什么是共享资源一个基于RTOS的应用层软件往往需要多个线程才能实现，多个线程可能需要同时访问同一个变量、同一个设备或同一块内存，这时该变量、该设备或该内存块被称为共享资源。
-如果在访问共享资源时不独占该共享资源，可能会造成变量值异常、设备出错或内存块内容不是期望值，从而导致程序运行异常甚至崩溃。比如现在有两个线程需要同时将同一个变量V（初始值为0）进行自增操作。
-在RISC机器上，一般都是Load">
-<meta property="og:updated_time" content="2015-07-17T13:20:14.485Z">
+<meta property="og:description" content="一般的嵌入式处理器芯片（如ARM9以上的ARM芯片、MIPS、PowerPC芯片），其厂家或合作厂商一般都会提供该芯片的 Bootloader，">
+<meta property="og:updated_time" content="2015-07-31T05:55:34.535Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="SylixOS 线程间通信-共享资源">
-<meta name="twitter:description" content="什么是共享资源一个基于RTOS的应用层软件往往需要多个线程才能实现，多个线程可能需要同时访问同一个变量、同一个设备或同一块内存，这时该变量、该设备或该内存块被称为共享资源。
-如果在访问共享资源时不独占该共享资源，可能会造成变量值异常、设备出错或内存块内容不是期望值，从而导致程序运行异常甚至崩溃。比如现在有两个线程需要同时将同一个变量V（初始值为0）进行自增操作。
-在RISC机器上，一般都是Load">
+<meta name="twitter:title" content="SylixOS Bootloader 使用">
+<meta name="twitter:description" content="一般的嵌入式处理器芯片（如ARM9以上的ARM芯片、MIPS、PowerPC芯片），其厂家或合作厂商一般都会提供该芯片的 Bootloader，">
 
     
     <link rel="alternative" href="/atom.xml" title="JinXing’s blog" type="application/atom+xml">
@@ -85,14 +79,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/06/25/SylixOS-线程间通信-共享资源/" title="SylixOS 线程间通信-共享资源" itemprop="url">SylixOS 线程间通信-共享资源</a>
+      <a href="/2015/07/31/SylixOS-Bootloader-使用/" title="SylixOS Bootloader 使用" itemprop="url">SylixOS Bootloader 使用</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="jiaojinxing" target="_blank" itemprop="author">jiaojinxing</a>
 		
   <p class="article-time">
-    <time datetime="2015-06-25T09:00:25.000Z" itemprop="datePublished"> 发表于 2015-06-25</time>
+    <time datetime="2015-07-31T04:03:59.000Z" itemprop="datePublished"> 发表于 2015-07-31</time>
     
   </p>
 </header>
@@ -101,39 +95,16 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是共享资源"><span class="toc-number">1.</span> <span class="toc-text">什么是共享资源</span></a></li></ol>
+			
 		
 		</div>
 		
-		<h2 id="什么是共享资源">什么是共享资源</h2><p>一个基于RTOS的应用层软件往往需要多个线程才能实现，多个线程可能需要同时访问同一个变量、同一个设备或同一块内存，这时该变量、该设备或该内存块被称为<strong>共享资源</strong>。</p>
-<p>如果在访问共享资源时不独占该共享资源，可能会造成变量值异常、设备出错或内存块内容不是期望值，从而导致程序运行异常甚至崩溃。<br>比如现在有两个线程需要同时将同一个变量V（初始值为0）进行自增操作。</p>
-<p>在RISC机器上，一般都是Load/store体系结构，即访问内存只允许load和store操作；变量V的自增操作流程如下：</p>
-<ol>
-<li>加载变量V的地址到CPU的工作寄存器0；</li>
-<li>load指令将工作寄存器0指向的地址的内容加载工作寄存器1； </li>
-<li>inc指令将工作寄存器1的值加一；</li>
-<li>store指令将工作寄存器1的值储存到工作寄存器0指向的地址。</li>
-</ol>
-<p>变量V的自增操作不是一步完成的，如果线程A和线程B依次完成以上四步，那么变量V最后的值将会是2。</p>
-<p>如果线程A完成前面三步，这时线程B打断了线程A的工作，线程B将变量V改写为1；最后线程A继续执行第四步，那么变量V最后的值仍然是1，这显然不是我们期望的。</p>
-<p>为了解决这个问题，我们可以加入一把锁，在进行变量V的自增操作前占有该锁；锁具有排它性，其它线程如果也要占有该锁，将被阻塞；这样确保了同一时间只有一个线程能访问该变量，待自增操作完成后释放该锁，这样变量V的自增操作就不会混乱了。</p>
-<p>这时我们称被锁保护的区域为<strong>临界区</strong>。</p>
-<p>在多线程环境下，小小的一个变量操作都需要小心对待，更不用说复杂的设备了。所以说多线程编程是一把双刃剑，它可以使用我们的程序更易实现，但需要我们更小心的处理。好在SylixOS操作系统已经为我们准备好大量解决多线程编程问题的解决方案，比如信号量、互斥锁、消息队列等等。</p>
+		<p>一般的嵌入式处理器芯片（如ARM9以上的ARM芯片、MIPS、PowerPC芯片），其厂家或合作厂商一般都会提供该芯片的 Bootloader，</p>
   
 	</div>
 		<footer class="article-footer clearfix">
 <div class="article-catetags">
 
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/SylixOS/">SylixOS</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/SylixOS/">SylixOS</a><a href="/tags/书稿/">书稿</a><a href="/tags/线程间通信/">线程间通信</a>
-  </div>
 
 </div>
 
@@ -141,7 +112,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="jiaojinxing.github.io/2015/06/25/SylixOS-线程间通信-共享资源/" data-title="SylixOS 线程间通信-共享资源 | JinXing’s blog" data-tsina="null" class="share clearfix">
+	  <div data-url="jiaojinxing.github.io/2015/07/31/SylixOS-Bootloader-使用/" data-title="SylixOS Bootloader 使用 | JinXing’s blog" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -155,18 +126,18 @@
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2015/06/25/SylixOS-线程间通信-线程间通信/" title="SylixOS 线程间通信-线程间通信">
+ <a href="/2015/09/21/MIPS-学习/" title="MIPS 学习">
   <strong>上一篇：</strong><br/>
   <span>
-  SylixOS 线程间通信-线程间通信</span>
+  MIPS 学习</span>
 </a>
 </div>
 
 
 <div class="next">
-<a href="/2015/06/23/全栈工程师释义-转/"  title="全栈工程师释义(转)">
+<a href="/2015/07/31/SylixOS-网络文件系统-nfs-的使用/"  title="SylixOS 网络文件系统 nfs 的使用">
  <strong>下一篇：</strong><br/> 
- <span>全栈工程师释义(转)
+ <span>SylixOS 网络文件系统 nfs 的使用
 </span>
 </a>
 </div>
@@ -187,7 +158,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是共享资源"><span class="toc-number">1.</span> <span class="toc-text">什么是共享资源</span></a></li></ol>
+ 
  
   </div>
 
@@ -201,7 +172,7 @@
 		<ul>
 		
 		  
-			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>15</sup></a></li>
+			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>12</sup></a></li>
 		  
 		
 		  
@@ -218,27 +189,15 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>15</sup></a></li>
+				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>12</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/测试/" title="测试">测试<sup>5</sup></a></li>
+				<li><a href="/tags/测试/" title="测试">测试<sup>6</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/ARMv7-M/" title="ARMv7-M">ARMv7-M<sup>3</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/线程间通信/" title="线程间通信">线程间通信<sup>3</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/书稿/" title="书稿">书稿<sup>3</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/U-Boot/" title="U-Boot">U-Boot<sup>1</sup></a></li>
 			
 		
 			
@@ -251,6 +210,12 @@
 		
 			
 				<li><a href="/tags/硬件/" title="硬件">硬件<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/U-Boot/" title="U-Boot">U-Boot<sup>1</sup></a></li>
+			
+		
 			
 		
 		</ul>

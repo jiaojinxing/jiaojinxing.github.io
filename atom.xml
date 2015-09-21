@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="jiaojinxing.github.io/"/>
-  <updated>2015-07-31T03:51:46.354Z</updated>
+  <updated>2015-09-21T13:55:21.574Z</updated>
   <id>jiaojinxing.github.io/</id>
   
   <author>
@@ -13,6 +13,297 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[MIPS 学习]]></title>
+    <link href="jiaojinxing.github.io/2015/09/21/MIPS-%E5%AD%A6%E4%B9%A0/"/>
+    <id>jiaojinxing.github.io/2015/09/21/MIPS-学习/</id>
+    <published>2015-09-21T12:00:58.000Z</published>
+    <updated>2015-09-21T13:55:21.574Z</updated>
+    <content type="html"><![CDATA[<h2 id="MIPS指令特点">MIPS指令特点</h2><ol>
+<li><p>所有指令都是32位编码；</p>
+</li>
+<li><p>有些指令有26位供目标地址编码；有些则只有16位。因此要想加载任何一个32位值，就得用两个加载指令。16位的目标地址意味着，指令的跳转或子函数的位置必须在64K以内（上下32K）；</p>
+</li>
+<li><p>所有的动作原理上要求必须在1个时钟周期内完成，一个动作一个阶段；</p>
+</li>
+<li><p>有32个通用寄存器，每个寄存器32位（对32位机）或64位（对64位机）；</p>
+</li>
+<li><p>本身没有任何帮助运算判断的标志寄存器，要实现相应的功能时，是通过测试两个寄存器是否相等来完成的；</p>
+</li>
+<li><p>所有的运算都是基于32位的，没有对字节和对半字的运算（MIPS里，字定义为32位，半字定义为16位）；</p>
+</li>
+<li><p>没有单独的栈指令，所有对栈的操作都是统一的内存访问方式。因为push和pop指令实际上是一个复合操作，包含对内存的写入和对栈指针的移动；</p>
+</li>
+<li><p>由于MIPS固定指令长度，所以造成其编译后的二进制文件和内存占用空间比x86的要大，（x86平均指令长度只有3个字节多一点，而MIPS是4个字节）；</p>
+</li>
+<li><p>寻址方式：只有一种内存寻址方式。就是基地址加一个16位的地址偏移；</p>
+</li>
+<li><p>内存中的数据访问必须严格对齐（至少4字节对齐）；</p>
+</li>
+<li><p>跳转指令只有26位目标地址，再加上2位的对齐位，可寻址28位的空间，即256M。意思即是说，在一个C程序内，goto语句只能跳转到它之前的128M和之后的128M这个地址空间之内；</p>
+</li>
+<li><p>条件分支指令只有16位跳转地址，加上2位的对齐位，共18位寻址空间，即256K。意思即是说，在一个C程序内，if语句只能跳转到它之前的128K和之后的128K这个地址空间之内；</p>
+</li>
+<li><p>MIPS默认不把子函数的返回地址（就是调用函数的受害指令地址）存放到栈中，而是存放到$31寄存器中；这对那些叶子函数有利。如果遇到嵌套的函数的话，有另外的机制处理；</p>
+</li>
+<li><p>流水线效应。由于采用了高度的流水线，结果产生了一些对程序员来说可见的效应，需要注意。最重要的两个效应就是分支延迟效应和载入延迟效应。</p>
+</li>
+</ol>
+<ul>
+<li><p>任何一个分支跳转语句后面的那条语句叫做分支延迟槽。实际上在程序执行到分支语句时，当它刚把要跳转到的地址填充好（到代码计数器里），还没完成本条指令，分支语句后面的那条指令就执行了。这是因为流水线效应，几条指令同时在执行，只是处于不同的阶段。具体看书上说提前半条指令执行，没看懂。分支延迟槽常用被利用起来完成一些参数初始化等相关工作，而不是被浪费了。</p>
+</li>
+<li><p>载入延迟是这样的，当执行一条从内存中载入数据的指令时，是先载入到高速缓冲中，然后再取到寄存器中，这个过程相对来说是比较慢的。在这个过程完成之前，可能已经有几条在流水线上的指令被执行了。这几条在载入数据指令后被执行的指令就被称作载入延迟槽。现在就有一个问题，如果后面这几条指令要用到载入数据指令所载入的那个数据怎么办？一个通用的办法是，把内部锁加在数据载入过程上，这样，当后面的指令要用这个数据时，就只有先停止运行（在ALU阶段），等这条载入数据指令完成了后再开始运行。</p>
+</li>
+</ul>
+<h2 id="MIPS指令的五级流水线">MIPS指令的五级流水线</h2><p>每条指令都包含五个执行阶段。</p>
+<ol>
+<li>第一阶段：从指令缓冲区中取指令。占一个时钟周期；</li>
+<li>第二阶段：从指令中的源寄存器域（可能有两个）的值（为一个数字，指定$0~$31中的某一个）所代表的寄存器中读出数据。占半个时钟周期；</li>
+<li>第三阶段：在一个时钟周期内做一次算术或逻辑运算。占一个时钟周期；</li>
+<li>第四阶段：指令从数据缓冲中读取内存变量的阶段。从平均来讲，大约有3／4的指令在这个阶段没做什么事情，但它是指令有序性的保证（为什么是保证，我还没看清楚？）。占一个时钟周期；</li>
+<li>第五阶段：存储计算结果到缓冲或内存的阶段。占半个时钟周期；</li>
+</ol>
+<p>所以一条指令要占用四个时钟周期。</p>
+<h2 id="MIPS的虚拟地址内存映射空间">MIPS的虚拟地址内存映射空间</h2><ol>
+<li>0x0000 0000 ~ 0x7fff ffff ：kuseg 用户级空间，2GB，要经MMU（TLB）地址翻译。可以控制要不要经过缓冲。</li>
+<li>0x8000 0000 ~ 0x9fff ffff ：kseg0，这块区域为操作系统内核所占的区域，共512M。使用时，不经过地址翻译，将最高位去掉就线性映射到内存的低512M（不足的就裁剪掉顶部）。但要经过缓冲区过渡。</li>
+<li>0xa000 0000 ~ 0xbfff ffff ：kseg1，这块区域为系统初始化所占区域，共512M。使用时，不经过地址翻译，也不经过缓冲区。将最高3位去掉就线性映射到内存的低512M（不足的就裁剪掉顶部）。</li>
+<li>0xc000 0000 ~ 0xffff ffff ：kseg2，这块区域也为内核级区域。要经过地址翻译。可以控制要不要经过缓冲。</li>
+</ol>
+<p>注意：地址空间的0x0000 0000是不能用的，从0开始的一个或多个页不会被映射。</p>
+<h2 id="MIPS的协处理器">MIPS的协处理器</h2><p>CP0：这是MIPS芯片的配置单元。必不可少，虽然叫做协处理器，但是通常都是做在一块芯片上。绝大部分MIPS功能的配置，缓冲的控制，异常／中断的控制，内存管理的控制都在这里面。所以是一个完整的系统所必不可少的。</p>
+<h2 id="MIPS的高速缓冲">MIPS的高速缓冲</h2><p>MIPS一般有两到三级缓冲，其中第一级缓冲数据和指令分开存储。这样的好处是指令和数据可以同时存取，提高效率。但缺点是提高了复杂度。第二级缓冲和第三级缓冲（如果有的话）就不再分开存放啦。</p>
+<p>缓冲的单元叫做缓冲行(cache line)。每一行中，有一个tag，然后后面接的是一些标志位和一些数据。缓冲行按顺序线性排列起来，就组成了整个缓冲。</p>
+<p>cache line的索引和存取有一套完整的机制。</p>
+<h2 id="MIPS的异常机制">MIPS的异常机制</h2><p>精确异常的概念：在运行流程中没有任何多余效应的异常。即当异常发生时，在受害指令之前的指令被完全执行，而受害指令及后面的指令还没开始执行（注：说受害指令及后面的指令还没做任何事情是不对的，实际上受害指令是处于其指令周期的第三阶段刚完成，即ALU阶段刚完成）。精确异常有助于保证软件设计上不受硬件实现的影响。</p>
+<p>CP0中的EPC寄存器用于指向异常发生时指令跳转前的执行位置，一般是受害指令地址。当异常时，是返回这个地址继续执行。但如果受害指令在分支延迟槽中，则会硬件自动处理使EPC往回指一条指令，即分支指令。在重新执行分支指令时，分支延迟槽中的指令会被再执行一次。</p>
+<p>精确异常的实现对流水线的流畅性是有一定的影响的，如果异常太多，系统执行效率就会受到影响。</p>
+<p>异常又分常规异常和中断两类。常规异常一般为软件的异常，而中断一般为硬件异常，中断可以是芯片内部，也可以是芯片外部触发产生。</p>
+<p>异常发生时，跳转前最后被执行的指令是其MEM阶段刚好被执行完的那条指令。受害指令是其ALU阶段刚好执行完的那条指令。</p>
+<p>异常发生时，会跳到异常向量入口中去执行。MIPS的异常向量有点特殊，它一般只个2个或几个中断向量入口，一个入口给一般的异常使用，一个入口给 TLB miss异常使用（这样的话，可以省下计算异常类型的时间。在这种机制帮助下，系统只用13个时钟周期就可以把TLB重填好）。</p>
+<p>CP0寄存器中有个模式位，SR(BEV)，只要设置了，就会把异常入口点转移到非缓冲内存地址空间中（kseg1）。</p>
+<p>MIPS系统把重启看作一个不可回归的异常来处理。</p>
+<ol>
+<li>冷启动：CPU硬件完全被重新配置，软件重新加载；</li>
+<li>热启动：软件完全重新初始化；</li>
+</ol>
+<p>MIPS对异常的处理的哲学是给异常分配一些类型，然后由软件给它们定义一些优先级，然后由同一个入口进入异常分配程序，在分配程序中根据类型及优先级确定该执行哪个对应的函数。这种机制对两个或几个异常同时出现的情况也是适合的。</p>
+<p>下面是当异常发生时MIPS CPU所做的事情：</p>
+<ol>
+<li>设置EPC指向回归的位置；</li>
+<li>设置SR(EXL)强迫CPU进入kernel态，并禁止所有中断响应。</li>
+<li>设置Cause寄存器，以使软件可以得到异常的类型信息；还有其它一些寄存器在某些异常时会被设置；</li>
+<li>CPU开始从异常入口取指令，然后以后的所有事情都交由软件处理了。</li>
+</ol>
+<p>k0和k1寄存器用于保存异常处理函数的地址。</p>
+<p>异常处理函数执行完成后，会回到异常分配函数那去，在异常分配函数里，有一个eret指令，用于回归原来被中断的程序继续执行；eret指令会原子性地把中断响应打开（置SR(EXL)），并把状态级由kernel转到user级，并返回原地址继续执行。</p>
+<p>异常入口点位于kseg0的底部，是硬件规定的。</p>
+<h2 id="MIPS的中断">MIPS的中断</h2><p>MIPS CPU有8个独立的中断位（在Cause寄存器中），其中，6个为外部中断，2个为内部中断（可由软件访问）。一般来说，片上的时钟计数／定时器，会连接到一个硬件位上去。</p>
+<p>SR(IE)位控制全局中断响应，为0的话，就禁止所有中断；</p>
+<p>SR(EXL)和SR(ERL)位（任何一个）如果置1的话，会禁止中断；</p>
+<p>SR(IM)有8位，对应8个中断源，要产生中断，还得把这8位中相应的位置1才行；</p>
+<p>中断处理程序也是用通用异常入口。但有些新的CPU有变化。</p>
+<p>在软件中实现中断优先级的方案：</p>
+<ol>
+<li>给各种中断定优先级；</li>
+<li>CPU在运行时总是处于某个优先级（即定义一个全局变量）；</li>
+<li>中断发生时，只有等于高于CPU优先级的中断优先级才能执行；（如果CPU优先级处于最低，那么所有的中断都可以执行）；</li>
+<li>同时有多个中断发生时，优先执行优先级最高的那个中断程序；</li>
+</ol>
+<h2 id="MIPS的大小端问题">MIPS的大小端问题</h2><p>硬件上也有大端小端问题，比如串口通讯，一个字节一个字节的发，首先是低位先发出去。</p>
+<p>还有显卡的显示，比如显示黑白图像，在屏幕上一个点对应显存中的一位，这时，这个位对应关系就是屏幕右上角那个点对应显存第一个字节的7号位，即最高位。第一排第8位点对应第一个字节的0号位。</p>
+<h2 id="MIPS的MMU">MIPS的MMU</h2><h3 id="ASID">ASID</h3><p>ASID是与虚拟页高位配合使用。用于描述在TLB和Cache中的不同的线程，只有8位，所以最多只能同时运行256个线程。这个数字一般来说是够的。如果超过这个数目了，就要把Cache刷新了重新装入。所以，在这点上，与x86是不同的。</p>
+<h3 id="TLB的refill过程－硬件部分">TLB的refill过程－硬件部分</h3><ol>
+<li><p>CPU先产生一个虚拟地址，要到这个地址所对应的物理地址上取数据（或指令）或写数据（或指令）。</p>
+<p>低13位被分开来，然后高19位成为VPN2，和当前线程的ASID（从EntryHi(ASID)取）一起配合与TLB表中的项进行比较（在比较过程中，会受到PageMask和G标志位的影响）。</p>
+</li>
+<li><p>如果有匹配的项，就选择那个。虚拟地址中的第12位用于选取是用左边的物理地址项还是用右边的物理地址项。</p>
+<p>然后就会考察V和D标志位，V标志位表示本页是否有效，D表示本页是否已经脏了（被写过）。<br>如果V＝0，或D＝1，就会引发翻译异常，BadVAddr会保存现在处理的这个虚拟地址，EntryHi会填入这个虚拟地址的高位，还有Context中的内容会被重填。</p>
+<p>然后就会考察C标志位，如果C＝1，就会用缓冲作中转，如果C＝0，就不使用缓冲。</p>
+<p>这几级考察都通过了之后，就正确地找到了那个对应的物理地址。</p>
+</li>
+<li><p>如果没有匹配的项，就会触发一个TLB refill异常，然后后面就是软件的工作了。</p>
+</li>
+</ol>
+<h3 id="TLB的refill过程－软件部分">TLB的refill过程－软件部分</h3><ol>
+<li>计算这个虚拟地址是不是一个正确的虚拟地址，在内存页表中有没有与它对应的物理地址；如果没有，则调用地址错误处理函数；</li>
+<li>如果在内存页表中找到了对应的物理地址，就将其载入寄存器；</li>
+<li>如果TLB已经满了，就用random选取一个项丢弃；</li>
+<li>复制新的项进TLB。</li>
+</ol>
+<h2 id="MIPS的原子操作">MIPS的原子操作</h2><p>MIPS为支持操作系统的原子操作，特地加了一组指令 ll/sc。它们这样来使用：</p>
+<p>先写一句<br><figure class="highlight erlang"><table><tr><td class="code"><pre><span class="line">atomic_block:</span><br><span class="line"><span class="variable">LL</span> <span class="variable">XX1</span>, <span class="variable">XXX2</span></span><br><span class="line">….</span><br><span class="line">sc <span class="variable">XX1</span>, <span class="variable">XXX2</span></span><br><span class="line">beq <span class="variable">XX1</span>, zero, automic_block</span><br><span class="line">….</span><br></pre></td></tr></table></figure></p>
+<p>在ll/sc中间写上你要执行的代码体，这样就能保证写入的代码体是原子执行的（不会被抢占的）。</p>
+<p>其实，LL/sc两语句自身并不保证原子执行，但他耍了个花招：</p>
+<p>用一个临时寄存器XX1，执行LL后，把XXX2中的值载入XX1中，然后会在CPU内部置一个标志位，我们不可见，并保存XXX2的地址，CPU会监视它。在中间的代码体执行的过程中，如果发现XXX2的内容变了（即是别的线程执行了，或是某个中断发生了），就自动把CPU内部那个标志位清0。执行sc 时，把XX1的内容（可能已经是新值了）存入XXX2中，并返回一个值存入XX1中，如果标志位还为1，那么这个返回的值就为1；如果标志位为0，那么这个返回值就为0。为1的话，就表明这对指令中间的代码是一次性执行完成的，而不是中间受到了某些中断，那么原子操作就成功了；为0的话，就表明原子操作没成功，执行后面beq指令时，就会跳转到ll指令重新执行，直到原子操作成功为止。</p>
+<p>所以，我们要注意，插在LL/sc指令中间的代码必须短小。</p>
+<p>据经验，一般原子操作的循环不会超过3次。</p>
+<h2 id="MIPS的指令格式">MIPS的指令格式</h2><p>MIPS的所有指令都是32位的，指令格式简单。不像x86那样，x86的指令长度不是固定的，以80386为例， 其指令长度可从1字节（例如PUSH)到17字节，这样的好处代码密度高，所以MIPS的二进制文件要比x86的大大约20%~30%。而定长指令和格式简单的好处是易于译码和更符合流水线操作，由于指令中指定的寄存器位置是固定的，使得译码过程和读指令的过程可以同时进行，即固定字段译码。</p>
+<p>为了让指令的格式刚好合适，于是设计者做了一个折衷：所有指令定长，但是不同的指令有不同的格式。MIPS指令有三种格式：R格式，I格式，J格式。每种格式都由若干字段（filed)组成，图示如下：</p>
+<h3 id="I型指令">I型指令</h3><table>
+<thead>
+<tr>
+<th>6</th>
+<th style="text-align:left">5</th>
+<th style="text-align:left">5</th>
+<th style="text-align:left">16</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>op</td>
+<td style="text-align:left">rs</td>
+<td style="text-align:left">rt</td>
+<td style="text-align:left">立即数操作</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>加载/存储字节，半字，字，双字</li>
+<li>条件分支，跳转，跳转并链接寄存器</li>
+</ol>
+<h3 id="R型指令">R型指令</h3><table>
+<thead>
+<tr>
+<th>6</th>
+<th style="text-align:left">5</th>
+<th style="text-align:left">5</th>
+<th style="text-align:left">5</th>
+<th style="text-align:left">5</th>
+<th style="text-align:left">6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>op</td>
+<td style="text-align:left">rs</td>
+<td style="text-align:left">rt</td>
+<td style="text-align:left">rd</td>
+<td style="text-align:left">shamt</td>
+<td style="text-align:left">funct　</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>寄存器-寄存器ALU操作</li>
+<li>读写专用寄存器</li>
+</ol>
+<h3 id="J型指令">J型指令</h3><table>
+<thead>
+<tr>
+<th>6</th>
+<th style="text-align:left">26</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>op</td>
+<td style="text-align:left">跳转地址</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>跳转，跳转并链接</li>
+<li>陷阱和从异常中返回</li>
+</ol>
+<h3 id="各字段含义">各字段含义</h3><ol>
+<li>op: 指令基本操作，称为操作码。</li>
+<li>rs: 第一个源操作数寄存器。</li>
+<li>rt: 第二个源操作数寄存器。</li>
+<li>rd: 存放操作结果的目的操作数寄存器。</li>
+<li>shamt: 位移量</li>
+<li>funct: 函数，这个字段选择op操作的某个特定变体。  </li>
+</ol>
+<h3 id="跳转范围">跳转范围</h3><p>J指令的地址字段为26位，用于跳转目标。指令在内存中以4字节对齐，最低两个有效位不需要存储。在MIPS中，每个地址的最低两位指定了字的一个字 节，cache映射的下标是不使用这两位的，这样能表示28位的字节编址，允许的地址空间为256M。PC是32位的，那其它4位从何而来呢？MIPS的跳转指令只替换PC的低28位，而高4位保留原值。因此，加载和链接程序必须避免跨越256MB，在256M的段内，分支跳转地址当作一个绝对地址，和PC无关。</p>
+<p>如果超过256M（段外跳转）就要用跳转寄存器指令了。</p>
+<p>同样，条件分支指令中的16位立即数如果不够用，可以使用PC相对寻址，即用分支指令中的分支地址与(PC+4)的和做分支目标。由于一般的循环和if语句都小于2^16个字（2的16次方），这样的方法是很理想的。</p>
+<h2 id="MIPS的通用寄存器">MIPS的通用寄存器</h2><p>MIPS CPU有32个通用寄存器(GPR)，$0到$31。</p>
+<p>寄存器分配在编译优化中是最重要的优化之一（也许是做重要的）。现在的寄存器分配算法都是基于图着色的技术。其基本思想是构造一个图，用以代表分配寄存器的各个方案，然后用此图来分配寄存器。粗略说来就是使用有限的颜色使图中相临的节点着以不同的颜色，图着色问题是个图大小的指数函数，有些启发式算法产生近乎线形时间运行的分配。全局分配中如果有16个通用寄存器用于整型变量，同时另有额外的寄存器用于浮点数，那么图着色会很好的工作。在寄存器数较少时候图着色并不能很好的工作。</p>
+<p>问： 既然不能少于16个，那为什么不用64个呢？</p>
+<p>答： 使用64个或更多寄存器不但需要更大的指令空间来对寄存器编码，还会增加上下文切换的负担。除了那些很大非常复杂的函数，32个寄存器就已足够保存经常使用的数据。使用更多的寄存器并不必要，同时计算机设计有个原则叫“越小越快”，但是也不是说使用31个寄存器会比32个性能更好，32个通用寄存器是流行的做法。</p>
+<ul>
+<li>$0: 即$zero,该寄存器总是返回零，为0这个有用常数提供了一个简洁的编码形式。MIPS编译器使用slt,beq,bne等指令和由寄存器$0获得的0来产生所有的比较条件：相等，不等，小于，小于等于，大于，大于等于。还可以用add指令创建move伪指令，即<figure class="highlight mel"><table><tr><td class="code"><pre><span class="line"><span class="keyword">move</span> <span class="variable">$t0</span>,<span class="variable">$t1</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>实际为<br><figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="built_in">add</span> <span class="bash"><span class="variable">$t0</span>,<span class="variable">$0</span>,<span class="variable">$t1</span></span></span><br></pre></td></tr></table></figure></p>
+<p>使用伪指令可以简化任务，使汇编程序提供了比硬件更丰富的指令集。</p>
+<ul>
+<li><p>$1: 即$at，该寄存器为汇编保留，刚才说到使用伪指令可以简化任务，但是代价就是要为汇编程序保留一个寄存器，就是$at。由于I型指令的立即数字段只有16位，在加载大常数时，编译器或汇编程序需要把大常数拆开，然后重新组合到寄存器里。比如加载一个32位立即数需要lui（装入高位立即数）和addi两条指令。像MIPS程序拆散和重装大常数由汇编程序来完成，汇编程序必需一个临时寄存器来重组大常数，这也是为汇编保留$at的原因之一。如果你要显示的使用这个寄存器(比如在异常处理程序中保存和恢复寄存器)，有一个汇编directive可被用来禁止汇编器在directive之后再使用at寄存器(但是汇编的一些宏指令将因此不能再可用)。</p>
+</li>
+<li><p>$2..$3: ($v0-$v1)用于子程序的非浮点结果或返回值，对于子程序如何传递参数及如何返回，MIPS范围有一套约定，堆栈中少数几个位置处的内容装入CPU寄存器，其相应内存位置保留未做定义，当这两个寄存器不够存放返回值时，编译器通过内存来完成。</p>
+</li>
+<li><p>$4..$7: ($a0-$a3)用来传递前四个参数给子程序，不够的用堆栈。a0-a3和v0-v1以及ra一起来支持子程序／过程调用，分别用以传递参数，返回结果和存放返回地址。当需要使用更多的寄存器时，就需要堆栈了，MIPS编译器总是为参数在堆栈中留有空间以防有参数需要存储。</p>
+</li>
+<li><p>$8..$15: ($t0-$t7)临时寄存器，子程序可以使用它们而不用保留。</p>
+</li>
+<li><p>$16..$23: ($s0-$s7)保存寄存器，在过程调用过程中需要保留（被调用者保存和恢复，还包括$fp和$ra），MIPS提供了临时寄存器和保存寄存器，这样就减少了寄存器溢出（spilling，即将不常用的变量放到存储器的过程)，编译器在编译一个叶（leaf)过程（不调用其它过程的过程）的时候，总是在临时寄存器分配完了才使用需要保存的寄存器。</p>
+</li>
+<li><p>$24..$25: ($t8-$t9)同($t0-$t7)。</p>
+</li>
+<li><p>$26..$27: ($k0,$k1)为操作系统／异常处理保留，至少要预留一个。 异常（或中断）是一种不需要在程序中显示调用的过程。MIPS有个叫异常程序计数器（exception program counter,EPC)的寄存器，属于CP0寄存器，用于保存造成异常的那条指令的地址。查看控制寄存器的唯一方法是把它复制到通用寄存器里，指令mfc0(move from system control)可以将EPC中的地址复制到某个通用寄存器中，通过跳转语句（jr)，程序可以返回到造成异常的那条指令处继续执行。仔细分析一下会发现个有意思的事情：</p>
+</li>
+</ul>
+<p>为了查看控制寄存器EPC的值并跳转到造成异常的那条指令（使用jr),必须把EPC的值到某个通用寄存器里，这样的话，程序返回到中断处时就无法将所有的寄存器恢复原值。如果先恢复所有的寄存器，那么从EPC复制过来的值就会丢失，jr就无法返回中断处；如果我们只是恢复除有从EPC复制过来的返回地址外的寄存器，但这意味着程序在异常情况后某个寄存器被无端改变了，这是不行的。为了摆脱这个两难境地，MIPS程序员都必须保留两个寄存器$k0和$k1，供操作系统使用。发生异常时，这两个寄存器的值不会被恢复，编译器也不使用k0和k1，异常处理函数可以将返回地址放到这两个中的任何一个，然后使用jr跳转到造成异常的指令处继续执行。</p>
+<ul>
+<li><p>$28: ($gp)C语言中有两种存储类型，自动型和静态型，自动变量是一个过程中的局部变量。静态变量是进入和退出一个过程时都是存在的。为了简化静态数据的访问，MIPS软件保留了一个寄存器：全局指针gp(global pointer,$gp)，如果没有全局指针，从静态数据去装入数据需要两条指令：一条有编译器和链接器计算的32位地址常量中的有效位；另一条才真正装入数据。全局指针指向静态数据区中的运行时决定的地址，在存取位于gp值上下32KB范围内的数据时，只需要一条以gp为基指针的指令即可。在编译时，数据须在以gp为基指针的64KB范围内。</p>
+</li>
+<li><p>$29: ($sp)MIPS硬件并不直接支持堆栈，例如，它没有x86的SS,SP,BP寄存器，MIPS虽然定义$29为栈指针，它还是通用寄存器，只是用于特殊目的而已，你可以把它用于别的目的，但为了使用别人的程序或让别人使用你的程序，还是要遵守这个约定的，但这和硬件没有关系。x86有单独的PUSH和POP指令，而MIPS没有，但这并不影响MIPS使用堆栈。在发生过程调用时，调用者把过程调用过后要用的寄存器压入堆栈，被调用者把返回地址寄存器$ra和保留寄存器压入堆栈。同时调整堆栈指针，当返回时，从堆栈中恢复寄存器，同时调整堆栈指针。</p>
+</li>
+<li><p>$30: ($fp)GNU MIPS C编译器使用了侦指针(frame pointer)，而SGI的C编译器没有使用，而把这个寄存器当作保存寄存器使用（$s8)，这节省了调用和返回开销，但增加了代码生成的复杂性。</p>
+</li>
+<li><p>$31: ($ra)存放返回地址，MIPS 有个jal(jump-and-link,跳转并链接)指令，在跳转到某个地址时，把下一条指令的地址放到$ra中。用于支持子程序，例如调用程序把参数放到$a0~$a3，然后jal X跳到X过程，被调过程完成后把结果放到$v0,$v1，然后使用jr $ra返回。<br>在调用时需要保存的寄存器为$a0~$a3,$s0~$s7,$gp,$sp,$fp,$ra。</p>
+</li>
+</ul>
+<h2 id="MIPS上的Linux运行情况">MIPS上的Linux运行情况</h2><h3 id="用户态和核心态">用户态和核心态</h3><p>用户态和核心态：在用户态，不能随意访问内核代码和数据存放区，只能访问用户态空间和内核允许访问（通过某种机制）的内核页面。也不能执行CP0相关的指令。用户态要执行内核的某些服务，就得用系统调用（system_call），在系统调用的最后，是一个eret指令。</p>
+<p>任何时候Linux都有至少一个线程在跑，Linux一般不禁止中断。发生中断时，其环境是从被中断线程借来的。</p>
+<h3 id="系统调用">系统调用</h3><p>从某个方面说，内核就是一组供异常处理函数调用的子程序。内核中，线程调度器就是这样一个小的子程序。由各个线程（异常处理程序也可以算作一个特殊的线程，换他书上的说法）调用。</p>
+<p>系统调用也通过异常入口进入系统内核，选择8号异常代码处理函数进行处理，进入系统调用分配函数后，还要根据传进来的参数再一次分配到具体的功能函数上去。系统调用传递参数是在寄存器中进行的。</p>
+<p>系统调用号存放在v0中，参数存放在a0-a3。如果参数过多，会有另一套机制来处理。系统调用的返回值通常放在v0中。如果系统调用出错，则会在a3中返回一个错误号。</p>
+<h3 id="地址空间">地址空间</h3><p>MIPS Linux系统上半地址空间只能用内核特权级访问。内核不通过TLB地址翻译。</p>
+<p>所有线程都共用相同的内核地址空间，但只有同一组线程才用同一个用户地址空间（指向同一个mm_struct结构）。</p>
+<p>如果物理内存高于512M，那么不能用kseg0和kseg1来映射高于512M的内存部分。只能用kseg2来映射。kseg2要经过TLB。</p>
+<h3 id="内存分页">内存分页</h3><p>内存分页映射有以下优点：</p>
+<ol>
+<li>隐藏和保护数据；</li>
+<li>分配连续的地址给程序；</li>
+<li>扩展地址空间；</li>
+<li>按需求载入代码和数据（通过异常方式）；</li>
+<li>便于重定位；</li>
+<li>代码和数据在线程中共享，便于交换数据；</li>
+</ol>
+<p>所有的线程是平等的，所有的线程都有自己的内存管理结构体；运行于同一地址空间的线程组，共享有大部分这种数据结构。在线程中，保存有本地址空间已经使用的页面的一个页表，用来记录每个已用的虚页与实际物理页的映射关系；</p>
+<h3 id="内存驻留页表结构">内存驻留页表结构</h3><p>用的是两级页表，一个页表目录，一个页表，页表中的每一项是一个EntryLo0-1。（这与x86方式类似）。而没有用MIPS原生设计的方案。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="MIPS指令特点">MIPS指令特点</h2><ol>
+<li><p>所有指令都是32位编码；</p>
+</li>
+<li><p>有些指令有26位供目标地址编码；有些则只有16位。因此要想加载任何一个32位值，就得用两个加载指令。16位的目标地址意味着，指令的跳转]]>
+    </summary>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
+    
+      <category term="测试" scheme="jiaojinxing.github.io/tags/%E6%B5%8B%E8%AF%95/"/>
+    
+      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[SylixOS Bootloader 使用]]></title>
+    <link href="jiaojinxing.github.io/2015/07/31/SylixOS-Bootloader-%E4%BD%BF%E7%94%A8/"/>
+    <id>jiaojinxing.github.io/2015/07/31/SylixOS-Bootloader-使用/</id>
+    <published>2015-07-31T04:03:59.000Z</published>
+    <updated>2015-07-31T05:55:34.535Z</updated>
+    <content type="html"><![CDATA[<p>一般的嵌入式处理器芯片（如ARM9以上的ARM芯片、MIPS、PowerPC芯片），其厂家或合作厂商一般都会提供该芯片的 Bootloader，</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>一般的嵌入式处理器芯片（如ARM9以上的ARM芯片、MIPS、PowerPC芯片），其厂家或合作厂商一般都会提供该芯片的 Bootloader，</p>
+]]>
+    </summary>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[SylixOS 网络文件系统 nfs 的使用]]></title>
@@ -574,19 +865,6 @@
   </entry>
   
   <entry>
-    <title><![CDATA[SylixOS UnixBench 性能测试]]></title>
-    <link href="jiaojinxing.github.io/2015/07/17/SylixOS-UnixBench-%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/"/>
-    <id>jiaojinxing.github.io/2015/07/17/SylixOS-UnixBench-性能测试/</id>
-    <published>2015-07-17T13:18:11.000Z</published>
-    <updated>2015-07-17T13:18:11.496Z</updated>
-    <content type="html"></content>
-    <summary type="html">
-    
-    </summary>
-    
-  </entry>
-  
-  <entry>
     <title><![CDATA[SylixOS POSIX 标准符合度测试]]></title>
     <link href="jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-%E6%A0%87%E5%87%86%E7%AC%A6%E5%90%88%E5%BA%A6%E6%B5%8B%E8%AF%95/"/>
     <id>jiaojinxing.github.io/2015/07/17/SylixOS-POSIX-标准符合度测试/</id>
@@ -769,19 +1047,6 @@
   </entry>
   
   <entry>
-    <title><![CDATA[程序员的自我修养-ARM体系结构]]></title>
-    <link href="jiaojinxing.github.io/2015/06/29/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB-ARM%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/"/>
-    <id>jiaojinxing.github.io/2015/06/29/程序员的自我修养-ARM体系结构/</id>
-    <published>2015-06-29T02:22:03.000Z</published>
-    <updated>2015-06-29T12:12:23.484Z</updated>
-    <content type="html"><![CDATA[<h2 id="流水线">流水线</h2><h2 id="分支预测">分支预测</h2><h2 id="MMU">MMU</h2><h2 id="TLB">TLB</h2><h2 id="CACHE">CACHE</h2><h2 id="多核">多核</h2><h2 id="VFP">VFP</h2><h2 id="NEON">NEON</h2>]]></content>
-    <summary type="html">
-    <![CDATA[<h2 id="流水线">流水线</h2><h2 id="分支预测">分支预测</h2><h2 id="MMU">MMU</h2><h2 id="TLB">TLB</h2><h2 id="CACHE">CACHE</h2><h2 id="多核">多核</h2><h2 id="VF]]>
-    </summary>
-    
-  </entry>
-  
-  <entry>
     <title><![CDATA[程序员的自我修养-工具链使用]]></title>
     <link href="jiaojinxing.github.io/2015/06/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB-%E5%B7%A5%E5%85%B7%E9%93%BE%E4%BD%BF%E7%94%A8/"/>
     <id>jiaojinxing.github.io/2015/06/26/程序员的自我修养-工具链使用/</id>
@@ -906,255 +1171,6 @@
       <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
     
       <category term="程序员的自我修养" scheme="jiaojinxing.github.io/tags/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/"/>
-    
-      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[SylixOS 线程间通信-SylixOS信号量]]></title>
-    <link href="jiaojinxing.github.io/2015/06/25/SylixOS-%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-SylixOS%E4%BF%A1%E5%8F%B7%E9%87%8F/"/>
-    <id>jiaojinxing.github.io/2015/06/25/SylixOS-线程间通信-SylixOS信号量/</id>
-    <published>2015-06-25T09:10:03.000Z</published>
-    <updated>2015-07-17T13:20:10.349Z</updated>
-    <content type="html"><![CDATA[<p>SylixOS信号量有两种类型：二进制信号量和计数型信号量。</p>
-<p>二进制信号量的取值范围为FALSE或TRUE；计数型信号量的最小取值为0，而最大取值在创建计数型信号量时决定。</p>
-<p>二进制信号量主要应用在以下场合：</p>
-<ul>
-<li>有允许线程访问的一个资源，使用二进制信号量作为互斥手段；</li>
-<li>线程或中断通知另一个线程某种事件发生。</li>
-</ul>
-<p>计数型信号量主要应用在以下场合：</p>
-<ul>
-<li>有允许线程访问的n个资源，使用计数型信号量作为资源剩余计数；</li>
-<li>线程或中断通知另一个线程某种事件发生，使用计数型信号量作为事件计数。</li>
-</ul>
-<h2 id="SylixOS二进制信号量的操作函数">SylixOS二进制信号量的操作函数</h2><h3 id="SylixOS二进制信号量的创建和删除">SylixOS二进制信号量的创建和删除</h3><figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line"><span class="label">LW_OBJECT_HANDLE</span> Lw_SemaphoreB_Create(CPCHAR             pcName,</span><br><span class="line">                                      <span class="keyword">BOOL </span>              <span class="keyword">bInitValue,</span><br><span class="line"></span>                                      ULONG              ulOption,</span><br><span class="line">                                      LW_OBJECT_ID     *pulId)<span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<p>函数Lw_SemaphoreB_Create原型分析：</p>
-<ul>
-<li>此函数返回二进制信号量的句柄，失败时为NULL；</li>
-<li>参数pcName是二进制信号量的名字；</li>
-<li>参数bInitValue是二进制信号量的初始值（FALSE或TRUE）；</li>
-<li>参数ulOption是二进制信号量的创建选项；</li>
-<li>输出参数pulId用于接收二进制信号量的ID。</li>
-</ul>
-<figure class="highlight aspectj"><table><tr><td class="code"><pre><span class="line"><span class="function">ULONG               <span class="title">Lw_SemaphoreB_Delete</span><span class="params">(LW_OBJECT_HANDLE  *pulId)</span></span>;</span><br></pre></td></tr></table></figure>
-<p>函数Lw_SemaphoreB_Delete原型分析：</p>
-<ul>
-<li>此函数返回错误号；</li>
-<li>参数pulId是二进制信号量的ID。</li>
-</ul>
-<p>二进制信号量的创建选项可以使用以下宏的组合：</p>
-<table>
-<thead>
-<tr>
-<th>宏名</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>LW_OPTION_WAIT_PRIORITY</td>
-<td style="text-align:left">按优先级顺序等待</td>
-</tr>
-<tr>
-<td>LW_OPTION_WAIT_FIFO</td>
-<td style="text-align:left">按先进先出顺序等待</td>
-</tr>
-<tr>
-<td>LW_OPTION_OBJECT_GLOBAL</td>
-<td style="text-align:left">全局对象</td>
-</tr>
-<tr>
-<td>LW_OPTION_OBJECT_LOCAL</td>
-<td style="text-align:left">本地对象</td>
-</tr>
-</tbody>
-</table>
-<p>需要注意的是LW_OPTION_WAIT_PRIORITY和LW_OPTION_WAIT_FIFO只能二取一，同样LW_OPTION_OBJECT_GLOBAL和LW_OPTION_OBJECT_LOCAL也只能二取一。</p>
-<h3 id="SylixOS二进制信号量的等待">SylixOS二进制信号量的等待</h3><figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">ULONG            Lw_SemaphoreB_Wait<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId, </span><br><span class="line">                                    ULONG               ulTimeOut)</span><span class="comment">;</span></span><br><span class="line">ULONG            Lw_SemaphoreB_TryWait<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId)</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<p>以上两个函数原型分析：</p>
-<ul>
-<li>两个函数均返回错误号；</li>
-<li>参数ulId是二进制信号量的ID；</li>
-<li>参数ulTimeOut是等待的超时时间，单位为时钟嘀嗒Tick。</li>
-</ul>
-<p>Lw_SemaphoreB_TryWait和Lw_SemaphoreB_Wait的区别在于，如果二进制信号量当前的值为FLASE，Lw_SemaphoreB_TryWait会立即退出，并返回<br>ERROR_THREAD_WAIT_TIMEOUT，而Lw_SemaphoreB_Wait则会阻塞直至被唤醒。</p>
-<p>参数ulTimeOut除了可以使用数字外还可以使用以下的宏：</p>
-<table>
-<thead>
-<tr>
-<th>宏名</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>LW_OPTION_NOT_WAIT</td>
-<td style="text-align:left">不等待立即退出</td>
-</tr>
-<tr>
-<td>LW_OPTION_WAIT_INFINITE</td>
-<td style="text-align:left">永远等待</td>
-</tr>
-<tr>
-<td>LW_OPTION_WAIT_A_TICK</td>
-<td style="text-align:left">等待一个时钟嘀嗒</td>
-</tr>
-<tr>
-<td>LW_OPTION_WAIT_A_SECOND</td>
-<td style="text-align:left">等待一秒</td>
-</tr>
-</tbody>
-</table>
-<p>Lw_SemaphoreB_Get和Lw_SemaphoreB_Take函数与Lw_SemaphoreB_Wait函数的原型及功能一致，这里不再详述。<br>Lw_SemaphoreB_TryGet和Lw_SemaphoreB_TryTake函数与Lw_SemaphoreB_TryWait函数的原型及功能一致，这里不再详述。</p>
-<h3 id="SylixOS二进制信号量的释放">SylixOS二进制信号量的释放</h3><figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">ULONG            Lw_SemaphoreB_Post<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId)</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<p>函数Lw_SemaphoreB_Post原型分析：</p>
-<ul>
-<li>此函数返回错误号；</li>
-<li>参数ulId是二进制信号量的ID。</li>
-</ul>
-<p>Lw_SemaphoreB_Give和Lw_SemaphoreB_Send函数与Lw_SemaphoreB_Post函数的原型及功能一致，这里不再详述。</p>
-<figure class="highlight vbnet"><table><tr><td class="code"><pre><span class="line"><span class="built_in">ULONG</span>            Lw_SemaphoreB_Release(LW_OBJECT_HANDLE  ulId, </span><br><span class="line">                                       <span class="built_in">ULONG</span>               ulReleaseCounter, </span><br><span class="line">                                       BOOL                *pbPreviousValue);</span><br></pre></td></tr></table></figure>
-<p>函数Lw_SemaphoreB_Release原型分析：</p>
-<ul>
-<li>此函数返回错误号；</li>
-<li>参数ulId是二进制信号量的ID；</li>
-<li>参数ulReleaseCounter是释放信号量的次数；</li>
-<li>输出参数pbPreviousValue用于接收原先的信号量状态，可以为 NULL。</li>
-</ul>
-<h3 id="SylixOS二进制信号量的清除">SylixOS二进制信号量的清除</h3><figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">ULONG            Lw_SemaphoreB_Clear<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId)</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<p>函数Lw_SemaphoreB_Clear原型分析：</p>
-<ul>
-<li>此函数返回错误号；</li>
-<li>参数ulId是二进制信号量的ID。</li>
-</ul>
-<h3 id="释放等待SylixOS二进制信号量的所有线程">释放等待SylixOS二进制信号量的所有线程</h3><figure class="highlight vbnet"><table><tr><td class="code"><pre><span class="line"><span class="built_in">ULONG</span>            Lw_SemaphoreB_Flush(LW_OBJECT_HANDLE  ulId, </span><br><span class="line">                                     <span class="built_in">ULONG</span>            *pulThreadUnblockNum);</span><br></pre></td></tr></table></figure>
-<p>函数Lw_SemaphoreB_Flush原型分析：</p>
-<ul>
-<li>此函数返回错误号；</li>
-<li>参数ulId是二进制信号量的ID；</li>
-<li>输出参数pulThreadUnblockNum用于接收被解锁（解除阻塞，下同）的线程数量，可以为NULL。</li>
-</ul>
-<h3 id="获得SylixOS二进制信号量的状态">获得SylixOS二进制信号量的状态</h3><figure class="highlight gherkin"><table><tr><td class="code"><pre><span class="line">ULONG            Lw_SemaphoreB_Status(LW_OBJECT_HANDLE   ulId,</span><br><span class="line">                                      BOOL                 <span class="keyword">*</span>pbValue,</span><br><span class="line">                                      ULONG                <span class="keyword">*</span>pulOption,</span><br><span class="line">                                      ULONG                <span class="keyword">*</span>pulThreadBlockNum);</span><br></pre></td></tr></table></figure>
-<p>函数Lw_SemaphoreB_Status原型分析：</p>
-<ul>
-<li>此函数返回错误号；</li>
-<li>参数ulId是二进制信号量的ID；</li>
-<li>输出参数pbValue用于接收二进制信号量当前的值（FALSE或TRUE）；</li>
-<li>输出参数pulOption用于接收二进制信号量的创建选项；</li>
-<li>输出参数pulThreadBlockNum用于接收当前阻塞在该二进制信号量的线程数。</li>
-</ul>
-<p>Lw_SemaphoreB_Info和Lw_SemaphoreB_Status函数的原型及功能一致，这里不再详述。</p>
-<h3 id="获得SylixOS二进制信号量的名字">获得SylixOS二进制信号量的名字</h3><figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">ULONG  Lw_SemaphoreB_GetName<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId, PCHAR  pcName)</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<p>函数Lw_SemaphoreB_GetName原型分析：</p>
-<ul>
-<li>此函数返回错误号；</li>
-<li>参数ulId是二进制信号量的ID；</li>
-<li>输出参数pcName是二进制信号量的名字，pcName应该指向一个大小为LW_CFG_OBJECT_NAME_SIZE的字符数组。</li>
-</ul>
-<h3 id="带消息传递的SylixOS二进制信号量的等待与释放">带消息传递的SylixOS二进制信号量的等待与释放</h3><figure class="highlight vbnet"><table><tr><td class="code"><pre><span class="line"><span class="built_in">ULONG</span>            Lw_SemaphoreB_WaitEx(LW_OBJECT_HANDLE  ulId, </span><br><span class="line">                                      <span class="built_in">ULONG</span>             ulTimeOut, </span><br><span class="line">                                      PVOID            *ppvMsgPtr);</span><br></pre></td></tr></table></figure>
-<p>函数Lw_SemaphoreB_WaitEx原型分析：</p>
-<ul>
-<li>此函数返回错误号；</li>
-<li>参数ulId是二进制信号量的ID；</li>
-<li>参数ulTimeOut是等待的超时时间，单位为时钟嘀嗒Tick；</li>
-<li>输出参数ppvMsgPtr用于接收Lw_SemaphoreB_PostEx函数传递的消息。</li>
-</ul>
-<p>Lw_SemaphoreB_GetEx和Lw_SemaphoreB_TakeEx函数与Lw_SemaphoreB_WaitEx函数的原型及功能一致，这里不再详述。</p>
-<figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">ULONG            Lw_SemaphoreB_PostEx<span class="list">(<span class="keyword">LW_OBJECT_HANDLE</span>  ulId, </span><br><span class="line">                                      PVOID                pvMsgPtr)</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<p>函数Lw_SemaphoreB_PostEx原型分析：</p>
-<ul>
-<li>此函数返回错误号；</li>
-<li>参数ulId是二进制信号量的ID；</li>
-<li>参数pvMsgPtr是消息指针（一个空类型的指针，可以指向任意类型的数据），该消息将被传递到Lw_SemaphoreB_WaitEx函数的输出参数ppvMsgPtr。</li>
-</ul>
-<p>Lw_SemaphoreB_GiveEx和Lw_SemaphoreB_SendEx函数与Lw_SemaphoreB_PostEx函数的原型及功能一致，这里不再详述。<br>由于Lw_SemaphoreB_WaitEx和Lw_SemaphoreB_PostEx函数组合已经起到传统RTOS的邮箱的作用，所以SylixOS没有提供邮箱的API。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>SylixOS信号量有两种类型：二进制信号量和计数型信号量。</p>
-<p>二进制信号量的取值范围为FALSE或TRUE；计数型信号量的最小取值为0，而最大取值在创建计数型信号量时决定。</p>
-<p>二进制信号量主要应用在以下场合：</p>
-<ul>
-<li>有允许线程访]]>
-    </summary>
-    
-      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
-    
-      <category term="书稿" scheme="jiaojinxing.github.io/tags/%E4%B9%A6%E7%A8%BF/"/>
-    
-      <category term="线程间通信" scheme="jiaojinxing.github.io/tags/%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/"/>
-    
-      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[SylixOS 线程间通信-线程间通信]]></title>
-    <link href="jiaojinxing.github.io/2015/06/25/SylixOS-%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/"/>
-    <id>jiaojinxing.github.io/2015/06/25/SylixOS-线程间通信-线程间通信/</id>
-    <published>2015-06-25T09:05:21.000Z</published>
-    <updated>2015-07-17T13:20:17.958Z</updated>
-    <content type="html"><![CDATA[<h2 id="什么是线程间通信">什么是线程间通信</h2><p>线程在执行的过程中免不了要与其它线程进行通信，如线程A处理完毕某个事件后通知线程B事件的处理结果，线程B得到事件的处理结果后继续运行。</p>
-<p>线程间通信主要有以下几种的类型：</p>
-<ul>
-<li><p>互斥型通信<br>共享资源（如全局变量）需要互斥访问，可以使用信号量、互斥量进行互斥型通信。</p>
-</li>
-<li><p>通知型通信<br>上述的线程A通知线程B，可以用信号量、事件标志组、条件变量进行通知型通信。</p>
-</li>
-<li><p>消息型通信<br>某线程或中断服务程序采集数据，但并不直接加工数据，而是将数据传递给另一线程进行数据加工。可以使用消息队列进行消息型通信。</p>
-</li>
-</ul>
-<p>SylixOS操作系统提供了多种常见的线程间通信手段，如信号量、消息队列、事件标志组、条件变量等，满足了嵌入式系统软件开发的线程间通信需求。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<h2 id="什么是线程间通信">什么是线程间通信</h2><p>线程在执行的过程中免不了要与其它线程进行通信，如线程A处理完毕某个事件后通知线程B事件的处理结果，线程B得到事件的处理结果后继续运行。</p>
-<p>线程间通信主要有以下几种的类型：</p>
-<ul>
-<li><]]>
-    </summary>
-    
-      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
-    
-      <category term="书稿" scheme="jiaojinxing.github.io/tags/%E4%B9%A6%E7%A8%BF/"/>
-    
-      <category term="线程间通信" scheme="jiaojinxing.github.io/tags/%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/"/>
-    
-      <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[SylixOS 线程间通信-共享资源]]></title>
-    <link href="jiaojinxing.github.io/2015/06/25/SylixOS-%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1-%E5%85%B1%E4%BA%AB%E8%B5%84%E6%BA%90/"/>
-    <id>jiaojinxing.github.io/2015/06/25/SylixOS-线程间通信-共享资源/</id>
-    <published>2015-06-25T09:00:25.000Z</published>
-    <updated>2015-07-17T13:20:14.485Z</updated>
-    <content type="html"><![CDATA[<h2 id="什么是共享资源">什么是共享资源</h2><p>一个基于RTOS的应用层软件往往需要多个线程才能实现，多个线程可能需要同时访问同一个变量、同一个设备或同一块内存，这时该变量、该设备或该内存块被称为<strong>共享资源</strong>。</p>
-<p>如果在访问共享资源时不独占该共享资源，可能会造成变量值异常、设备出错或内存块内容不是期望值，从而导致程序运行异常甚至崩溃。<br>比如现在有两个线程需要同时将同一个变量V（初始值为0）进行自增操作。</p>
-<p>在RISC机器上，一般都是Load/store体系结构，即访问内存只允许load和store操作；变量V的自增操作流程如下：</p>
-<ol>
-<li>加载变量V的地址到CPU的工作寄存器0；</li>
-<li>load指令将工作寄存器0指向的地址的内容加载工作寄存器1； </li>
-<li>inc指令将工作寄存器1的值加一；</li>
-<li>store指令将工作寄存器1的值储存到工作寄存器0指向的地址。</li>
-</ol>
-<p>变量V的自增操作不是一步完成的，如果线程A和线程B依次完成以上四步，那么变量V最后的值将会是2。</p>
-<p>如果线程A完成前面三步，这时线程B打断了线程A的工作，线程B将变量V改写为1；最后线程A继续执行第四步，那么变量V最后的值仍然是1，这显然不是我们期望的。</p>
-<p>为了解决这个问题，我们可以加入一把锁，在进行变量V的自增操作前占有该锁；锁具有排它性，其它线程如果也要占有该锁，将被阻塞；这样确保了同一时间只有一个线程能访问该变量，待自增操作完成后释放该锁，这样变量V的自增操作就不会混乱了。</p>
-<p>这时我们称被锁保护的区域为<strong>临界区</strong>。</p>
-<p>在多线程环境下，小小的一个变量操作都需要小心对待，更不用说复杂的设备了。所以说多线程编程是一把双刃剑，它可以使用我们的程序更易实现，但需要我们更小心的处理。好在SylixOS操作系统已经为我们准备好大量解决多线程编程问题的解决方案，比如信号量、互斥锁、消息队列等等。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<h2 id="什么是共享资源">什么是共享资源</h2><p>一个基于RTOS的应用层软件往往需要多个线程才能实现，多个线程可能需要同时访问同一个变量、同一个设备或同一块内存，这时该变量、该设备或该内存块被称为<strong>共享资源</strong>。</p>
-<p>如果在访]]>
-    </summary>
-    
-      <category term="SylixOS" scheme="jiaojinxing.github.io/tags/SylixOS/"/>
-    
-      <category term="书稿" scheme="jiaojinxing.github.io/tags/%E4%B9%A6%E7%A8%BF/"/>
-    
-      <category term="线程间通信" scheme="jiaojinxing.github.io/tags/%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/"/>
     
       <category term="SylixOS" scheme="jiaojinxing.github.io/categories/SylixOS/"/>
     
