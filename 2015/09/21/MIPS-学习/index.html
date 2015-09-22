@@ -36,7 +36,7 @@
 
 本身没有任何帮助运算判断的标志寄存器，要实现相应的功能时，是通过测试两个寄存器是否相等来完">
 <meta property="og:image" content="jiaojinxing.github.io/img/MIPS-学习/mips指令.png">
-<meta property="og:updated_time" content="2015-09-22T05:57:01.886Z">
+<meta property="og:updated_time" content="2015-09-22T06:06:46.051Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MIPS 学习">
 <meta name="twitter:description" content="MIPS指令MIPS的指令特点
@@ -360,9 +360,13 @@
 </li>
 <li><p>Exception 6/7：Instruction/Data Bus Error，一般地原因是Cache尚未初始化的时候访问了Cached的内存空间所致。因此，要注意在系统上电后，Cache初始化之前，只访问Uncached的地址空间，也就是0xA0000000-0xBFFFFFFF这一段。默认地，上电初始化的入口点0xBFC00000就位于这一段。(某些MIPS实现中可以通过外部硬线连接修改入口点地址，但为了不引发无法预料的问题，不要将入口点地址修改为Uncached段以外的地址)</p>
 </li>
-<li><p>Exception 8：Syscall，系统调用的正规入口，也就是在用户模式下进入内核态的正规方式。我们可以类比x86下Linux的系统调用0x80来理解它。它是由一条专用指令syscall触发的。<br>Exception 9：Break Point，绝对断点指令。和syscall指令类似，它也是由专用指令break触发的。它指示了系统的一些异常情况，编程人员可以在某些不应当出现的异常分支里面加入这个指令，便于及早发现问题和调试。我们可以用高级语言中的assert机制来类比理解它。最常见的Break异常的子类型为0x07，它是编译器在编译除法运算时自动加入的。如果除数为0则执行一条break 0x07指令。这样，当出现被0除的情况时，系统就会抛出一个异常，并执行Coredump，以便于程序员定位除0错误的根因。</p>
+<li><p>Exception 8：Syscall，系统调用的正规入口，也就是在用户模式下进入内核态的正规方式。我们可以类比x86下Linux的系统调用0x80来理解它。它是由一条专用指令syscall触发的。</p>
 </li>
-<li><p>Exception 10：RI，执行了没有定义的指令，系统就会发生这个异常。<br>Exception 11，Co-Processor Unaviliable，试图访问的协处理器不存在。比如，在没有实现CP2的处理器上执行对CP2的操作，就会触发这个异常。</p>
+<li><p>Exception 9：Break Point，绝对断点指令。和syscall指令类似，它也是由专用指令break触发的。它指示了系统的一些异常情况，编程人员可以在某些不应当出现的异常分支里面加入这个指令，便于及早发现问题和调试。我们可以用高级语言中的assert机制来类比理解它。最常见的Break异常的子类型为0x07，它是编译器在编译除法运算时自动加入的。如果除数为0则执行一条break 0x07指令。这样，当出现被0除的情况时，系统就会抛出一个异常，并执行Coredump，以便于程序员定位除0错误的根因。</p>
+</li>
+<li><p>Exception 10：RI，执行了没有定义的指令，系统就会发生这个异常。</p>
+</li>
+<li><p>Exception 11，Co-Processor Unaviliable，试图访问的协处理器不存在。比如，在没有实现CP2的处理器上执行对CP2的操作，就会触发这个异常。</p>
 </li>
 <li><p>Exception 12，Overflow，算术溢出。会引起这个异常的指令，仅限于加减法中的带符号运算，如add/addi这样的指令。因此，一般地，编译器总是将加减法运算编译为addiu这样的无符号指令。由于MIPS处理异常需要一定的开销，这样可以避免浪费。</p>
 </li>
