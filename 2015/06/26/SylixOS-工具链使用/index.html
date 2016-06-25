@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>程序员的自我修养-工具链使用 | JinXing’s blog</title>
+    <title>SylixOS-工具链使用 | JinXing’s blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="jiaojinxing">
@@ -22,8 +22,8 @@
 
 我们将可执行文件下载到目标">
 <meta property="og:type" content="article">
-<meta property="og:title" content="程序员的自我修养-工具链使用">
-<meta property="og:url" content="jiaojinxing.github.io/2015/06/26/程序员的自我修养-工具链使用/index.html">
+<meta property="og:title" content="SylixOS-工具链使用">
+<meta property="og:url" content="jiaojinxing.github.io/2015/06/26/SylixOS-工具链使用/index.html">
 <meta property="og:site_name" content="JinXing’s blog">
 <meta property="og:description" content="三个概念首先我们区分以下三个概念：
 
@@ -40,9 +40,9 @@
 <meta property="og:image" content="http://www.plantuml.com/plantuml/svg/SoWkIImgAStDuKh9J2zABCXGS5Uevb80WkJuvFoKrEYSnAJK75ibvoUx5pzVqAYaer2SaLYGQfkQavDPK9mQQmrHMr20elhbefQdIrgUJsXxiR_z-QmMX6QikXEBKJG_szZ-VCyqlFRb9sMb9fV0D6ZfvJ-VlUxPWlPdqzgVxDu6rvEKNm5LdvgJ1bFyj7_ziyxbBnRsu5ISar8CzyVaVS_wbhvecVLipXguoeB4eiISdDISV61uvSBqP2OL9HPbfi9rEZ_TDVbnG-EpgHkUhbq6ORixWmJn6WC9SrqxdE7vTEOAvu009RHWrxL32yBdkzOx0yFmnVg980tEXage8QrhXng0a107AdKCLa89OLqxf92310PGbO-B4YAe22g1XGm-XRLS3gbvAS1K2000">
 <meta property="og:image" content="http://www.plantuml.com/plantuml/svg/SoWkIImgAStDuKh9J2zABCXGS5Uevb80WloahDJaakYSnAJK75ibBRtyvxFNFLlG_cnQ-vFTsvHq58ep4WjIRPFoAsAjmUfJSz9WYf_sht_MkVp5mXwSYdDIYc6ANqxUzwnlwOkMMS_ch86hB4WiIip9ISt91xef5wOdCwaeiIWp5QxJ-UckoOyR6fzDtV1qxJ88szqP98ZN68Y_TEsGt0jnmjEPAtnSb10E9AW4vXvy2ckv75BpKe3X2m00">
 <meta property="og:image" content="jiaojinxing.github.io/img/工具链使用/静态库.png">
-<meta property="og:updated_time" content="2015-06-26T08:48:22.438Z">
+<meta property="og:updated_time" content="2016-01-26T03:23:00.360Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="程序员的自我修养-工具链使用">
+<meta name="twitter:title" content="SylixOS-工具链使用">
 <meta name="twitter:description" content="三个概念首先我们区分以下三个概念：
 
 代码
@@ -111,7 +111,7 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/06/26/程序员的自我修养-工具链使用/" title="程序员的自我修养-工具链使用" itemprop="url">程序员的自我修养-工具链使用</a>
+      <a href="/2015/06/26/SylixOS-工具链使用/" title="SylixOS-工具链使用" itemprop="url">SylixOS-工具链使用</a>
   </h1>
   <p class="article-author">By
        
@@ -150,9 +150,9 @@
 <p>在计算机（如x86+windows)上编译另一个目标系统（如arm+sylixos，处理器和操作系统与主机的不同）程序的方式，被称为“<strong>交叉编译cross compile</strong>”。</p>
 <p>此时“<strong>工具链</strong>”称为“<strong>交叉工具链cross toolchain</strong>”或“<strong>交叉编译器cross compiler</strong>”。</p>
 <p>预处理步骤实验命令：<br><figure class="highlight mathematica"><table><tr><td class="code"><pre><span class="line">arm-sylixos-eabi-cpp  -DSYLIXOS -<span class="keyword">I</span><span class="string">"D:\workspace\SylixOS_Base/libsylixos/SylixOS"</span> -<span class="keyword">I</span><span class="string">"D:\workspace\SylixOS_Base/libsylixos/SylixOS/include"</span> -<span class="keyword">I</span><span class="string">"D:\workspace\SylixOS_Base/libsylixos/SylixOS/include/inet"</span> -mcpu=arm920t  -O0 -g3 -gdwarf-<span class="number">2</span> -Wall -fmessage-length=<span class="number">0</span> -fsigned-char -fno-short-enums -fPIC -<span class="keyword">E</span> sample.c -o sample_cpp.c</span><br></pre></td></tr></table></figure></p>
-<p>纯C编译步骤实验命令：<br><figure class="highlight tex"><table><tr><td class="code"><pre><span class="line">D:<span class="command">\ZTHSOFT</span><span class="command">\arm</span>-sylixos-toolchain<span class="command">\lib</span><span class="command">\gcc</span><span class="command">\arm</span>-sylixos-eabi\4.9.3<span class="command">\cc</span>1.exe -mcpu=arm920t -O0 -g3 -gdwarf-2 -Wall -fmessage-length=0 -fsigned-char -fno-short-enums -fPIC sample_cpp.c -o sample.s</span><br></pre></td></tr></table></figure></p>
+<p>纯C编译步骤实验命令：<br><figure class="highlight tex"><table><tr><td class="code"><pre><span class="line">D:<span class="command">\ACOINFO</span><span class="command">\arm</span>-sylixos-toolchain<span class="command">\lib</span><span class="command">\gcc</span><span class="command">\arm</span>-sylixos-eabi\4.9.3<span class="command">\cc</span>1.exe -mcpu=arm920t -O0 -g3 -gdwarf-2 -Wall -fmessage-length=0 -fsigned-char -fno-short-enums -fPIC sample_cpp.c -o sample.s</span><br></pre></td></tr></table></figure></p>
 <p>汇编步骤实验命令：<br><figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">arm-sylixos-eabi-<span class="keyword">as</span> -mcpu=arm920t -c <span class="keyword">sample</span>.s -o <span class="keyword">sample</span>.o</span><br></pre></td></tr></table></figure></p>
-<p>链接步骤实验命令：<br><figure class="highlight tex"><table><tr><td class="code"><pre><span class="line">arm-sylixos-eabi-ld  -nostdlib -fPIC -shared -o sample sample.o -L"D:<span class="command">\workspace</span><span class="command">\SylixOS</span>_Base/libsylixos/Debug" -L"D:<span class="command">\ZTHSOFT</span><span class="command">\arm</span>-sylixos-toolchain<span class="command">\arm</span>-sylixos-eabi<span class="command">\lib</span>" -L"D:<span class="command">\ZTHSOFT</span><span class="command">\arm</span>-sylixos-toolchain<span class="command">\lib</span><span class="command">\gcc</span><span class="command">\arm</span>-sylixos-eabi\4.9.3" -lvpmpdm -lm -lgcc</span><br></pre></td></tr></table></figure></p>
+<p>链接步骤实验命令：<br><figure class="highlight tex"><table><tr><td class="code"><pre><span class="line">arm-sylixos-eabi-ld  -nostdlib -fPIC -shared -o sample sample.o -L"D:<span class="command">\workspace</span><span class="command">\SylixOS</span>_Base/libsylixos/Debug" -L"D:<span class="command">\ACOINFO</span><span class="command">\arm</span>-sylixos-toolchain<span class="command">\arm</span>-sylixos-eabi<span class="command">\lib</span>" -L"D:<span class="command">\ACOINFO</span><span class="command">\arm</span>-sylixos-toolchain<span class="command">\lib</span><span class="command">\gcc</span><span class="command">\arm</span>-sylixos-eabi\4.9.3" -lvpmpdm -lm -lgcc</span><br></pre></td></tr></table></figure></p>
 <h2 id="可执行文件的段">可执行文件的段</h2><p>一个可执行文件包含相当多的段，不同的段存放不同的内容。</p>
 <p>查看可执行文件的段信息可以使用工具链里的<strong>readelf</strong>工具。</p>
 <p>实验命令：<br><figure class="highlight glsl"><table><tr><td class="code"><pre><span class="line">arm-sylixos-eabi-readelf -S <span class="keyword">sample</span></span><br></pre></td></tr></table></figure></p>
@@ -179,7 +179,7 @@
 <p><em>因为GCC的优化，所以可执行文件sample并不调用复杂的printf，而是更快速的puts函数。</em></p>
 <h2 id="可执行文件依赖的动态库">可执行文件依赖的动态库</h2><p>链接可执行文件的流程：</p>
 <img src="http://www.plantuml.com/plantuml/svg/SoWkIImgAStDuKh9J2zABCXGS5Uevb80WloahDJaakYSnAJK75ibBRtyvxFNFLlG_cnQ-vFTsvHq58ep4WjIRPFoAsAjmUfJSz9WYf_sht_MkVp5mXwSYdDIYc6ANqxUzwnlwOkMMS_ch86hB4WiIip9ISt91xef5wOdCwaeiIWp5QxJ-UckoOyR6fzDtV1qxJ88szqP98ZN68Y_TEsGt0jnmjEPAtnSb10E9AW4vXvy2ckv75BpKe3X2m00">
-<p>链接步骤实验命令：<br><figure class="highlight tex"><table><tr><td class="code"><pre><span class="line">arm-sylixos-eabi-ld  -nostdlib -fPIC -shared -o sample sample.o -L"D:<span class="command">\workspace</span><span class="command">\SylixOS</span>_Base/libsylixos/Debug" -L"D:<span class="command">\ZTHSOFT</span><span class="command">\arm</span>-sylixos-toolchain<span class="command">\arm</span>-sylixos-eabi<span class="command">\lib</span>" -L"D:<span class="command">\ZTHSOFT</span><span class="command">\arm</span>-sylixos-toolchain<span class="command">\lib</span><span class="command">\gcc</span><span class="command">\arm</span>-sylixos-eabi\4.9.3" -lvpmpdm -lm -lgcc</span><br></pre></td></tr></table></figure></p>
+<p>链接步骤实验命令：<br><figure class="highlight tex"><table><tr><td class="code"><pre><span class="line">arm-sylixos-eabi-ld  -nostdlib -fPIC -shared -o sample sample.o -L"D:<span class="command">\workspace</span><span class="command">\SylixOS</span>_Base/libsylixos/Debug" -L"D:<span class="command">\ACOINFO</span><span class="command">\arm</span>-sylixos-toolchain<span class="command">\arm</span>-sylixos-eabi<span class="command">\lib</span>" -L"D:<span class="command">\ACOINFO</span><span class="command">\arm</span>-sylixos-toolchain<span class="command">\lib</span><span class="command">\gcc</span><span class="command">\arm</span>-sylixos-eabi\4.9.3" -lvpmpdm -lm -lgcc</span><br></pre></td></tr></table></figure></p>
 <p>链接可执行文件sample时链接了三个库：libvpmpdm、libm、libgcc。</p>
 <p>其中libvpmpdm是一个动态库，文件为libvpmpdm.so；而libm和libgcc是静态库，文件分别是libm.a和libgcc.a。</p>
 <p>GCC对库的顺序有要求，比如libvpmpdm.so用到了libgcc和libm的符号，libm也用到了libgcc的符号，链接命令应该使用：<br><figure class="highlight diff"><table><tr><td class="code"><pre><span class="line"><span class="deletion">-lvpmpdm -lm -lgcc</span></span><br></pre></td></tr></table></figure></p>
@@ -249,7 +249,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/SylixOS/">SylixOS</a><a href="/tags/程序员的自我修养/">程序员的自我修养</a>
+  <span></span> <a href="/tags/SylixOS/">SylixOS</a>
   </div>
 
 </div>
@@ -258,7 +258,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="jiaojinxing.github.io/2015/06/26/程序员的自我修养-工具链使用/" data-title="程序员的自我修养-工具链使用 | JinXing’s blog" data-tsina="null" class="share clearfix">
+	  <div data-url="jiaojinxing.github.io/2015/06/26/SylixOS-工具链使用/" data-title="SylixOS-工具链使用 | JinXing’s blog" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -272,10 +272,10 @@
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2015/06/30/susv2/" title="susv2">
+ <a href="/2015/07/05/STM32F429-Discovery-U-Boot/" title="STM32F429 Discovery U-Boot">
   <strong>上一篇：</strong><br/>
   <span>
-  susv2</span>
+  STM32F429 Discovery U-Boot</span>
 </a>
 </div>
 
@@ -318,7 +318,7 @@
 		<ul>
 		
 		  
-			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>12</sup></a></li>
+			<li><a href="/categories/SylixOS/" title="SylixOS">SylixOS<sup>13</sup></a></li>
 		  
 		
 		  
@@ -335,7 +335,7 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>12</sup></a></li>
+				<li><a href="/tags/SylixOS/" title="SylixOS">SylixOS<sup>13</sup></a></li>
 			
 		
 			
@@ -344,10 +344,6 @@
 		
 			
 				<li><a href="/tags/ARMv7-M/" title="ARMv7-M">ARMv7-M<sup>3</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/程序员的自我修养/" title="程序员的自我修养">程序员的自我修养<sup>1</sup></a></li>
 			
 		
 			
@@ -422,7 +418,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
 		
 		<a href="/about" target="_blank" title="jiaojinxing">jiaojinxing</a>
 		
